@@ -4,11 +4,50 @@
       <h1 class="text-3xl font-bold">SkillsLink Login</h1>
       <div class="card w-96 bg-base-100 shadow-xl">
         <div class="card-body">
-          <input type="text" placeholder="Username" class="input input-bordered w-full" />
-          <input type="password" placeholder="Password" class="input input-bordered w-full" />
-          <button class="btn btn-primary">Login</button>
+          <input
+            v-model="username"
+            type="text"
+            placeholder="Username"
+            class="input input-bordered w-full"
+          />
+          <input
+            v-model="password"
+            type="password"
+            placeholder="Password"
+            class="input input-bordered w-full"
+          />
+          <button class="btn btn-primary" @click="login">Login</button>
+          <p v-if="error" class="text-red-500">{{ error }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      username: "",
+      password: "",
+      error: "",
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const response = await axios.post("/api/login", {
+          username: this.username,
+          password: this.password,
+        });
+        this.$router.push("/");
+        alert(response.data.message);
+      } catch (error) {
+        this.error = error.response?.data?.error || "Login failed";
+      }
+    },
+  },
+};
+</script>
