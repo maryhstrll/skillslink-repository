@@ -36,7 +36,9 @@ if ($api_index !== false && isset($uri[$api_index + 1])) {
                     'timestamp' => date('Y-m-d H:i:s'),
                     'endpoints' => [
                         'test' => 'GET /api/test',
-                        'login' => 'POST /api/login'
+                        'login' => 'POST /api/login',
+                        'logout' => 'POST /api/logout',
+                        'session' => 'GET /api/session'
                     ]
                 ]);
             } else {
@@ -52,6 +54,26 @@ if ($api_index !== false && isset($uri[$api_index + 1])) {
             } else {
                 http_response_code(501);
                 echo json_encode(['error' => 'Login endpoint not implemented yet']);
+            }
+            break;
+            
+        case 'logout':
+            // Check if logout.php exists before including it
+            if (file_exists('auth/logout.php')) {
+                require_once 'auth/logout.php';
+            } else {
+                http_response_code(501);
+                echo json_encode(['error' => 'Logout endpoint not implemented yet']);
+            }
+            break;
+            
+        case 'session':
+            // Check session status
+            if (file_exists('session.php')) {
+                require_once 'session.php';
+            } else {
+                http_response_code(501);
+                echo json_encode(['error' => 'Session endpoint not implemented yet']);
             }
             break;
             

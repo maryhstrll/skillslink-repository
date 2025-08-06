@@ -1,10 +1,10 @@
 <script setup>
-import Login from './views/Login.vue';
+// Remove the direct Dashboard import - let the router handle it
 </script>
 
 <template>
   <div>
-    <Login></Login>
+    <router-view />
   </div>
 </template>
 

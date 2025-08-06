@@ -1,53 +1,95 @@
 <template>
-  <div class="hero min-h-screen bg-base-200">
-    <div class="hero-content flex-col">
-      <h1 class="text-3xl font-bold">SkillsLink Login</h1>
-      <div class="card w-96 bg-base-100 shadow-xl">
-        <div class="card-body">
-          <input
-            v-model="username"
-            type="text"
-            placeholder="Username"
-            class="input input-bordered w-full"
-          />
-          <input
-            v-model="password"
-            type="password"
-            placeholder="Password"
-            class="input input-bordered w-full"
-          />
-          <button class="btn btn-primary" @click="login">Login</button>
-          <p v-if="error" class="text-red-500">{{ error }}</p>
+  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="card w-96 bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title text-center">SkillsLink Login</h2>
+        <div v-if="error" class="alert alert-error shadow-lg">
+          <div>{{ error }}</div>
         </div>
+        <form @submit.prevent="handleLogin">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Username</span>
+            </label>
+            <input
+              v-model="username"
+              type="text"
+              placeholder="Enter username"
+              class="input input-bordered"
+              required
+            />
+          </div>
+          <div class="form-control mt-4">
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Enter password"
+              class="input input-bordered"
+              required
+            />
+          </div>
+          <div class="card-actions justify-center mt-6">
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              :class="{ 'loading': isLoading }"
+              :disabled="isLoading"
+            >
+              <span v-if="!isLoading">Login</span>
+              <span v-else>Logging in...</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import authService from '@/services/auth.js';
 
 export default {
+  name: 'Login',
   data() {
     return {
-      username: "",
-      password: "",
-      error: "",
+      username: '',
+      password: '',
+      error: '',
+      isLoading: false
     };
   },
-  methods: {
-    async login() {
-      try {
-        const response = await axios.post("/api/login", {
-          username: this.username,
-          password: this.password,
-        });
-        this.$router.push("/");
-        alert(response.data.message);
-      } catch (error) {
-        this.error = error.response?.data?.error || "Login failed";
-      }
-    },
+  async mounted() {
+    // Check if user is already logged in
+    const authCheck = await authService.checkAuth();
+    if (authCheck.loggedIn) {
+      this.$router.push('/dashboard');
+    }
   },
+  methods: {
+    async handleLogin() {
+      this.isLoading = true;
+      this.error = '';
+      
+      try {
+        const result = await authService.login({
+          username: this.username,
+          password: this.password
+        });
+        
+        if (result.success) {
+          this.$router.push('/dashboard');
+        } else {
+          this.error = result.error;
+        }
+      } catch (error) {
+        this.error = 'An unexpected error occurred';
+      } finally {
+        this.isLoading = false;
+      }
+    }
+  }
 };
 </script>
