@@ -425,6 +425,6 @@ const formatDate = (date) => {
 }
 
 const handleLogout = () => {
-  router.push('/login')
+  router.push('/home')
 }
 </script>

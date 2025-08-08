@@ -1,10 +1,15 @@
 -- 1. Users Table (Admin, Staff, Alumni)
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('admin', 'staff', 'alumni') NOT NULL DEFAULT 'alumni',
+    approval_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    approved_by INT NULL,
+    approved_at TIMESTAMP NULL,
+    first_name VARCHAR(50) NULL,
+    last_name VARCHAR(50) NULL,
+    student_id VARCHAR(50) NULL,
     last_login TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     phone_verified BOOLEAN DEFAULT FALSE,
@@ -13,9 +18,12 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
-    INDEX idx_email (email),
-    INDEX idx_role (role),
-    INDEX idx_active (is_active)
+    UNIQUE KEY `unique_student_id` (`student_id`),
+    KEY `idx_email` (`email`),
+    KEY `idx_role` (`role`),
+    KEY `idx_active` (`is_active`),
+    KEY `fk_users_approved_by` (`approved_by`),
+    KEY `idx_approval_status` (`approval_status`)
 );
 
 -- 2. Programs Table
@@ -78,14 +86,14 @@ CREATE TABLE alumni (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (program_id) REFERENCES programs(program_id),
-    FOREIGN KEY (batch_id) REFERENCES batches(batch_id),
-    INDEX idx_student_id (student_id),
-    INDEX idx_year_graduated (year_graduated),
-    INDEX idx_program_id (program_id),
-    INDEX idx_name (last_name, first_name),
-    INDEX idx_active (is_active)
+    KEY `user_id` (`user_id`),
+    KEY `student_id` (`student_id`),
+    KEY `batch_id` (`batch_id`),
+    KEY `idx_student_id` (`student_id`),
+    KEY `idx_year_graduated` (`year_graduated`),
+    KEY `idx_program_id` (`program_id`),
+    KEY `idx_name` (`last_name`, `first_name`),
+    KEY `idx_active` (`is_active`)
 );
 
 -- 5. Employment Records Table

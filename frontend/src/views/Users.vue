@@ -54,6 +54,9 @@
         </div>
       </div>
 
+      <!-- User Approval Management (Admin Only) -->
+      <UserApprovalManager />
+
       <!-- Search and Filter -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
@@ -199,6 +202,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import Layout from '@/components/Layout.vue'
+import UserApprovalManager from '@/components/UserApprovalManager.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -342,7 +346,7 @@ const exportUsers = () => {
 }
 
 const handleLogout = () => {
-  router.push('/login')
+  router.push('/home')
 }
 
 onMounted(() => {

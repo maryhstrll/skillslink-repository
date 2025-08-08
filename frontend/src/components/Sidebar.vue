@@ -3,9 +3,6 @@
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
     <aside class="menu p-4 w-80 bg-base-100 text-base-content min-h-full">
       <!-- Sidebar Header -->
-      <div class="mb-4">
-        <h2 class="text-lg font-bold text-primary">Navigation</h2>
-      </div>
       
       <!-- Menu Items -->
       <ul class="space-y-2">
@@ -38,7 +35,6 @@
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
             <li><a @click="$emit('profile')"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a @click="$emit('settings')"><i class="fas fa-cog"></i> Settings</a></li>
             <li><a @click="$emit('logout')" class="text-error"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
           </ul>
         </div>
@@ -62,7 +58,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['profile', 'settings', 'logout'])
+const emit = defineEmits(['profile', 'logout'])
 
 const route = useRoute()
 
@@ -81,5 +77,5 @@ const isActive = (path) => {
 </script>
 
 <style scoped>
-/* Active link styling is handled in the template with dynamic classes */
+
 </style>

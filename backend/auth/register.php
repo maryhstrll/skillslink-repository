@@ -1,29 +1,38 @@
 <?php 
 session_start();
-header('Content-type: application.json');
+header('Content-Type: application/json');
 require_once '../config.php';
 
-// Only admin can register new users
+// Alumni registration
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
-    $username = $data['username'] ?? '';
-    $password = $data['password'] ?? '';
     $email = $data['email'] ?? '';
-    $role = $data['role'] ?? 'staff'; // default to staff
+    $password = $data['password'] ?? '';
+    $firstName = $data['firstName'] ?? '';
+    $lastName = $data['lastName'] ?? '';
+    $studentId = $data['studentId'] ?? '';
+    $role = $data['role'] ?? 'alumni'; // default to alumni
 
     // validate inputs
-    if (empty($username) || empty($password) || empty($email)) {
+    if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
         http_response_code(400);
-        echo json_encode(['error' => 'All fields are requiered']);
+        echo json_encode(['error' => 'Email, password, first name, and last name are required']);
         exit;
     }
 
-    // Check if the username or email exists
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ? OR email = ?');
-    $stmt->execute([$username, $email]);
+    // Additional validation for alumni
+    if ($role === 'alumni' && empty($studentId)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Student ID is required for alumni registration']);
+        exit;
+    }
+
+    // Check if the email or student ID already exists
+    $stmt = $pdo->prepare('SELECT user_id FROM users WHERE email = ? OR student_id = ?');
+    $stmt->execute([$email, $studentId]);
     if ($stmt->fetch()) {
         http_response_code(400);
-        echo json_encode(['error' => 'Username or email already exist']);
+        echo json_encode(['error' => 'Email or student ID already exists']);
         exit;
     }
 
@@ -31,10 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $stmt = $pdo->prepare('INSERT INTO users (username, password_hash, role, email) VALUES (?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, last_name, student_id) VALUES (?, ?, ?, ?, ?, ?)');
     try {
-        $stmt->execute([$username, $password_hash, $role, $email]);
-        echo json_encode(['message' => 'Registration successful']);
+        $stmt->execute([$email, $password_hash, $role, $firstName, $lastName, $studentId]);
+        echo json_encode([
+            'message' => 'Registration successful! Your account is pending approval by an administrator. You will receive confirmation once approved.'
+        ]);
     } catch(PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Registration failed: ' . $e->getMessage()]);

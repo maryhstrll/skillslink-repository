@@ -1,9 +1,7 @@
 <?php 
 session_start();
+// CORS is handled by .htaccess
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -16,9 +14,13 @@ if (isset($_SESSION['user_id'])) {
         'loggedIn' => true,
         'user' => [
             'id' => $_SESSION['user_id'],
-            'username' => $_SESSION['username'] ?? '',
+            'email' => $_SESSION['email'] ?? '',
             'role' => $_SESSION['role'] ?? '',
-            'email' => $_SESSION['email'] ?? ''
+            'first_name' => $_SESSION['first_name'] ?? '',
+            'last_name' => $_SESSION['last_name'] ?? '',
+            'student_id' => $_SESSION['student_id'] ?? '',
+            'full_name' => trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? '')),
+            'approval_status' => $_SESSION['approval_status'] ?? 'approved'
         ]
     ]);
 } else {

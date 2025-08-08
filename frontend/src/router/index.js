@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
-import Login from '../views/Login.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import Alumni from '@/views/Alumni.vue';
 import Reports from '@/views/Reports.vue';
@@ -9,7 +8,6 @@ import Users from '@/views/Users.vue';
 
 const routes = [
   { path: '/home', component: Home },
-  { path: '/login', component: Login },
   { path: '/dashboard', component: Dashboard },
   { path: '/alumni', component: Alumni },
   { path: '/reports', component: Reports },
@@ -29,13 +27,13 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('user') !== null;
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login'];
+  const publicRoutes = ['/', '/home'];
   
   if (!publicRoutes.includes(to.path) && !isAuthenticated) {
-    // Redirect to login if not authenticated
-    next('/login');
-  } else if ((to.path === '/' || to.path === '/login') && isAuthenticated) {
-    // Redirect to dashboard if already authenticated
+    // Redirect to home if not authenticated
+    next('/home');
+  } else if (to.path === '/' && isAuthenticated) {
+    // If user is authenticated and goes to root, redirect to dashboard
     next('/dashboard');
   } else {
     next();

@@ -3,7 +3,7 @@
     <!-- Dashboard Content -->
     <div class="space-y-6">
       <!-- Welcome Section -->
-      <div class="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg">
+      <div class="hero bg-primary text-primary-content rounded-lg">
         <div class="hero-content text-center">
           <div class="max-w-md">
             <h1 class="mb-5 text-3xl font-bold">Welcome to Admin Dashboard</h1>
@@ -148,7 +148,7 @@ const recentActivities = ref([
 const handleLogout = () => {
   // Add logout logic
   console.log('Logging out...')
-  router.push('/login')
+  router.push('/home')
 }
 
 const handleProfile = () => {

@@ -33,6 +33,6 @@ const router = useRouter()
 const currentUser = ref('John Admin')
 
 const handleLogout = () => {
-  router.push('/login')
+  router.push('/home')
 }
 </script>

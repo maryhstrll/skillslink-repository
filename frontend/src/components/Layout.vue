@@ -8,7 +8,7 @@
         </label>
       </div>
       <div class="flex-1">
-        <router-link to="/" class="btn btn-ghost text-xl font-bold text-primary">
+        <router-link to="/dashboard" class="btn btn-ghost text-xl font-bold text-primary">
           SkillsLink
         </router-link>
       </div>
@@ -36,16 +36,7 @@
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       
       <!-- Main Content -->
-      <div class="drawer-content">
-        <!-- Mobile menu button for larger screens -->
-        <div class="navbar lg:hidden bg-base-100">
-          <div class="flex-none">
-            <label for="my-drawer" class="btn btn-square btn-ghost">
-              <i class="fas fa-bars text-lg"></i>
-            </label>
-          </div>
-        </div>
-        
+      <div class="drawer-content">        
         <!-- Page content -->
         <main class="p-4 lg:p-6">
           <slot />
@@ -123,16 +114,21 @@ const handleLogout = async () => {
     const result = await authService.logout()
     if (result.success) {
       emit('logout')
-      router.push('/login')
+      router.push('/home')
     } else {
       console.error('Logout failed:', result.error)
-      // Still redirect to login even if API fails
-      router.push('/login')
+      // Still redirect to home even if API fails
+      router.push('/home')
     }
   } catch (error) {
     console.error('Logout error:', error)
-    // Still redirect to login even if there's an error
-    router.push('/login')
+    // Still redirect to home even if there's an error
+    router.push('/home')
   }
 }
 </script>
+
+<style scoped>
+
+  
+</style>
