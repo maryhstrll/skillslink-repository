@@ -23,6 +23,8 @@ class AuthService {
       if (response.data.message === 'Login successfully') {
         // Store user data in localStorage as backup
         localStorage.setItem('user', JSON.stringify(response.data.user))
+        // Also store role separately for easier access (optional)
+        localStorage.setItem('userRole', response.data.user.role || 'alumni')
         return { success: true, data: response.data }
       }
       return { success: false, error: 'Login failed' }
@@ -40,6 +42,7 @@ class AuthService {
       const response = await axios.post('/auth/logout.php')
       // Always clear localStorage regardless of server response
       localStorage.removeItem('user')
+      localStorage.removeItem('userRole')
       
       if (response.data.success) {
         return { success: true, message: response.data.message }
@@ -48,6 +51,7 @@ class AuthService {
     } catch (error) {
       // Even if API fails, clear local storage and consider it successful
       localStorage.removeItem('user')
+      localStorage.removeItem('userRole')
       return { 
         success: true, 
         message: 'Logged out successfully'
@@ -84,6 +88,33 @@ class AuthService {
   // Check if user is authenticated (client-side)
   isAuthenticated() {
     return this.getCurrentUser() !== null
+  }
+
+  // Get current user role
+  getCurrentUserRole() {
+    const user = this.getCurrentUser()
+    return user ? user.role : null
+  }
+
+  // Check if current user has specific role
+  hasRole(role) {
+    const userRole = this.getCurrentUserRole()
+    return userRole === role
+  }
+
+  // Check if current user is admin
+  isAdmin() {
+    return this.hasRole('admin')
+  }
+
+  // Check if current user is alumni
+  isAlumni() {
+    return this.hasRole('alumni')
+  }
+
+  // Check if current user is staff
+  isStaff() {
+    return this.hasRole('staff')
   }
 }
 

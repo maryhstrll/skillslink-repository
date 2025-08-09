@@ -1,5 +1,5 @@
 <template>
-  <Layout :user-name="currentUser" @logout="handleLogout">
+  <Layout @logout="handleLogout">
     <div class="space-y-6">
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -206,7 +206,6 @@ import UserApprovalManager from '@/components/UserApprovalManager.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const currentUser = ref('John Admin')
 
 // Data
 const users = ref([

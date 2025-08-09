@@ -8,8 +8,18 @@
         </label>
       </div>
       <div class="flex-1">
-        <router-link to="/dashboard" class="btn btn-ghost text-xl font-bold text-primary">
-          SkillsLink
+        <button class="btn btn-circle">
+          <img
+            src="../assets/logo1.png"
+            alt="Logo 1"
+            class="w-[3em] h-[3em] object-contain"
+          />
+        </button>
+        <router-link
+          to="/dashboard"
+          class="btn btn-ghost text-xl font-bold text-primary"
+        >
+          SSVTC - SkillsLink
         </router-link>
       </div>
       <div class="flex-none">
@@ -21,7 +31,10 @@
               <span class="badge badge-xs badge-primary indicator-item">3</span>
             </div>
           </div>
-          <div tabindex="0" class="dropdown-content card card-compact w-64 bg-base-100 shadow">
+          <div
+            tabindex="0"
+            class="dropdown-content card card-compact w-64 bg-base-100 shadow"
+          >
             <div class="card-body">
               <span class="font-bold text-lg">3 Notifications</span>
               <span class="text-info">You have new messages</span>
@@ -34,21 +47,20 @@
     <!-- Drawer -->
     <div class="drawer lg:drawer-open">
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-      
+
       <!-- Main Content -->
-      <div class="drawer-content">        
+      <div class="drawer-content">
         <!-- Page content -->
         <main class="p-4 lg:p-6">
           <slot />
         </main>
       </div>
-      
+
       <!-- Sidebar -->
-      <Sidebar 
-        :menu-items="menuItems" 
-        :user-name="userName"
+      <Sidebar
+        :menu-items="menuItems"
+        :user-name="displayUserName"
         @profile="handleProfile"
-        @settings="handleSettings" 
         @logout="handleLogout"
       />
     </div>
@@ -56,79 +68,134 @@
 </template>
 
 <script setup>
-import Sidebar from './Sidebar.vue'
-import authService from '@/services/auth.js'
-import { useRouter } from 'vue-router'
+import Sidebar from "./Sidebar.vue";
+import authService from "@/services/auth.js";
+import { messageService } from "@/services/messageService.js";
+import { useRouter } from "vue-router";
+import { ref, onMounted, computed } from "vue";
 
 const props = defineProps({
   userName: {
     type: String,
-    default: 'Admin User'
+    default: "User",
+  },
+});
+
+const emit = defineEmits(["profile", "logout"]);
+const router = useRouter();
+
+// User data from authentication service
+const currentUser = ref(null);
+
+// Computed property for user name - prioritize real user data over prop
+const displayUserName = computed(() => {
+  if (currentUser.value) {
+    // Use full_name if available, otherwise combine first_name and last_name
+    return currentUser.value.full_name || 
+           `${currentUser.value.first_name || ''} ${currentUser.value.last_name || ''}`.trim() ||
+           currentUser.value.email ||
+           'User';
   }
-})
+  return props.userName || 'User';
+});
 
-const emit = defineEmits(['profile', 'settings', 'logout'])
-const router = useRouter()
-
-// Define menu items
-const menuItems = [
-  {
-    path: '/dashboard',
-    label: 'Dashboard',
-    icon: 'fas fa-home'
-  },
-  {
-    path: '/alumni',
-    label: 'Alumni',
-    icon: 'fas fa-users'
-  },
-  {
-    path: '/reports',
-    label: 'Reports',
-    icon: 'fas fa-chart-bar'
-  },
-  {
-    path: '/users',
-    label: 'Users',
-    icon: 'fas fa-user-cog'
-  },
-  {
-    path: '/settings',
-    label: 'Settings',
-    icon: 'fas fa-cog'
-  }
-]
-
-const handleProfile = () => {
-  emit('profile')
-  console.log('Profile clicked')
-}
-
-const handleSettings = () => {
-  emit('settings')
-  router.push('/settings')
-}
-
-const handleLogout = async () => {
+// Fetch current user data on mount
+onMounted(async () => {
   try {
-    const result = await authService.logout()
-    if (result.success) {
-      emit('logout')
-      router.push('/home')
+    const authCheck = await authService.checkAuth();
+    if (authCheck.loggedIn && authCheck.user) {
+      currentUser.value = authCheck.user;
     } else {
-      console.error('Logout failed:', result.error)
-      // Still redirect to home even if API fails
-      router.push('/home')
+      // If not logged in, redirect to home
+      router.push('/home');
     }
   } catch (error) {
-    console.error('Logout error:', error)
-    // Still redirect to home even if there's an error
-    router.push('/home')
+    console.error('Failed to check authentication:', error);
+    router.push('/home');
   }
-}
+});
+
+// Define all possible menu items
+const allMenuItems = [
+  {
+    path: "/dashboard",
+    label: "Dashboard",
+    icon: "fas fa-home",
+    roles: ["admin", "alumni", "staff"] // Available to all roles
+  },
+  {
+    path: "/alumni",
+    label: "Alumni",
+    icon: "fas fa-users",
+    roles: ["admin", "staff"] // Admin and staff only
+  },
+  {
+    path: "/reports",
+    label: "Reports",
+    icon: "fas fa-chart-bar",
+    roles: ["admin", "staff"] // Admin and staff only
+  },
+  {
+    path: "/users",
+    label: "Users",
+    icon: "fas fa-user-cog",
+    roles: ["admin"] // Admin only
+  },
+  {
+    path: "/settings",
+    label: "Settings",
+    icon: "fas fa-cog",
+    roles: ["admin", "alumni", "staff"] // Available to all roles
+  },
+];
+
+// Filter menu items based on user role
+const menuItems = computed(() => {
+  if (!currentUser.value || !currentUser.value.role) {
+    // If no user or role, show only dashboard (safe default)
+    return allMenuItems.filter(item => item.path === "/dashboard");
+  }
+  
+  const userRole = currentUser.value.role;
+  return allMenuItems.filter(item => item.roles.includes(userRole));
+});
+
+const handleProfile = () => {
+  emit("profile");
+  console.log("Profile clicked");
+};
+
+const handleSettings = () => {
+  emit("settings");
+  router.push("/settings");
+};
+
+const handleLogout = async () => {
+  const confirmed = await messageService.confirm(
+    'Are you sure you want to logout?',
+    'Logout Confirmation'
+  );
+  
+  if (confirmed) {
+    try {
+      const result = await authService.logout();
+      if (result.success) {
+        messageService.toast('Logged out successfully', 'success');
+        emit("logout");
+        router.push("/home");
+      } else {
+        messageService.toast('Logout completed', 'info');
+        // Still redirect to home even if API fails
+        router.push("/home");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      messageService.toast('Logout completed', 'info');
+      // Still redirect to home even if there's an error
+      router.push("/home");
+    }
+  }
+};
 </script>
 
-<style scoped>
-
-  
-</style>
+<style scoped></style>

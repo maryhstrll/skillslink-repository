@@ -2,9 +2,7 @@
   <div class="modal" :class="{ 'modal-open': isOpen }" role="dialog">
     <div class="modal-box glass max-w-md">
       <h3 class="font-bold text-2xl text-center mb-4">SkillsLink Login</h3>
-      <div v-if="error" class="alert alert-error shadow-lg mb-4">
-        <span>{{ error }}</span>
-      </div>
+      <!-- Error messages now handled by MessageContainer -->
       <form @submit.prevent="handleLogin">
         <div class="form-control">
           <label class="label">
@@ -22,13 +20,25 @@
           <label class="label">
             <span class="label-text">Password</span>
           </label>
-          <input
-            v-model="password"
-            type="password"
-            placeholder="Enter password"
-            class="input input-bordered glass"
-            required
-          />
+          <div class="relative">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Enter password"
+              class="input input-bordered glass w-full pr-12"
+              required
+            />
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              @click="togglePasswordVisibility"
+            >
+              <i 
+                :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" 
+                class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              ></i>
+            </button>
+          </div>
         </div>
         <div class="card-actions justify-center mt-6">
           <button 
@@ -60,6 +70,7 @@
 
 <script>
 import authService from '@/services/auth.js';
+import { messageService } from '@/services/messageService.js';
 
 export default {
   name: 'LoginModal',
@@ -74,8 +85,9 @@ export default {
     return {
       login: '', // Can be email or student ID
       password: '',
-      error: '',
+      showPassword: false,
       isLoading: false
+      // Removed error - now using messageService
     };
   },
   watch: {
@@ -88,7 +100,19 @@ export default {
   methods: {
     async handleLogin() {
       this.isLoading = true;
-      this.error = '';
+      
+      // Basic client-side validation
+      if (!this.login.trim()) {
+        messageService.toast('⚠️ Please enter your email or student ID', 'warning');
+        this.isLoading = false;
+        return;
+      }
+      
+      if (!this.password.trim()) {
+        messageService.toast('⚠️ Please enter your password', 'warning');
+        this.isLoading = false;
+        return;
+      }
       
       try {
         const result = await authService.login({
@@ -97,13 +121,26 @@ export default {
         });
         
         if (result.success) {
+          messageService.toast('Login successful! Welcome back.', 'success');
           this.$emit('login-success');
           this.closeModal();
         } else {
-          this.error = result.error;
+          // Show warning message for invalid credentials
+          const errorMessage = result.error || 'Login failed';
+          if (errorMessage.toLowerCase().includes('invalid credentials') || 
+              errorMessage.toLowerCase().includes('password')) {
+            messageService.toast('⚠️ Invalid email/student ID or password. Please check your credentials.', 'warning');
+          } else if (errorMessage.toLowerCase().includes('pending')) {
+            messageService.alert(errorMessage, 'warning', 'Account Pending');
+          } else if (errorMessage.toLowerCase().includes('rejected')) {
+            messageService.alert(errorMessage, 'error', 'Account Rejected');
+          } else {
+            messageService.alert(errorMessage, 'error', 'Login Error');
+          }
         }
       } catch (error) {
-        this.error = 'An unexpected error occurred';
+        console.error('Login error:', error);
+        messageService.alert('An unexpected error occurred. Please try again.', 'error', 'Login Error');
       } finally {
         this.isLoading = false;
       }
@@ -117,10 +154,14 @@ export default {
       this.$emit('switch-to-register');
     },
     
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    },
+    
     resetForm() {
       this.login = '';
       this.password = '';
-      this.error = '';
+      this.showPassword = false;
       this.isLoading = false;
     }
   }
@@ -131,5 +172,23 @@ export default {
 .glass {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ensure the eye icon is properly positioned and clickable */
+.relative input {
+  padding-right: 3rem;
+}
+
+.relative button {
+  z-index: 10;
+}
+
+.relative button:focus {
+  outline: none;
+}
+
+.relative button i {
+  cursor: pointer;
+  user-select: none;
 }
 </style>

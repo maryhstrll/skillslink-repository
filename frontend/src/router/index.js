@@ -8,11 +8,31 @@ import Users from '@/views/Users.vue';
 
 const routes = [
   { path: '/home', component: Home },
-  { path: '/dashboard', component: Dashboard },
-  { path: '/alumni', component: Alumni },
-  { path: '/reports', component: Reports },
-  { path: '/settings', component: Settings },
-  { path: '/users', component: Users },
+  { 
+    path: '/dashboard', 
+    component: Dashboard,
+    meta: { requiresAuth: true, roles: ['admin', 'alumni', 'staff'] }
+  },
+  { 
+    path: '/alumni', 
+    component: Alumni,
+    meta: { requiresAuth: true, roles: ['admin', 'staff'] }
+  },
+  { 
+    path: '/reports', 
+    component: Reports,
+    meta: { requiresAuth: true, roles: ['admin', 'staff'] }
+  },
+  { 
+    path: '/settings', 
+    component: Settings,
+    meta: { requiresAuth: true, roles: ['admin', 'alumni', 'staff'] }
+  },
+  { 
+    path: '/users', 
+    component: Users,
+    meta: { requiresAuth: true, roles: ['admin'] }
+  },
   // Redirect any unknown routes to home
   { path: '/', redirect: '/home' },
 ];
@@ -22,9 +42,24 @@ const router = createRouter({
   routes,
 });
 
+// Helper function to get user role
+const getUserRole = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      return userData.role || null;
+    }
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+  }
+  return null;
+};
+
 // Route protection
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('user') !== null;
+  const userRole = getUserRole();
   
   // Public routes that don't require authentication
   const publicRoutes = ['/', '/home'];
@@ -35,6 +70,15 @@ router.beforeEach((to, from, next) => {
   } else if (to.path === '/' && isAuthenticated) {
     // If user is authenticated and goes to root, redirect to dashboard
     next('/dashboard');
+  } else if (to.meta?.requiresAuth && isAuthenticated && to.meta?.roles) {
+    // Check role-based access for protected routes
+    if (!userRole || !to.meta.roles.includes(userRole)) {
+      // User doesn't have permission, redirect to dashboard
+      console.warn(`Access denied: User role '${userRole}' cannot access '${to.path}'`);
+      next('/dashboard');
+    } else {
+      next();
+    }
   } else {
     next();
   }

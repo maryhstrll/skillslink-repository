@@ -1,7 +1,8 @@
 RewriteEngine On
 
-# Enable CORS for all requests
-Header always set Access-Control-Allow-Origin "http://localhost:5173"
+# Enable CORS for all requests - Allow multiple localhost ports
+SetEnvIf Origin "^https?://(localhost|127\.0\.0\.1):(5173|5174)$" CORS_ALLOW_ORIGIN=$0
+Header always set Access-Control-Allow-Origin "%{CORS_ALLOW_ORIGIN}e" env=CORS_ALLOW_ORIGIN
 Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
 Header always set Access-Control-Allow-Credentials "true"
@@ -15,7 +16,8 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/(.*)$ index.php [QSA,L]
 
-# If no API prefix, still route to index.php for backward compatibility
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+# Don't route admin, auth, or other direct file requests to index.php
+# Only route undefined paths to index.php
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$ index.php [QSA,L]

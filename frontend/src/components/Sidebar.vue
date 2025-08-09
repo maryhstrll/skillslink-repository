@@ -50,11 +50,12 @@ import { useRoute } from 'vue-router'
 const props = defineProps({
   menuItems: {
     type: Array,
-    required: true
+    required: true,
+    default: () => []
   },
   userName: {
     type: String,
-    default: 'Admin User'
+    default: 'User'
   }
 })
 
@@ -63,8 +64,16 @@ const emit = defineEmits(['profile', 'logout'])
 const route = useRoute()
 
 const userInitials = computed(() => {
-  return props.userName
+  if (!props.userName || typeof props.userName !== 'string') {
+    return 'U';
+  }
+  const cleanName = props.userName.trim();
+  if (cleanName === '') {
+    return 'U';
+  }
+  return cleanName
     .split(' ')
+    .filter(name => name.length > 0) // Filter out empty strings
     .map(name => name.charAt(0))
     .join('')
     .toUpperCase()

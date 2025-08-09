@@ -1,5 +1,5 @@
 <template>
-  <Layout :user-name="currentUser" @logout="handleLogout">
+  <Layout @logout="handleLogout">
     <div class="space-y-6">
       <!-- Page Header -->
       <div class="flex justify-between items-center">
@@ -45,7 +45,6 @@ import Layout from '@/components/Layout.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const currentUser = ref('John Admin')
 
 const handleLogout = () => {
   router.push('/home')
