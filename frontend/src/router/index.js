@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import Alumni from '@/views/Alumni.vue';
+import TracerFormsAdmin from '@/views/TracerFormsAdmin.vue';
 import Reports from '@/views/Reports.vue';
 import Settings from '@/views/Settings.vue';
 import Users from '@/views/Users.vue';
@@ -17,6 +18,11 @@ const routes = [
     path: '/alumni', 
     component: Alumni,
     meta: { requiresAuth: true, roles: ['admin', 'staff'] }
+  },
+    { 
+    path: '/tracer_forms_admin', 
+    component: TracerFormsAdmin,
+    meta: { requiresAuth: true, roles: ['admin'] }
   },
   { 
     path: '/reports', 

@@ -11,6 +11,10 @@ class AuthService {
       const response = await axios.get('/session.php')
       return response.data
     } catch (error) {
+      // 401 is expected when user is not logged in, don't log as error
+      if (error.response?.status === 401) {
+        return { loggedIn: false }
+      }
       console.error('Auth check failed:', error)
       return { loggedIn: false }
     }

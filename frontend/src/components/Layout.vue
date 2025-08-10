@@ -4,7 +4,7 @@
     <div class="navbar bg-base-100 shadow-lg">
       <div class="flex-none lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
-          <i class="fas fa-bars text-lg"></i>
+          <IconMenu class="text-lg" />
         </label>
       </div>
       <div class="flex-1">
@@ -27,7 +27,7 @@
         <div class="dropdown dropdown-end">
           <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
             <div class="indicator">
-              <i class="fas fa-bell text-lg"></i>
+              <IconBell class="text-lg" />
               <span class="badge badge-xs badge-primary indicator-item">3</span>
             </div>
           </div>
@@ -120,31 +120,37 @@ const allMenuItems = [
   {
     path: "/dashboard",
     label: "Dashboard",
-    icon: "fas fa-home",
+    icon: "IconHome",
     roles: ["admin", "alumni", "staff"] // Available to all roles
   },
   {
     path: "/alumni",
     label: "Alumni",
-    icon: "fas fa-users",
+    icon: "IconUsers",
     roles: ["admin", "staff"] // Admin and staff only
+  },
+    {
+    path: "/tracer_forms_admin",
+    label: "Tracer Form",
+    icon: "IconFileText",
+    roles: ["admin"] // Admin and staff only
   },
   {
     path: "/reports",
     label: "Reports",
-    icon: "fas fa-chart-bar",
+    icon: "IconBarChart3",
     roles: ["admin", "staff"] // Admin and staff only
   },
   {
     path: "/users",
     label: "Users",
-    icon: "fas fa-user-cog",
+    icon: "IconUserCog",
     roles: ["admin"] // Admin only
   },
   {
     path: "/settings",
     label: "Settings",
-    icon: "fas fa-cog",
+    icon: "IconSettings",
     roles: ["admin", "alumni", "staff"] // Available to all roles
   },
 ];
