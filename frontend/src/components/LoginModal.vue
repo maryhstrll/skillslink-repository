@@ -33,10 +33,14 @@
               class="absolute inset-y-0 right-0 pr-3 flex items-center"
               @click="togglePasswordVisibility"
             >
-              <i 
-                :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" 
-                class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-              ></i>
+              <IconEye 
+                v-if="!showPassword"
+                class="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              />
+              <IconEyeOff 
+                v-else
+                class="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              />
             </button>
           </div>
         </div>

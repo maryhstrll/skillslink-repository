@@ -8,7 +8,7 @@
           <p class="text-base-content/70 mt-1">Configure application settings and preferences</p>
         </div>
         <button class="btn btn-primary" @click="saveAllSettings">
-          <i class="fas fa-save"></i>
+          <IconSave class="w-4 h-4" />
           Save All Changes
         </button>
       </div>
@@ -22,7 +22,7 @@
           :class="{ 'tab-active': activeTab === tab.id }"
           @click="activeTab = tab.id"
         >
-          <i :class="tab.icon" class="mr-2"></i>
+          <component :is="tab.icon" class="w-4 h-4 mr-2" />
           {{ tab.name }}
         </a>
       </div>
@@ -32,7 +32,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-cog"></i>
+              <IconSettings class="w-5 h-5" />
               General Settings
             </h2>
             
@@ -104,7 +104,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-shield-alt"></i>
+              <IconShield class="w-5 h-5" />
               Security Settings
             </h2>
             
@@ -164,7 +164,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-envelope"></i>
+              <IconMail class="w-5 h-5" />
               Email Configuration
             </h2>
             
@@ -231,11 +231,11 @@
 
             <div class="flex gap-2 mt-4">
               <button class="btn btn-outline" @click="testEmailConnection">
-                <i class="fas fa-paper-plane"></i>
+                <IconSend class="w-4 h-4" />
                 Test Connection
               </button>
               <button class="btn btn-outline" @click="sendTestEmail">
-                <i class="fas fa-envelope"></i>
+                <IconMail class="w-4 h-4" />
                 Send Test Email
               </button>
             </div>
@@ -248,7 +248,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-database"></i>
+              <IconDatabase class="w-5 h-5" />
               Backup & Recovery
             </h2>
             
@@ -293,11 +293,11 @@
 
             <div class="flex gap-2">
               <button class="btn btn-primary" @click="createBackup">
-                <i class="fas fa-download"></i>
+                <IconDownload class="w-4 h-4" />
                 Create Backup Now
               </button>
               <button class="btn btn-outline">
-                <i class="fas fa-upload"></i>
+                <IconUpload class="w-4 h-4" />
                 Restore from Backup
               </button>
             </div>
@@ -349,10 +349,10 @@ const activeTab = ref('general')
 
 // Tabs configuration
 const tabs = [
-  { id: 'general', name: 'General', icon: 'fas fa-cog' },
-  { id: 'security', name: 'Security', icon: 'fas fa-shield-alt' },
-  { id: 'email', name: 'Email', icon: 'fas fa-envelope' },
-  { id: 'backup', name: 'Backup', icon: 'fas fa-database' }
+  { id: 'general', name: 'General', icon: 'IconSettings' },
+  { id: 'security', name: 'Security', icon: 'IconShield' },
+  { id: 'email', name: 'Email', icon: 'IconMail' },
+  { id: 'backup', name: 'Backup', icon: 'IconDatabase' }
 ]
 
 // Settings data

@@ -10,7 +10,7 @@
             @click="refreshPendingUsers"
             :disabled="isLoading"
           >
-            <i class="fas fa-refresh" :class="{ 'animate-spin': isLoading }"></i>
+            <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
             Refresh
           </button>
         </div>
@@ -29,7 +29,7 @@
 
         <div v-else-if="pendingUsers.length === 0" class="text-center py-8">
           <div class="text-base-content/60">
-            <i class="fas fa-users text-4xl mb-4"></i>
+            <IconUsers class="w-16 h-16 mb-4 mx-auto" />
             <p>No pending alumni approvals</p>
           </div>
         </div>
@@ -65,7 +65,7 @@
                       @click="approveUser(user.user_id)"
                       :disabled="processingUsers.has(user.user_id)"
                     >
-                      <i class="fas fa-check"></i>
+                      <IconCheck class="w-4 h-4" />
                       Approve
                     </button>
                     <button 
@@ -73,7 +73,7 @@
                       @click="rejectUser(user.user_id)"
                       :disabled="processingUsers.has(user.user_id)"
                     >
-                      <i class="fas fa-times"></i>
+                      <IconX class="w-4 h-4" />
                       Reject
                     </button>
                   </div>

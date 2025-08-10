@@ -8,7 +8,7 @@
           <p class="text-base-content/70 mt-1">View comprehensive reports and analytics</p>
         </div>
         <button class="btn btn-secondary">
-          <i class="fas fa-download"></i>
+          <IconDownload class="w-4 h-4" />
           Export Report
         </button>
       </div>
@@ -18,7 +18,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-chart-pie"></i>
+              <IconPieChart class="w-5 h-5" />
               Alumni Statistics
             </h2>
             <p>Detailed alumni statistics and trends will be displayed here.</p>
@@ -28,7 +28,7 @@
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <h2 class="card-title">
-              <i class="fas fa-chart-line"></i>
+              <IconTrendingUp class="w-5 h-5" />
               Job Placement Rates
             </h2>
             <p>Job placement analytics and success rates will be shown here.</p>

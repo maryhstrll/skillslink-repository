@@ -12,7 +12,7 @@
             class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
             :class="{ 'bg-primary text-primary-content': isActive(item.path) }"
           >
-            <i :class="item.icon" class="text-lg"></i>
+            <component :is="item.icon" class="text-lg" />
             <span>{{ item.label }}</span>
           </router-link>
         </li>
@@ -31,11 +31,11 @@
               </div>
             </div>
             <span class="flex-1 text-left">{{ userName }}</span>
-            <i class="fas fa-chevron-up text-xs"></i>
+            <IconChevronUp class="text-xs" />
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
-            <li><a @click="$emit('profile')"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a @click="$emit('logout')" class="text-error"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            <li><a @click="$emit('profile')"><IconUser class="w-4 h-4" /> Profile</a></li>
+            <li><a @click="$emit('logout')" class="text-error"><IconLogOut class="w-4 h-4" /> Logout</a></li>
           </ul>
         </div>
       </div>

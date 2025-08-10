@@ -14,7 +14,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="stat bg-base-100 rounded-lg shadow">
         <div class="stat-figure text-primary">
-          <i class="fas fa-users text-3xl"></i>
+          <IconUsers class="w-12 h-12" />
         </div>
         <div class="stat-title">Assigned Alumni</div>
         <div class="stat-value text-primary">{{ stats.assignedAlumni }}</div>
@@ -23,7 +23,7 @@
       
       <div class="stat bg-base-100 rounded-lg shadow">
         <div class="stat-figure text-secondary">
-          <i class="fas fa-file-alt text-3xl"></i>
+          <IconFileText class="w-12 h-12" />
         </div>
         <div class="stat-title">Tracer Forms</div>
         <div class="stat-value text-secondary">{{ stats.tracerForms }}</div>
@@ -32,7 +32,7 @@
       
       <div class="stat bg-base-100 rounded-lg shadow">
         <div class="stat-figure text-accent">
-          <i class="fas fa-chart-line text-3xl"></i>
+          <IconTrendingUp class="w-12 h-12" />
         </div>
         <div class="stat-title">Response Rate</div>
         <div class="stat-value text-accent">{{ stats.responseRate }}%</div>
@@ -41,7 +41,7 @@
       
       <div class="stat bg-base-100 rounded-lg shadow">
         <div class="stat-figure text-info">
-          <i class="fas fa-tasks text-3xl"></i>
+          <IconFileSpreadsheet class="w-12 h-12" />
         </div>
         <div class="stat-title">Pending Tasks</div>
         <div class="stat-value text-info">{{ stats.pendingTasks }}</div>
@@ -55,7 +55,7 @@
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
           <h2 class="card-title">
-            <i class="fas fa-user-graduate"></i>
+            <IconUsers class="w-5 h-5" />
             Recent Alumni Updates
           </h2>
           <div class="space-y-3">
@@ -86,13 +86,13 @@
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
           <h2 class="card-title">
-            <i class="fas fa-clipboard-check"></i>
+            <IconFileText class="w-5 h-5" />
             Task Summary
           </h2>
           <div class="space-y-3">
             <div v-for="task in tasks" :key="task.id" class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
               <div class="flex items-center gap-3">
-                <i :class="[task.icon, 'text-lg', task.iconColor]"></i>
+                <component :is="task.icon" :class="['w-5 h-5', task.iconColor]" />
                 <div>
                   <p class="font-medium">{{ task.title }}</p>
                   <p class="text-sm text-base-content/70">{{ task.description }}</p>
@@ -114,20 +114,20 @@
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">
-          <i class="fas fa-bolt"></i>
+          <IconZap class="w-5 h-5" />
           Quick Actions
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button class="btn btn-outline btn-primary" @click="router.push('/alumni')">
-            <i class="fas fa-plus"></i>
+            <IconPlus class="w-4 h-4" />
             Manage Alumni
           </button>
           <button class="btn btn-outline btn-secondary" @click="router.push('/reports')">
-            <i class="fas fa-download"></i>
+            <IconDownload class="w-4 h-4" />
             Download Reports
           </button>
           <button class="btn btn-outline btn-accent">
-            <i class="fas fa-envelope"></i>
+            <IconMail class="w-4 h-4" />
             Send Notifications
           </button>
         </div>
@@ -181,7 +181,7 @@ const tasks = ref([
     id: 1,
     title: 'Review Alumni Profiles',
     description: 'Verify recent profile updates',
-    icon: 'fas fa-user-check',
+    icon: 'IconUserCheck',
     iconColor: 'text-primary',
     priority: 'High',
     priorityClass: 'badge-error'
@@ -190,7 +190,7 @@ const tasks = ref([
     id: 2,
     title: 'Process Tracer Forms',
     description: 'Review submitted forms',
-    icon: 'fas fa-file-invoice',
+    icon: 'IconFileSpreadsheet',
     iconColor: 'text-secondary',
     priority: 'Medium',
     priorityClass: 'badge-warning'
@@ -199,7 +199,7 @@ const tasks = ref([
     id: 3,
     title: 'Generate Monthly Report',
     description: 'Compile analytics data',
-    icon: 'fas fa-chart-pie',
+    icon: 'IconPieChart',
     iconColor: 'text-accent',
     priority: 'Low',
     priorityClass: 'badge-info'

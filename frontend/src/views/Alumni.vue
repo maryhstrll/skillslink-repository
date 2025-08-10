@@ -15,7 +15,7 @@
             class="btn bg-gradient-to-r from-[#2E79BA] to-[#1E549F] border-none text-white hover:from-[#5FC9F3] hover:to-[#2E79BA] transform hover:scale-105 transition-all duration-300 shadow-lg w-full sm:w-auto" 
             @click="openAddModal"
           >
-            <i class="fas fa-plus mr-2"></i>
+            <IconPlus class="w-4 h-4 mr-2" />
             Add Alumni
           </button>
         </div>
@@ -44,7 +44,7 @@
               <p class="text-gray-500 mt-4">Loading alumni data...</p>
             </div>
             <div v-else-if="alumniList.length === 0" class="text-center py-8 text-gray-500">
-              <i class="fas fa-users text-4xl mb-4 text-gray-300"></i>
+              <IconUsers class="w-16 h-16 mb-4 text-gray-300 mx-auto" />
               <p>No alumni records found.</p>
             </div>
             <div v-else v-for="alumni in alumniList" :key="alumni.alumni_id" 
@@ -79,12 +79,12 @@
                   <button class="btn btn-sm bg-[#2E79BA] text-white border-none hover:bg-[#1E549F] flex-1" 
                           @click="openEditModal(alumni)"
                           :disabled="loading">
-                    <i class="fas fa-edit mr-1"></i>Edit
+                    <IconEdit class="w-3 h-3 mr-1" />Edit
                   </button>
                   <button class="btn btn-sm bg-red-500 text-white border-none hover:bg-red-600 flex-1" 
                           @click="deleteAlumni(alumni.alumni_id)"
                           :disabled="loading">
-                    <i class="fas fa-trash mr-1"></i>Delete
+                    <IconTrash2 class="w-3 h-3 mr-1" />Delete
                   </button>
                 </div>
               </div>
@@ -118,7 +118,7 @@
                 <tr v-else-if="alumniList.length === 0">
                   <td colspan="8" class="text-center py-8 text-gray-500">
                     <div class="flex flex-col items-center">
-                      <i class="fas fa-users text-4xl mb-4 text-gray-300"></i>
+                      <IconUsers class="w-16 h-16 mb-4 text-gray-300" />
                       <p>No alumni records found.</p>
                     </div>
                   </td>
