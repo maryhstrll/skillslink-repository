@@ -125,16 +125,20 @@ export default {
         });
         
         if (result.success) {
+          // Clear any previous error messages
+          messageService.clear();
           messageService.toast('Login successful! Welcome back.', 'success');
           this.$emit('login-success');
           this.closeModal();
         } else {
           // Show warning message for invalid credentials
           const errorMessage = result.error || 'Login failed';
+          console.log('Login error message:', errorMessage); // Debug log
           if (errorMessage.toLowerCase().includes('invalid credentials') || 
               errorMessage.toLowerCase().includes('password')) {
             messageService.toast('⚠️ Invalid email/student ID or password. Please check your credentials.', 'warning');
           } else if (errorMessage.toLowerCase().includes('pending')) {
+            console.log('Showing pending approval message'); // Debug log
             messageService.alert(errorMessage, 'warning', 'Account Pending');
           } else if (errorMessage.toLowerCase().includes('rejected')) {
             messageService.alert(errorMessage, 'error', 'Account Rejected');
