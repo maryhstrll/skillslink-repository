@@ -24,6 +24,7 @@ class AuthService {
   async login(credentials) {
     try {
       const response = await axios.post('/auth/login.php', credentials)
+      console.log('Login response:', response.data); // Debug log
       if (response.data.message === 'Login successfully') {
         // Store user data in localStorage as backup
         localStorage.setItem('user', JSON.stringify(response.data.user))
@@ -33,6 +34,7 @@ class AuthService {
       }
       return { success: false, error: 'Login failed' }
     } catch (error) {
+      console.log('Login error response:', error.response?.data); // Debug log
       return { 
         success: false, 
         error: error.response?.data?.error || 'Login failed' 
