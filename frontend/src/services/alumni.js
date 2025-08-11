@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost/skillslink/backend/api'
+const API_BASE_URL = 'http://localhost/skillslink/backend/admin'
 
 const alumniService = {
   async getAll() {
