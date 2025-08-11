@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(403);
             $message = 'Your account is not approved for access.';
             if ($user['approval_status'] === 'pending') {
-                $message = 'Your account is pending approval by an administrator. Please wait for confirmation.';
+                $message = 'Your account is pending for approval by the administrator. Please wait for the confirmation.';
             } elseif ($user['approval_status'] === 'rejected') {
                 $message = 'Your account has been rejected. Please contact the administrator.';
             }
