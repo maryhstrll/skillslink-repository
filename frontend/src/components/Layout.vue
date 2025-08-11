@@ -129,11 +129,17 @@ const allMenuItems = [
     icon: "IconUsers",
     roles: ["admin", "staff"] // Admin and staff only
   },
-    {
+  {
     path: "/tracer_forms_admin",
     label: "Tracer Form",
     icon: "IconFileText",
     roles: ["admin"] // Admin and staff only
+  },
+    {
+    path: "/alumni_tracer_form",
+    label: "Tracer Form",
+    icon: "IconFileInput",
+    roles: ["alumni"] // Admin and staff only
   },
   {
     path: "/reports",
