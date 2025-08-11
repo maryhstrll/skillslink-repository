@@ -380,9 +380,13 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
 import axios from "axios";
 import draggable from "vuedraggable";
+
+// Router instance
+const router = useRouter();
 
 // state
 const forms = ref([]);
@@ -454,7 +458,7 @@ const togglePreview = () => {
 // API calls
 const fetchForms = async () => {
   try {
-    const res = await axios.get("/api/tracer_forms.php?action=list");
+    const res = await axios.get("/admin/tracer_forms.php?action=list");
     forms.value = res.data || [];
   } catch (err) {
     console.error(err);
@@ -473,7 +477,7 @@ const loadForm = async (item) => {
   // load into editor
   try {
     const res = await axios.get(
-      `/api/tracer_forms.php?action=get&form_id=${item.form_id}`
+      `/admin/tracer_forms.php?action=get&form_id=${item.form_id}`
     );
     const d = res.data;
     form.form_id = d.form_id;
@@ -510,7 +514,7 @@ const saveForm = async () => {
   };
 
   try {
-    const res = await axios.post("/api/tracer_forms.php", payload);
+    const res = await axios.post("/admin/tracer_forms.php", payload);
     if (res.data.success) {
       alert("Form saved");
       editing.value = false;
@@ -530,7 +534,7 @@ const cancelEdit = () => {
 
 const duplicateForm = async (item) => {
   try {
-    const res = await axios.post("/api/tracer_forms.php?action=duplicate", {
+    const res = await axios.post("/admin/tracer_forms.php?action=duplicate", {
       form_id: item.form_id,
     });
     if (res.data.success) {
@@ -546,7 +550,7 @@ const duplicateForm = async (item) => {
 const deleteForm = async (item) => {
   if (!confirm("Delete this form and all responses?")) return;
   try {
-    const res = await axios.post("/api/tracer_forms.php?action=delete", {
+    const res = await axios.post("/admin/tracer_forms.php?action=delete", {
       form_id: item.form_id,
     });
     if (res.data.success) fetchForms();
@@ -561,7 +565,7 @@ const activateForm = async (item) => {
   if (!confirm("Make this form active? This will deactivate other forms."))
     return;
   try {
-    const res = await axios.post("/api/tracer_forms.php?action=activate", {
+    const res = await axios.post("/admin/tracer_forms.php?action=activate", {
       form_id: item.form_id,
     });
     if (res.data.success) fetchForms();
@@ -577,7 +581,7 @@ const viewResponses = async (item) => {
   responses.value = [];
   try {
     const res = await axios.get(
-      `/api/form_responses.php?action=list&form_id=${item.form_id}`
+      `/admin/form_responses.php?action=list&form_id=${item.form_id}`
     );
     responses.value = res.data || [];
     responsesModal.value.showModal();
