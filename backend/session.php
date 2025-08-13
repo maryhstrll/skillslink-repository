@@ -80,23 +80,25 @@ function validateSession() {
     }
 }
 
-// Main logic
-try {
-    $result = validateSession();
-    
-    // Set appropriate HTTP status code
-    if (!$result['loggedIn']) {
-        http_response_code(401);
+// Main logic - only execute if this file is accessed directly
+if (basename($_SERVER['SCRIPT_NAME']) === 'session.php') {
+    try {
+        $result = validateSession();
+        
+        // Set appropriate HTTP status code
+        if (!$result['loggedIn']) {
+            http_response_code(401);
+        }
+        
+        echo json_encode($result);
+        
+    } catch (Exception $e) {
+        error_log('Session check error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'loggedIn' => false,
+            'error' => 'Internal server error'
+        ]);
     }
-    
-    echo json_encode($result);
-    
-} catch (Exception $e) {
-    error_log('Session check error: ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'loggedIn' => false,
-        'error' => 'Internal server error'
-    ]);
 }
 ?>
