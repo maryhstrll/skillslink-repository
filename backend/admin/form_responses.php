@@ -1,10 +1,8 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '../config.php';
-require_once __DIR__ . '../session.php';
-
-$stmt = $pdo->query("SELECT * FROM tracer_forms");
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../session.php';
 
 $userId = $_SESSION['user_id'] ?? null;
 $role = $_SESSION['role'] ?? 'alumni';
@@ -64,19 +62,47 @@ try {
     if ($action === 'list' && isset($_GET['form_id'])) {
         if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
         $form_id = (int)$_GET['form_id'];
-        $sql = "SELECT fr.*, a.alumni_name AS alumni_name
+        $sql = "SELECT fr.*, 
+                       CONCAT(u.first_name, ' ', u.last_name) AS alumni_name,
+                       u.email AS alumni_email,
+                       u.student_id AS alumni_student_id
                 FROM form_responses fr
-                LEFT JOIN alumni a ON fr.alumni_id = a.alumni_id
+                LEFT JOIN users u ON fr.alumni_id = u.user_id
                 WHERE fr.form_id = :form_id
                 ORDER BY fr.submitted_at DESC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':form_id' => $form_id]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        // decode responses for readability
+        
+        // Process the responses for better display
         foreach ($rows as &$r) {
-            $r['responses'] = json_decode($r['responses'] ?? '[]', true);
+            // Decode responses for readability
+            $responses_data = json_decode($r['responses'] ?? '[]', true);
+            $r['responses'] = $responses_data;
+            
+            // Ensure completion percentage is shown properly
+            if (empty($r['completion_percentage'])) {
+                $r['completion_percentage'] = 0;
+            }
+            
+            // Format submitted date
+            if ($r['submitted_at']) {
+                $r['submitted_at'] = date('Y-m-d H:i:s', strtotime($r['submitted_at']));
+            }
         }
+        
         echo json_encode($rows);
+        exit;
+    }
+
+    // GET count of responses for a form (admin)
+    if ($action === 'count' && isset($_GET['form_id'])) {
+        if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
+        $form_id = (int)$_GET['form_id'];
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM form_responses WHERE form_id = :form_id");
+        $stmt->execute([':form_id' => $form_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode(['count' => (int)$result['count']]);
         exit;
     }
 

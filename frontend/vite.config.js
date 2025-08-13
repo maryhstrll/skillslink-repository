@@ -19,9 +19,15 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/backend': {
+        target: 'http://localhost/skillslink',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/backend/, '/backend')
+      },
       '/api': {
         target: 'http://localhost/skillslink/backend/api',
-        changedOrigin: true,
+        changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },

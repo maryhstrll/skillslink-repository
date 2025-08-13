@@ -12,9 +12,9 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Left: Form Builder / Editor (collapses when not editing) -->
-        <div class="col-span-2">
+      <div class="space-y-6">
+        <!-- Form Builder / Editor (collapses when not editing) -->
+        <div>
           <transition name="fade">
             <div v-if="editing" class="card bg-base-100 shadow p-4">
               <h3 class="font-semibold text-lg mb-3">
@@ -266,8 +266,8 @@
           </transition>
         </div>
 
-        <!-- Right: Past Forms Table -->
-        <div class="col-span-1">
+        <!-- Past Forms Table -->
+        <div>
           <div class="card bg-base-100 shadow p-3">
             <h3 class="font-semibold mb-2">Past & Active Forms</h3>
 
@@ -278,48 +278,77 @@
                     <th>Year</th>
                     <th>Title</th>
                     <th>Active</th>
-                    <th>Actions</th>
+                    <th>Responses</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="item in forms" :key="item.form_id">
                     <td>{{ item.form_year }}</td>
-                    <td>{{ item.form_title }}</td>
+                    <td>
+                      <a
+                        @click="viewForm(item)"
+                        class="text-primary hover:text-primary-focus cursor-pointer underline"
+                      >
+                        {{ item.form_title }}
+                      </a>
+                    </td>
                     <td>
                       <span v-if="item.is_active" class="badge badge-success"
                         >Active</span
                       >
                       <span v-else class="badge badge-ghost">Inactive</span>
                     </td>
-                    <td class="flex gap-1">
-                      <button class="btn btn-xs" @click="loadForm(item)">
-                        Edit
-                      </button>
-                      <button
-                        class="btn btn-xs btn-ghost"
-                        @click="viewResponses(item)"
-                      >
-                        Responses
-                      </button>
-                      <button
-                        class="btn btn-xs btn-accent"
-                        @click="duplicateForm(item)"
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        class="btn btn-xs btn-error"
-                        @click="deleteForm(item)"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        v-if="!item.is_active"
-                        class="btn btn-xs btn-primary"
-                        @click="activateForm(item)"
-                      >
-                        Make Active
-                      </button>
+                    <td>
+                      <span class="badge badge-outline">
+                        {{ responseCounts[item.form_id] || 0 }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown dropdown-end">
+                        <div
+                          tabindex="0"
+                          role="button"
+                          class="btn btn-ghost btn-sm"
+                        >
+                          <IconEllipsisV class="w-4 h-4" />
+                        </div>
+                        <ul
+                          tabindex="0"
+                          class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                        >
+                          <li>
+                            <a @click="loadForm(item)">
+                              <IconEdit class="w-4 h-4" />
+                              Edit
+                            </a>
+                          </li>
+                          <li>
+                            <a @click="viewResponses(item)">
+                              <IconEye class="w-4 h-4" />
+                              View Responses
+                            </a>
+                          </li>
+                          <li>
+                            <a @click="duplicateForm(item)">
+                              <IconFileText class="w-4 h-4" />
+                              Duplicate
+                            </a>
+                          </li>
+                          <li v-if="!item.is_active">
+                            <a @click="activateForm(item)">
+                              <IconCheck class="w-4 h-4" />
+                              Make Active
+                            </a>
+                          </li>
+                          <li>
+                            <a @click="deleteForm(item)" class="text-error">
+                              <IconTrash2 class="w-4 h-4" />
+                              Delete
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -338,43 +367,113 @@
         </div>
       </div>
 
-      <!-- Responses Modal (simple) -->
-      <dialog ref="responsesModal" class="modal">
-        <form method="dialog" class="modal-box w-11/12 max-w-5xl">
-          <h3 class="font-bold">Responses for {{ modalFormTitle }}</h3>
-          <div class="mt-3">
-            <div v-if="responses.length">
-              <div
-                v-for="r in responses"
-                :key="r.response_id"
-                class="card p-3 mb-2"
-              >
-                <div class="flex justify-between">
-                  <div>
-                    <div class="text-sm font-semibold">
-                      {{ r.alumni_name || "Alumni #" + r.alumni_id }}
-                    </div>
-                    <div class="text-xs text-muted">
-                      Submitted: {{ r.submitted_at }}
-                    </div>
-                  </div>
-                  <div class="text-sm">
-                    Completion: {{ r.completion_percentage }}%
-                  </div>
-                </div>
-                <pre class="mt-2 text-xs bg-base-200 p-2 rounded">{{
-                  r.responses
-                }}</pre>
+      <!-- View Form Modal -->
+      <dialog ref="viewFormModal" class="modal">
+        <form method="dialog" class="modal-box w-11/12 max-w-4xl">
+          <h3 class="font-bold text-lg mb-4">{{ viewFormData.title }}</h3>
+
+          <!-- Form Details -->
+          <div class="mb-4 p-4 bg-base-200 rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <span class="font-semibold">Year:</span> {{ viewFormData.year }}
+              </div>
+              <div>
+                <span class="font-semibold">Status:</span>
+                <span
+                  v-if="viewFormData.is_active"
+                  class="badge badge-success badge-sm ml-2"
+                  >Active</span
+                >
+                <span v-else class="badge badge-ghost badge-sm ml-2"
+                  >Inactive</span
+                >
+              </div>
+              <div v-if="viewFormData.deadline">
+                <span class="font-semibold">Deadline:</span>
+                {{ viewFormData.deadline }}
               </div>
             </div>
-            <p v-else>No responses yet.</p>
+            <div v-if="viewFormData.description" class="mt-3">
+              <span class="font-semibold">Description:</span>
+              <p class="mt-1 text-gray-600">{{ viewFormData.description }}</p>
+            </div>
           </div>
+
+          <!-- Form Preview -->
+          <div class="space-y-4">
+            <h4 class="font-semibold">Form Questions:</h4>
+            <div
+              v-for="(q, i) in viewFormData.questions"
+              :key="q.id"
+              class="p-3 bg-base-100 rounded-lg"
+            >
+              <label class="label">
+                <span class="label-text font-medium"
+                  >{{ i + 1 }}. {{ q.label }}</span
+                >
+              </label>
+              <div>
+                <input
+                  v-if="q.type === 'text'"
+                  class="input input-bordered w-full"
+                  :placeholder="q.placeholder || 'Text input'"
+                  disabled
+                />
+                <textarea
+                  v-if="q.type === 'textarea'"
+                  class="textarea textarea-bordered w-full"
+                  :placeholder="q.placeholder || 'Textarea input'"
+                  rows="3"
+                  disabled
+                ></textarea>
+                <div v-if="q.type === 'radio'" class="space-y-2">
+                  <label
+                    v-for="opt in q.options"
+                    :key="opt"
+                    class="flex items-center gap-2"
+                  >
+                    <input type="radio" disabled class="radio radio-sm" />
+                    <span>{{ opt }}</span>
+                  </label>
+                </div>
+                <div v-if="q.type === 'checkbox'" class="space-y-2">
+                  <label
+                    v-for="opt in q.options"
+                    :key="opt"
+                    class="flex items-center gap-2"
+                  >
+                    <input
+                      type="checkbox"
+                      disabled
+                      class="checkbox checkbox-sm"
+                    />
+                    <span>{{ opt }}</span>
+                  </label>
+                </div>
+                <select
+                  v-if="q.type === 'select'"
+                  class="select select-bordered w-full"
+                  disabled
+                >
+                  <option disabled selected>Select an option</option>
+                  <option v-for="opt in q.options" :key="opt">
+                    {{ opt }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="modal-action">
             <button class="btn">Close</button>
           </div>
         </form>
       </dialog>
     </div>
+
+    <!-- Form Responses Component -->
+    <FormResponses ref="formResponsesComponent" />
   </Layout>
 </template>
 
@@ -382,8 +481,14 @@
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
+import FormResponses from "@/components/FormReponses.vue";
 import axios from "axios";
 import draggable from "vuedraggable";
+import { messageService } from "@/services/messageService.js";
+
+// Configure axios (ensure backend is properly accessible)
+axios.defaults.baseURL = "http://localhost/skillslink/backend";
+axios.defaults.withCredentials = true;
 
 // Router instance
 const router = useRouter();
@@ -393,6 +498,7 @@ const forms = ref([]);
 const editing = ref(false);
 const isNew = ref(true);
 const preview = ref(false);
+const responseCounts = ref({});
 
 const form = reactive({
   form_id: null,
@@ -404,9 +510,12 @@ const form = reactive({
   questions: [],
 });
 
-const responsesModal = ref(null);
-const responses = ref([]);
-const modalFormTitle = ref("");
+// Form Responses Component Reference
+const formResponsesComponent = ref(null);
+
+// Form view modal
+const viewFormModal = ref(null);
+const viewFormData = ref({});
 
 // helpers
 const resetForm = () => {
@@ -456,13 +565,49 @@ const togglePreview = () => {
 };
 
 // API calls
+const fetchResponseCounts = async () => {
+  try {
+    const counts = {};
+    for (const form of forms.value) {
+      try {
+        const res = await axios.get(
+          `/admin/form_responses.php?action=count&form_id=${form.form_id}`
+        );
+        counts[form.form_id] = res.data.count || 0;
+      } catch (err) {
+        console.error(`Error fetching count for form ${form.form_id}:`, err);
+        counts[form.form_id] = 0;
+      }
+    }
+    responseCounts.value = counts;
+  } catch (err) {
+    console.error("Error fetching response counts:", err);
+  }
+};
+
 const fetchForms = async () => {
   try {
+    console.log("Fetching forms list..."); // Debug log
     const res = await axios.get("/admin/tracer_forms.php?action=list");
-    forms.value = res.data || [];
+    console.log("Forms list response:", res.data); // Debug log
+
+    // Ensure res.data is an array before filtering
+    const data = res.data;
+    if (Array.isArray(data)) {
+      // Filter out empty/invalid forms (e.g., missing form_id or form_title)
+      forms.value = data.filter((f) => f && f.form_id && f.form_title);
+      console.log("Filtered forms:", forms.value); // Debug log
+
+      // Fetch response counts after loading forms
+      await fetchResponseCounts();
+    } else {
+      console.error("Expected array but got:", data);
+      forms.value = [];
+    }
   } catch (err) {
-    console.error(err);
+    console.error("Error in fetchForms:", err);
     alert("Failed to load forms");
+    forms.value = [];
   }
 };
 
@@ -476,23 +621,43 @@ const openCreate = () => {
 const loadForm = async (item) => {
   // load into editor
   try {
+    console.log("Loading form for editing:", item); // Debug log
     const res = await axios.get(
       `/admin/tracer_forms.php?action=get&form_id=${item.form_id}`
     );
+    console.log("Load form response:", res.data); // Debug log
+    
     const d = res.data;
+    
+    // Check if response has success property and handle accordingly
+    if (d.success === false) {
+      throw new Error(d.message || "Failed to load form");
+    }
+    
+    // Populate form data
     form.form_id = d.form_id;
-    form.title = d.form_title;
-    form.year = d.form_year;
-    form.description = d.form_description;
+    form.title = d.form_title || "";
+    form.year = d.form_year || new Date().getFullYear();
+    form.description = d.form_description || "";
     form.deadline = d.deadline_date || null;
     form.is_active = !!d.is_active;
-    form.questions = JSON.parse(d.form_questions || "[]");
+    
+    // Handle questions - ensure it's an array
+    if (typeof d.form_questions === 'string') {
+      form.questions = JSON.parse(d.form_questions || "[]");
+    } else if (Array.isArray(d.form_questions)) {
+      form.questions = d.form_questions;
+    } else {
+      form.questions = [];
+    }
 
     editing.value = true;
     isNew.value = false;
+    console.log("Form loaded successfully for editing"); // Debug log
   } catch (err) {
-    console.error(err);
-    alert("Failed to load form for editing");
+    console.error("Error loading form:", err);
+    console.error("Response data:", err.response?.data);
+    alert(`Failed to load form for editing: ${err.message || err.response?.data?.message || "Unknown error"}`);
   }
 };
 
@@ -513,18 +678,27 @@ const saveForm = async () => {
     is_active: form.is_active,
   };
 
+  console.log("Sending payload:", payload); // Debug log
+
   try {
     const res = await axios.post("/admin/tracer_forms.php", payload);
+    console.log("Response:", res.data); // Debug log
     if (res.data.success) {
       alert("Form saved");
       editing.value = false;
-      fetchForms();
+      // Safely refresh the forms list
+      try {
+        await fetchForms();
+      } catch (fetchError) {
+        console.error("Error refreshing forms list:", fetchError);
+        // Don't show error to user, form was saved successfully
+      }
     } else {
       alert(res.data.message || "Failed to save");
     }
   } catch (err) {
-    console.error(err);
-    alert("Error saving form");
+    console.error("Error details:", err.response || err);
+    alert(`Error saving form: ${err.response?.data?.message || err.message}`);
   }
 };
 
@@ -534,16 +708,34 @@ const cancelEdit = () => {
 
 const duplicateForm = async (item) => {
   try {
+    console.log("Attempting to duplicate form:", item); // Debug log
     const res = await axios.post("/admin/tracer_forms.php?action=duplicate", {
       form_id: item.form_id,
     });
+    console.log("Duplicate response:", res.data); // Debug log
+    
     if (res.data.success) {
-      fetchForms();
-      alert("Form duplicated");
+      await fetchForms();
+      alert("Form duplicated successfully");
+    } else {
+      alert(`Failed to duplicate: ${res.data.message || "Unknown error"}`);
     }
   } catch (err) {
-    console.error(err);
-    alert("Failed");
+    console.error("Error duplicating form:", err);
+    console.error("Response data:", err.response?.data);
+    
+    let errorMessage = "Failed to duplicate form";
+    if (err.response?.status === 401) {
+      errorMessage = "Authentication failed. Please log in again.";
+    } else if (err.response?.status === 403) {
+      errorMessage = "Access denied. Admin permissions required.";
+    } else if (err.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+    
+    alert(errorMessage);
   }
 };
 
@@ -577,27 +769,83 @@ const activateForm = async (item) => {
 };
 
 const viewResponses = async (item) => {
-  modalFormTitle.value = item.form_title;
-  responses.value = [];
+  // Use the FormResponses component method
+  if (formResponsesComponent.value) {
+    formResponsesComponent.value.viewResponses(item);
+  }
+};
+
+const viewForm = async (item) => {
   try {
-    const res = await axios.get(
-      `/admin/form_responses.php?action=list&form_id=${item.form_id}`
-    );
-    responses.value = res.data || [];
-    responsesModal.value.showModal();
+    console.log("Attempting to view form:", item); // Debug log
+
+    // First check if we can reach the backend
+    const url = `/admin/tracer_forms.php?action=get&form_id=${item.form_id}`;
+    console.log("Request URL:", url); // Debug log
+    console.log("Full URL:", axios.defaults.baseURL + url); // Debug log
+
+    const res = await axios.get(url);
+    console.log("Response status:", res.status); // Debug log
+    console.log("Response received:", res.data); // Debug log
+
+    const d = res.data;
+
+    // Check if we got an error response
+    if (d.success === false) {
+      console.error("API returned error:", d.message);
+      alert(`Error: ${d.message}`);
+      return;
+    }
+
+    // Check if we have the required fields
+    if (!d.form_id || !d.form_title) {
+      console.error("Invalid form data received:", d);
+      alert("Invalid form data received from server");
+      return;
+    }
+
+    viewFormData.value = {
+      form_id: d.form_id,
+      title: d.form_title,
+      year: d.form_year,
+      description: d.form_description || "",
+      deadline: d.deadline_date || null,
+      is_active: !!d.is_active,
+      questions: Array.isArray(d.form_questions)
+        ? d.form_questions
+        : JSON.parse(d.form_questions || "[]"),
+    };
+    console.log("View form data set:", viewFormData.value); // Debug log
+    viewFormModal.value.showModal();
   } catch (err) {
-    console.error(err);
-    alert("Failed to fetch responses");
+    console.error("Error loading form for view:", err);
+    console.error("Error status:", err.response?.status); // Additional debug info
+    console.error("Error response data:", err.response?.data); // Additional debug info
+    console.error("Error message:", err.message); // Additional debug info
+
+    let errorMessage = "Failed to load form details";
+    if (err.response?.status === 401) {
+      errorMessage = "Authentication failed. Please log in again.";
+    } else if (err.response?.status === 403) {
+      errorMessage = "Access denied. Admin permissions required.";
+    } else if (err.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+
+    alert(errorMessage);
   }
 };
 
 onMounted(() => {
+  console.log("TracerFormsAdmin mounted, fetching forms..."); // Debug log
   fetchForms();
 });
 
 const handleLogout = () => {
-  router.push('/home')
-}
+  router.push("/home");
+};
 </script>
 
 <style scoped>
