@@ -63,11 +63,12 @@ try {
         if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
         $form_id = (int)$_GET['form_id'];
         $sql = "SELECT fr.*, 
-                       CONCAT(u.first_name, ' ', u.last_name) AS alumni_name,
+                       CONCAT(a.first_name, ' ', a.last_name) AS alumni_name,
                        u.email AS alumni_email,
-                       u.student_id AS alumni_student_id
+                       a.student_id AS alumni_student_id
                 FROM form_responses fr
-                LEFT JOIN users u ON fr.alumni_id = u.user_id
+                LEFT JOIN alumni a ON fr.alumni_id = a.alumni_id
+                LEFT JOIN users u ON a.user_id = u.user_id
                 WHERE fr.form_id = :form_id
                 ORDER BY fr.submitted_at DESC";
         $stmt = $pdo->prepare($sql);
