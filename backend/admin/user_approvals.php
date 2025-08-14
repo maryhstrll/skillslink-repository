@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $stmt = $pdo->prepare('
             SELECT user_id, email, role, approval_status, created_at, 
-                   first_name, last_name, student_id 
+                   first_name, last_name, student_id, program_id 
             FROM users 
             WHERE approval_status = "pending" 
             ORDER BY created_at DESC
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         if ($stmt->rowCount() > 0) {
             // Get user details for response
-            $stmt = $pdo->prepare('SELECT email, role, first_name, last_name, student_id FROM users WHERE user_id = ?');
+            $stmt = $pdo->prepare('SELECT email, role, first_name, last_name, student_id, program_id FROM users WHERE user_id = ?');
             $stmt->execute([$userId]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -68,12 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $stmt->execute([$userId]);
                 
                 if (!$stmt->fetch()) {
-                    // Get a default program (you might want to make this configurable)
-                    $stmt = $pdo->prepare('SELECT program_id FROM programs LIMIT 1');
-                    $stmt->execute();
-                    $defaultProgram = $stmt->fetch();
-                    
-                    if ($defaultProgram) {
+                    // Use the program_id from the user's registration
+                    if ($user['program_id']) {
                         // Create alumni record with basic information
                         $stmt = $pdo->prepare('
                             INSERT INTO alumni (
@@ -86,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                             $user['student_id'],
                             $user['first_name'],
                             $user['last_name'],
-                            $defaultProgram['program_id']
+                            $user['program_id']
                         ]);
                     }
                 }

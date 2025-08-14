@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = $data['firstName'] ?? '';
     $lastName = $data['lastName'] ?? '';
     $studentId = $data['studentId'] ?? '';
+    $programId = $data['programId'] ?? null;
     $role = $data['role'] ?? 'alumni'; // default to alumni
 
     // validate inputs
@@ -27,6 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Additional validation for alumni program selection
+    if ($role === 'alumni' && empty($programId)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Program selection is required for alumni registration']);
+        exit;
+    }
+
     // Check if the email or student ID already exists
     $stmt = $pdo->prepare('SELECT user_id FROM users WHERE email = ? OR student_id = ?');
     $stmt->execute([$email, $studentId]);
@@ -40,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, last_name, student_id) VALUES (?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, last_name, student_id, program_id) VALUES (?, ?, ?, ?, ?, ?, ?)');
     try {
-        $stmt->execute([$email, $password_hash, $role, $firstName, $lastName, $studentId]);
+        $stmt->execute([$email, $password_hash, $role, $firstName, $lastName, $studentId, $programId]);
         echo json_encode([
             'message' => 'Registration successful! Your account is pending approval by an administrator. You will receive confirmation once approved.'
         ]);
