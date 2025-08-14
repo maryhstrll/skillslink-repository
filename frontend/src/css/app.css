@@ -1,9 +1,96 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/*
+  Color System Improvements
+  1. Raw brand colors (hex + rgb tokens for opacity utilities)
+  2. Semantic tokens (bg / surface / text / border / accent)
+  3. Light + dark theme (class-based + prefers-color-scheme fallback)
+*/
+
 :root {
+  /* Brand (hex) */
   --color-navy: #081F37;
   --color-light-blue: #5FC9F3;
   --color-medium-blue: #2E79BA;
   --color-dark-blue: #1E549F;
+
+  /* Brand (space-separated RGB for Tailwind alpha support: rgb(var(--color-navy-rgb) / <alpha-value>)) */
+  --color-navy-rgb: 8 31 55;
+  --color-light-blue-rgb: 95 201 243;
+  --color-medium-blue-rgb: 46 121 186;
+  --color-dark-blue-rgb: 30 84 159;
+
+  /* Semantic tokens (Light) */
+  --color-bg: var(--color-navy); /* page background or can be #f9fafb if pref */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-invert: #ffffff;
+  --color-accent: var(--color-medium-blue);
+  --color-accent-hover: var(--color-dark-blue);
+  --color-accent-rgb: var(--color-medium-blue-rgb);
+  --color-focus: var(--color-light-blue);
 }
+
+/* Dark theme (activate with <html class="dark"> OR add .theme-dark to any wrapper) */
+html.dark, .theme-dark {
+  --color-bg: #0b1524;
+  --color-surface: #152132;
+  --color-surface-alt: #1d2b40;
+  --color-border: #2a3b52;
+  --color-text: #e2e8f0;
+  --color-text-invert: #0b1524;
+  --color-accent: var(--color-light-blue);
+  --color-accent-hover: var(--color-medium-blue);
+  --color-accent-rgb: var(--color-light-blue-rgb);
+  --color-focus: var(--color-medium-blue);
+}
+
+/* Optional automatic dark preference (removed if you prefer manual only) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.force-light) {
+    --color-bg: #0b1524;
+    --color-surface: #152132;
+    --color-surface-alt: #1d2b40;
+    --color-border: #2a3b52;
+    --color-text: #e2e8f0;
+    --color-text-invert: #0b1524;
+    --color-accent: var(--color-light-blue);
+    --color-accent-hover: var(--color-medium-blue);
+    --color-accent-rgb: var(--color-light-blue-rgb);
+    --color-focus: var(--color-medium-blue);
+  }
+}
+
+/* Utility helpers (example) */
+.app-surface {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.app-surface-alt {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+.app-border {
+  border-color: var(--color-border);
+}
+.app-focus-outline:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Scrollbar theming (WebKit) */
+*::-webkit-scrollbar { width: 10px; }
+*::-webkit-scrollbar-track { background: var(--color-surface-alt); }
+*::-webkit-scrollbar-thumb { background: rgb(var(--color-accent-rgb) / 0.6); border-radius: 6px; }
+*::-webkit-scrollbar-thumb:hover { background: rgb(var(--color-accent-rgb) / 0.8); }
+
+/* DaisyUI root-level adjustments (optional) */
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+

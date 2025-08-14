@@ -1,7 +1,7 @@
 <template>
   <div class="drawer-side">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <aside class="menu p-4 w-80 bg-base-100 text-base-content min-h-full">
+    <aside class="menu p-4 w-80 bg-base-100 text-base-content min-h-screen">
       <!-- Sidebar Header -->
       
       <!-- Menu Items -->
@@ -86,5 +86,4 @@ const isActive = (path) => {
 </script>
 
 <style scoped>
-
 </style>

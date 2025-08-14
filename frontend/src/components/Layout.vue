@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-base-200">
     <!-- Navbar -->
-    <div class="navbar bg-base-100 shadow-lg">
+    <nav class="navbar bg-base-100 shadow-lg">
       <div class="flex-none lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
           <IconMenu class="text-lg" />
@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Drawer -->
     <div class="drawer lg:drawer-open">
@@ -210,4 +210,6 @@ const handleLogout = async () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

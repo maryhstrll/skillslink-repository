@@ -1,7 +1,7 @@
 <template>
   <div class="modal" :class="{ 'modal-open': isOpen }" role="dialog">
     <div class="modal-box glass max-w-md">
-      <h3 class="font-bold text-2xl text-center mb-4">SkillsLink Login</h3>
+      <h3 class="text1 font-bold text-2xl text-center mb-4">SkillsLink Login</h3>
       <!-- Error messages now handled by MessageContainer -->
       <form @submit.prevent="handleLogin">
         <div class="form-control">
@@ -30,16 +30,16 @@
             />
             <button
               type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              class="eye absolute inset-y-0 right-0 pr-3 flex items-center"
               @click="togglePasswordVisibility"
             >
               <IconEye 
                 v-if="!showPassword"
-                class="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                class="w-5 h-5 text-navy hover:text-gray-600 transition-colors duration-200"
               />
               <IconEyeOff 
                 v-else
-                class="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                class="w-5 h-5 text-navy hover:text-gray-600 transition-colors duration-200"
               />
             </button>
           </div>
@@ -181,14 +181,20 @@ export default {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-
-/* Ensure the eye icon is properly positioned and clickable */
+.label, .text1  {
+ color: var(--color-navy);
+}
+input.input {
+  color: var(--color-surface-alt);
+}
+/* to ensure that the eye icon is properly positioned and clickable */
 .relative input {
   padding-right: 3rem;
 }
 
 .relative button {
   z-index: 10;
+  color: var(--color-navy);
 }
 
 .relative button:focus {
@@ -198,5 +204,8 @@ export default {
 .relative button i {
   cursor: pointer;
   user-select: none;
+}
+button.eye {
+  color: var(--color-navy);
 }
 </style>
