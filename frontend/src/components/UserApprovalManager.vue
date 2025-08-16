@@ -48,7 +48,7 @@
             <tbody>
               <tr v-for="user in pendingUsers" :key="user.user_id">
                 <td>
-                  <div class="font-bold">{{ user.first_name }} {{ user.last_name }}</div>
+                  <div class="font-bold">{{ user.first_name }}{{ user.middle_name ? ' ' + user.middle_name : '' }} {{ user.last_name }}</div>
                 </td>
                 <td>
                   <div v-if="user.role === 'alumni'" class="text-sm">
@@ -89,9 +89,21 @@
 
 <script>
 import userApprovalService from '@/services/userApproval.js';
+import { 
+  RefreshCw as IconRefreshCw, 
+  Users as IconUsers, 
+  Check as IconCheck, 
+  X as IconX 
+} from 'lucide-vue-next';
 
 export default {
   name: 'UserApprovalManager',
+  components: {
+    IconRefreshCw,
+    IconUsers,
+    IconCheck,
+    IconX
+  },
   data() {
     return {
       pendingUsers: [],

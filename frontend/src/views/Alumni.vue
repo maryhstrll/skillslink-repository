@@ -4,34 +4,21 @@
     <div class="min-h-screen bg-gradient-to-br from-[#081F37] to-[#1E549F] p-4 md:p-6 lg:p-8">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/10 backdrop-blur-sm rounded p-6 shadow-xl border border-white/20">
           <div class="text-white">
             <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] bg-clip-text text-transparent">
               Alumni Management
             </h1>
             <p class="text-white/80 text-sm md:text-base">Manage and track alumni information</p>
           </div>
-          <button 
-            class="btn bg-gradient-to-r from-[#2E79BA] to-[#1E549F] border-none text-white hover:from-[#5FC9F3] hover:to-[#2E79BA] transform hover:scale-105 transition-all duration-300 shadow-lg w-full sm:w-auto" 
-            @click="openAddModal"
-          >
-            <IconPlus class="w-4 h-4 mr-2" />
-            Add Alumni
-          </button>
+            <div class="text-right">
+              <div class="stat-title text-white/90">Total Alumni</div>
+              <div class="stat-value text-[#5FC9F3]">{{ loading ? '...' : alumniList.length }}</div>
+            </div>
         </div>
-
-        <!-- Stats Cards (Mobile-first responsive) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="stat bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 text-white shadow-xl hover:bg-white/20 transition-all duration-300">
-            <div class="stat-title text-white/70">Total Alumni</div>
-            <div class="stat-value text-[#5FC9F3]">{{ loading ? '...' : alumniList.length }}</div>
-          </div>
-        </div>
-
-        <!-- Error messages are now handled by MessageContainer in App.vue -->
 
         <!-- Alumni Table/Cards -->
-        <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
+        <div class="bg-white/95 backdrop-blur-sm rounded shadow-2xl border border-white/30 overflow-hidden">
           <div class="p-6 bg-gradient-to-r from-[#2E79BA] to-[#1E549F]">
             <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Alumni Directory</h2>
             <p class="text-white/80">Complete list of registered alumni</p>

@@ -26,7 +26,7 @@
         </div>
       </div>
       <form @submit.prevent="handleRegister" v-if="!success">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div class="form-control">
             <label class="label">
               <span class="label-text">First Name</span>
@@ -37,6 +37,17 @@
               placeholder="Enter first name"
               class="input input-bordered glass"
               required
+            />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Middle Name</span>
+            </label>
+            <input
+              v-model="form.middleName"
+              type="text"
+              placeholder="Enter middle name (optional)"
+              class="input input-bordered glass"
             />
           </div>
           <div class="form-control">
@@ -201,9 +212,14 @@
 <script>
 import authService from "@/services/auth.js";
 import programsService from "@/services/programs.js";
+import { Eye as IconEye, EyeOff as IconEyeOff } from 'lucide-vue-next';
 
 export default {
   name: "RegisterModal",
+  components: {
+    IconEye,
+    IconEyeOff
+  },
   props: {
     isOpen: {
       type: Boolean,
@@ -215,6 +231,7 @@ export default {
     return {
       form: {
         firstName: "",
+        middleName: "",
         lastName: "",
         studentId: "",
         password: "",
@@ -258,6 +275,7 @@ export default {
       try {
         const result = await authService.register({
           firstName: this.form.firstName,
+          middleName: this.form.middleName,
           lastName: this.form.lastName,
           studentId: this.form.studentId,
           password: this.form.password,
@@ -301,6 +319,7 @@ export default {
     resetForm() {
       this.form = {
         firstName: "",
+        middleName: "",
         lastName: "",
         studentId: "",
         password: "",
@@ -408,6 +427,7 @@ select.select {
 
 input.input {
   color: var(--color-surface-alt);
+  margin-top: 5px;
 }
 .cursor-pointer {
   cursor: pointer;

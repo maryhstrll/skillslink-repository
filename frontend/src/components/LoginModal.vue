@@ -6,13 +6,13 @@
       <form @submit.prevent="handleLogin">
         <div class="form-control">
           <label class="label">
-            <span class="label-text">Email or Student ID</span>
+            <span class="label-text">Email or ID</span>
           </label>
           <input
             v-model="login"
             type="text"
-            placeholder="Enter email or student ID"
-            class="input input-bordered glass"
+            placeholder="Enter email or ID"
+            class="input input-bordered glass w-full"
             required
           />
         </div>
@@ -30,7 +30,7 @@
             />
             <button
               type="button"
-              class="eye absolute inset-y-0 right-0 pr-3 flex items-center"
+              class="eye absolute inset-y-0 right-0 pr-3 flex items-center justify-center"
               @click="togglePasswordVisibility"
             >
               <IconEye 
@@ -56,15 +56,15 @@
           </button>
         </div>
       </form>
-      <div class="text-center mt-4">
+      <div class="text-center mt-6">
         <button
           class="btn btn-ghost text-sm"
           @click="switchToRegister"
         >
-          New alumni? Register here
+          Register here
         </button>
       </div>
-      <div class="modal-action">
+      <div class="modal-action ">
         <button class="btn btn-sm btn-circle absolute right-2 top-2" @click="closeModal">✕</button>
       </div>
     </div>
@@ -107,7 +107,7 @@ export default {
       
       // Basic client-side validation
       if (!this.login.trim()) {
-        messageService.toast('⚠️ Please enter your email or student ID', 'warning');
+        messageService.toast('⚠️ Please enter your email or ID', 'warning');
         this.isLoading = false;
         return;
       }
@@ -136,7 +136,7 @@ export default {
           console.log('Login error message:', errorMessage); // Debug log
           if (errorMessage.toLowerCase().includes('invalid credentials') || 
               errorMessage.toLowerCase().includes('password')) {
-            messageService.toast('⚠️ Invalid email/student ID or password. Please check your credentials.', 'warning');
+            messageService.toast('⚠️ Invalid email/ID or password. Please check your credentials.', 'warning');
           } else if (errorMessage.toLowerCase().includes('pending')) {
             console.log('Showing pending approval message'); // Debug log
             messageService.alert(errorMessage, 'warning', 'Account Pending');
@@ -186,6 +186,7 @@ export default {
 }
 input.input {
   color: var(--color-surface-alt);
+  margin-top: 5px;
 }
 /* to ensure that the eye icon is properly positioned and clickable */
 .relative input {
@@ -205,7 +206,5 @@ input.input {
   cursor: pointer;
   user-select: none;
 }
-button.eye {
-  color: var(--color-navy);
-}
+
 </style>

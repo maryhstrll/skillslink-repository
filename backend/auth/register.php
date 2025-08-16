@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
     $firstName = $data['firstName'] ?? '';
+    $middleName = $data['middleName'] ?? '';
     $lastName = $data['lastName'] ?? '';
     $studentId = $data['studentId'] ?? '';
     $programId = $data['programId'] ?? null;
@@ -48,9 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, last_name, student_id, program_id) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, middle_name, last_name, student_id, program_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     try {
-        $stmt->execute([$email, $password_hash, $role, $firstName, $lastName, $studentId, $programId]);
+        $stmt->execute([$email, $password_hash, $role, $firstName, $middleName, $lastName, $studentId, $programId]);
         echo json_encode([
             'message' => 'Registration successful! Your account is pending approval by an administrator. You will receive confirmation once approved.'
         ]);

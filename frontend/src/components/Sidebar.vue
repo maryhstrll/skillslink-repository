@@ -34,8 +34,15 @@
             <IconChevronUp class="text-xs" />
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
-            <li><a @click="$emit('profile')"><IconUser class="w-4 h-4" /> Profile</a></li>
-            <li><a @click="$emit('logout')" class="text-error"><IconLogOut class="w-4 h-4" /> Logout</a></li>
+            <li>
+              <router-link to="/profile"  >
+              <IconUser class="w-4 h-4" /> Profile                
+              </router-link>
+            </li>
+            <li>
+              <a @click="$emit('logout')" class="text-error">
+                <IconLogOut class="w-4 h-4" /> Logout</a>
+            </li>
           </ul>
         </div>
       </div>

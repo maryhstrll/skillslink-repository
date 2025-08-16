@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $stmt = $pdo->prepare('
             SELECT user_id, email, role, approval_status, created_at, 
-                   first_name, last_name, student_id, program_id 
+                   first_name, middle_name, last_name, student_id, program_id 
             FROM users 
             WHERE approval_status = "pending" 
             ORDER BY created_at DESC
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         if ($stmt->rowCount() > 0) {
             // Get user details for response
-            $stmt = $pdo->prepare('SELECT email, role, first_name, last_name, student_id, program_id FROM users WHERE user_id = ?');
+            $stmt = $pdo->prepare('SELECT email, role, first_name, middle_name, last_name, student_id, program_id FROM users WHERE user_id = ?');
             $stmt->execute([$userId]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -73,14 +73,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         // Create alumni record with basic information
                         $stmt = $pdo->prepare('
                             INSERT INTO alumni (
-                                user_id, student_id, first_name, last_name, 
+                                user_id, student_id, first_name, middle_name, last_name, 
                                 program_id, year_graduated, profile_completion_percentage
-                            ) VALUES (?, ?, ?, ?, ?, YEAR(NOW()), 30)
+                            ) VALUES (?, ?, ?, ?, ?, ?, YEAR(NOW()), 30)
                         ');
                         $stmt->execute([
                             $userId,
                             $user['student_id'],
                             $user['first_name'],
+                            $user['middle_name'],
                             $user['last_name'],
                             $user['program_id']
                         ]);

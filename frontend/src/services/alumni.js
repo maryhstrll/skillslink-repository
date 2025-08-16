@@ -58,6 +58,41 @@ const alumniService = {
       console.error('Error deleting alumni:', error)
       return { success: false, message: 'Error deleting alumni' }
     }
+  },
+
+  async getProfile() {
+    try {
+      const response = await fetch('http://localhost/skillslink/backend/alumni/get_profile.php', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      // Check if response is ok
+      if (!response.ok) {
+        console.error('HTTP error:', response.status, response.statusText);
+        return null;
+      }
+      
+      const data = await response.json()
+      
+      // Log the response for debugging
+      console.log('Profile API response:', data)
+      
+      if (data.success) {
+        return data.data
+      } else {
+        console.error('Profile API error:', data.message, data.debug || '')
+        
+        // Return error information so the frontend can handle it
+        return { error: data.message, debug: data.debug }
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+      return null
+    }
   }
 }
 

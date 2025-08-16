@@ -5,6 +5,7 @@ import Alumni from "@/views/Alumni.vue";
 import TracerFormsAdmin from "@/views/TracerFormsAdmin.vue";
 import AlumniTracerForm from "@/views/AlumniTracerForm.vue";
 import Reports from "@/views/Reports.vue";
+import AlumniProfile from "@/views/AlumniProfile.vue";
 import Settings from "@/views/Settings.vue";
 import Users from "@/views/Users.vue";
 
@@ -34,6 +35,11 @@ const routes = [
     path: "/reports",
     component: Reports,
     meta: { requiresAuth: true, roles: ["admin", "staff"] },
+  },
+    {
+    path: "/profile",
+    component: AlumniProfile,
+    meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
     path: "/settings",
