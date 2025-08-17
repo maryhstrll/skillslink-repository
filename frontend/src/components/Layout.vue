@@ -1,57 +1,57 @@
 <template>
   <div class="min-h-screen bg-base-200">
-    <!-- Navbar -->
-    <nav class="navbar bg-base-100 shadow-lg">
-      <div class="flex-none lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <IconMenu class="text-lg" />
-        </label>
-      </div>
-      <div class="flex-1">
-        <button class="btn btn-circle">
-          <img
-            src="../assets/logo1.png"
-            alt="Logo 1"
-            class="w-[3em] h-[3em] object-contain"
-          />
-        </button>
-        <router-link
-          to="/dashboard"
-          class="btn btn-ghost text-xl font-bold text-primary"
-        >
-          SSVTC - SkillsLink
-        </router-link>
-      </div>
-      <div class="flex-none">
-        <!-- Notifications -->
-        <div class="dropdown dropdown-end">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-            <div class="indicator">
-              <IconBell class="text-lg" />
-              <span class="badge badge-xs badge-primary indicator-item">3</span>
-            </div>
-          </div>
-          <div
-            tabindex="0"
-            class="dropdown-content card card-compact w-64 bg-base-100 shadow"
-          >
-            <div class="card-body">
-              <span class="font-bold text-lg">3 Notifications</span>
-              <span class="text-info">You have new messages</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
     <!-- Drawer -->
     <div class="drawer lg:drawer-open">
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
       <!-- Main Content -->
-      <div class="drawer-content">
+      <div class="drawer-content flex flex-col">
+        <!-- Navbar - now inside main content area -->
+        <nav class="navbar bg-base-100 shadow-lg">
+          <div class="flex-none lg:hidden">
+            <label for="my-drawer" class="btn btn-square btn-ghost">
+              <IconMenu class="text-lg" />
+            </label>
+          </div>
+          <div class="flex-1">
+            <button class="btn btn-circle">
+              <img
+                src="../assets/logo1.png"
+                alt="Logo 1"
+                class="w-[3em] h-[3em] object-contain"
+              />
+            </button>
+            <router-link
+              to="/dashboard"
+              class="btn btn-ghost text-xl font-bold text-primary"
+            >
+              SSVTC - SkillsLink
+            </router-link>
+          </div>
+          <div class="flex-none">
+            <!-- Notifications -->
+            <div class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <div class="indicator">
+                  <IconBell class="text-lg" />
+                  <span class="badge badge-xs badge-primary indicator-item">3</span>
+                </div>
+              </div>
+              <div
+                tabindex="0"
+                class="dropdown-content card card-compact w-64 bg-base-100 shadow"
+              >
+                <div class="card-body">
+                  <span class="font-bold text-lg">3 Notifications</span>
+                  <span class="text-info">You have new messages</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+        
         <!-- Page content -->
-        <main class="p-4 lg:p-6">
+        <main class="flex-1 p-4 lg:p-6">
           <slot />
         </main>
       </div>
@@ -73,6 +73,7 @@ import authService from "@/services/auth.js";
 import { messageService } from "@/services/messageService.js";
 import { useRouter } from "vue-router";
 import { ref, onMounted, computed } from "vue";
+import { Menu as IconMenu, Bell as IconBell } from 'lucide-vue-next';
 
 const props = defineProps({
   userName: {

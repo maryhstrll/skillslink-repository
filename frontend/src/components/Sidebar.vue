@@ -1,28 +1,28 @@
 <template>
   <div class="drawer-side">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <aside class="menu p-4 w-80 bg-base-100 text-base-content min-h-screen">
-      <!-- Sidebar Header -->
-      
+    <aside class="flex flex-col h-screen w-80 bg-base-100 text-base-content">
       <!-- Menu Items -->
-      <ul class="space-y-2">
-        <li v-for="item in menuItems" :key="item.path">
-          <router-link 
-            :to="item.path" 
-            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
-            :class="{ 'bg-primary text-primary-content': isActive(item.path) }"
-          >
-            <component :is="item.icon" class="text-lg" />
-            <span>{{ item.label }}</span>
-          </router-link>
-        </li>
-      </ul>
+      <div class="flex-1 p-4">
+        <ul class="space-y-2">
+          <li v-for="item in menuItems" :key="item.path">
+            <router-link 
+              :to="item.path" 
+              class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
+              :class="{ 'bg-primary text-primary-content': isActive(item.path) }"
+            >
+              <component :is="item.icon" class="text-lg" />
+              <span>{{ item.label }}</span>
+            </router-link>
+          </li>
+        </ul>
+      </div>
       
       <!-- Divider -->
-      <div class="divider"></div>
+      <div class="divider mx-4"></div>
       
       <!-- User Section -->
-      <div class="mt-auto">
+      <div class="p-4">
         <div class="dropdown dropdown-top dropdown-end w-full">
           <div tabindex="0" role="button" class="btn btn-ghost w-full justify-start gap-3">
             <div class="avatar placeholder">
@@ -53,6 +53,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { ChevronUp as IconChevronUp, User as IconUser, LogOut as IconLogOut } from 'lucide-vue-next'
 
 const props = defineProps({
   menuItems: {
