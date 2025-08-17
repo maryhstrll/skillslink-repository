@@ -9,6 +9,7 @@ CREATE TABLE users (
     approved_at TIMESTAMP NULL,
     first_name VARCHAR(50) NULL,
     last_name VARCHAR(50) NULL,
+    middle_name VARCHAR(50) NULL,
     student_id VARCHAR(50) NULL,
     last_login TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
@@ -298,4 +299,15 @@ CREATE TABLE alumni_skills (
     INDEX idx_alumni_id (alumni_id),
     INDEX idx_skill_name (skill_name),
     INDEX idx_skill_category (skill_category)
+);
+
+CREATE TABLE document_requests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    alumni_id INT NOT NULL,
+    document_type ENUM('Transcript of Records', 'Diploma', 'Certificate of Enrollment') NOT NULL,
+    purpose VARCHAR(255),
+    status ENUM('Pending', 'Processing', 'Ready for Pickup', 'Completed') DEFAULT 'Pending',
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (alumni_id) REFERENCES alumni(alumni_id) ON DELETE CASCADE
 );
