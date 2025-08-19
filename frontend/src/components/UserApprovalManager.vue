@@ -40,6 +40,8 @@
               <tr>
                 <th>Name</th>
                 <th>Student ID</th>
+                <th>Birthdate</th>
+                <th>Gender</th>
                 <th>Email</th>
                 <th>Registration Date</th>
                 <th>Actions</th>
@@ -56,6 +58,8 @@
                   </div>
                   <div v-else class="text-gray-500">N/A</div>
                 </td>
+                <td>{{ user.birthdate ? formatBirthdate(user.birthdate) : 'N/A' }}</td>
+                <td>{{ user.gender ? (user.gender.charAt(0).toUpperCase() + user.gender.slice(1)) : 'N/A' }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ formatDate(user.created_at) }}</td>
                 <td>
@@ -190,6 +194,15 @@ export default {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
+      });
+    },
+
+    formatBirthdate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       });
     }
   }

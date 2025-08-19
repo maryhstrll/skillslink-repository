@@ -67,7 +67,7 @@ try {
                 a.program_id,
                 a.batch_id,
                 a.gpa,
-                a.address,
+                a.barangay,
                 a.city,
                 a.province,
                 a.country,
@@ -106,7 +106,7 @@ try {
     
     // Calculate profile completion percentage
     $completionFields = [
-        'phone_number', 'date_of_birth', 'gender', 'address', 'city', 
+        'phone_number', 'date_of_birth', 'gender', 'barangay', 'city', 
         'province', 'country', 'linkedin_profile', 'facebook_profile'
     ];
     
@@ -140,7 +140,7 @@ try {
                 'gender' => $profile['gender']
             ],
             'address' => [
-                'address' => $profile['address'],
+                'barangay' => $profile['barangay'],
                 'city' => $profile['city'],
                 'province' => $profile['province'],
                 'country' => $profile['country'] ?? 'Philippines',

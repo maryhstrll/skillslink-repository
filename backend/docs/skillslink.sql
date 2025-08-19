@@ -11,6 +11,8 @@ CREATE TABLE users (
     last_name VARCHAR(50) NULL,
     middle_name VARCHAR(50) NULL,
     student_id VARCHAR(50) NULL,
+    birthdate DATE,
+    gender VARCHAR(10),
     last_login TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     phone_verified BOOLEAN DEFAULT FALSE,
@@ -34,7 +36,7 @@ CREATE TABLE programs (
     program_name VARCHAR(100) NOT NULL,
     department VARCHAR(100) NOT NULL,
     program_type ENUM('certificate', 'diploma', 'degree') NOT NULL,
-    duration_years DECIMAL(2,1) DEFAULT 2.0,
+    duration VARCHAR(25),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -70,7 +72,7 @@ CREATE TABLE alumni (
     alternative_phone VARCHAR(20) NULL,
     date_of_birth DATE NULL,
     gender ENUM('male', 'female', 'other') NULL,
-    address TEXT NULL,
+    barangay VARCHAR(100) NULL,
     city VARCHAR(100) NULL,
     province VARCHAR(100) NULL,
     country VARCHAR(100) DEFAULT 'Philippines',
@@ -117,6 +119,7 @@ CREATE TABLE employment_records (
     job_relevance_to_course ENUM('highly_relevant', 'somewhat_relevant', 'not_relevant') NULL,
     skills_used TEXT NULL,
     record_year YEAR NOT NULL,
+    tracer_form_id INT NULL, FOREIGN KEY (tracer_form_id) REFERENCES tracer_forms(form_id);
     months_to_find_job INT NULL,
     job_search_method VARCHAR(100) NULL,
     additional_comments TEXT NULL,
@@ -129,6 +132,7 @@ CREATE TABLE employment_records (
     INDEX idx_record_year (record_year),
     INDEX idx_employment_status (employment_status),
     INDEX idx_current_job (is_current_job)
+    FOREIGN KEY (tracer_form_id) REFERENCES tracer_forms(form_id);
 );
 
 -- 6. Tracer Forms Table

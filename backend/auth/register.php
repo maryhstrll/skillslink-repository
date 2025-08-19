@@ -6,19 +6,27 @@ require_once __DIR__ . '/../config.php';
 // Alumni registration
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
+    
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
     $firstName = $data['firstName'] ?? '';
     $middleName = $data['middleName'] ?? '';
     $lastName = $data['lastName'] ?? '';
     $studentId = $data['studentId'] ?? '';
+    $birthdate = $data['birthdate'] ?? '';
+    $gender = $data['gender'] ?? '';
     $programId = $data['programId'] ?? null;
     $role = $data['role'] ?? 'alumni'; // default to alumni
 
+    // Format birthdate to ensure it's only date (no time)
+    if (!empty($birthdate)) {
+        $birthdate = date('Y-m-d', strtotime($birthdate));
+    }
+
     // validate inputs
-    if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
+    if (empty($email) || empty($password) || empty($firstName) || empty($lastName) || empty($birthdate) || empty($gender)) {
         http_response_code(400);
-        echo json_encode(['error' => 'Email, password, first name, and last name are required']);
+        echo json_encode(['error' => 'Email, password, first name, last name, birthdate, and gender are required']);
         exit;
     }
 
@@ -49,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, middle_name, last_name, student_id, program_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, first_name, middle_name, last_name, student_id, birthdate, gender, program_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
     try {
-        $stmt->execute([$email, $password_hash, $role, $firstName, $middleName, $lastName, $studentId, $programId]);
+        $stmt->execute([$email, $password_hash, $role, $firstName, $middleName, $lastName, $studentId, $birthdate, $gender, $programId]);
         echo json_encode([
             'message' => 'Registration successful! Your account is pending approval by an administrator. You will receive confirmation once approved.'
         ]);

@@ -243,14 +243,14 @@
                          type="tel" />
                 </div>
 
-                <!-- Address Information -->
+                <!-- Barangay Information -->
                 <div class="form-control">
                   <label class="label">
-                    <span class="label-text text-[#081F37] font-medium">Address</span>
+                    <span class="label-text text-[#081F37] font-medium">Barangay</span>
                   </label>
-                  <textarea v-model="form.address" 
+                  <textarea v-model="form.barangay" 
                            class="textarea textarea-bordered w-full focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20" 
-                           placeholder="Enter complete address" 
+                           placeholder="Enter barangay" 
                            rows="2"></textarea>
                 </div>
 
@@ -351,7 +351,7 @@ const form = reactive({
   program_id: '',
   year_graduated: '',
   phone_number: '',
-  address: '',
+  barangay: '',
   city: '',
   province: '',
   linkedin_profile: '',
@@ -389,7 +389,7 @@ const openAddModal = () => {
     program_id: '', 
     year_graduated: '',
     phone_number: '',
-    address: '',
+    barangay: '',
     city: '',
     province: '',
     linkedin_profile: '',
@@ -409,7 +409,7 @@ const openEditModal = (alumni) => {
     program_id: alumni.program_id,
     year_graduated: alumni.year_graduated,
     phone_number: alumni.phone_number || '',
-    address: alumni.address || '',
+    barangay: alumni.barangay || '',
     city: alumni.city || '',
     province: alumni.province || '',
     linkedin_profile: alumni.linkedin_profile || '',

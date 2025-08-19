@@ -37,7 +37,7 @@ const routes = [
     meta: { requiresAuth: true, roles: ["admin", "staff"] },
   },
     {
-    path: "/profile",
+    path: "/alumni_profile",
     component: AlumniProfile,
     meta: { requiresAuth: true, roles: ["alumni"] },
   },

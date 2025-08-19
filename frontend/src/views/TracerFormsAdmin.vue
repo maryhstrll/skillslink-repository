@@ -3,10 +3,10 @@
     <div class="space-y-6 p-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold">Tracer Forms Management</h2>
+        <h2 class="text-2xl font-bold">Employment Tracer Forms Management</h2>
         <div>
           <button class="btn btn-primary mr-2" @click="openCreate()">
-            Create New Form
+            Create New Employment Tracer
           </button>
           <button class="btn btn-outline" @click="fetchForms">Refresh</button>
         </div>
@@ -16,26 +16,35 @@
         <!-- Form Builder / Editor (collapses when not editing) -->
         <div>
           <transition name="fade">
-            <div v-if="editing" class="card bg-base-100 shadow p-4">
+            <div v-if="editing" class="card app-surface shadow p-4">
               <h3 class="font-semibold text-lg mb-3">
-                {{ isNew ? "Create New Form" : "Edit Form" }}
+                {{
+                  isNew
+                    ? "Create New Employment Tracer Form"
+                    : "Edit Employment Tracer Form"
+                }}
               </h3>
 
-              <div class="space-y-3">
-                <label class="label">Title</label>
-                <input
-                  v-model="form.title"
-                  class="input input-bordered w-full"
-                  placeholder="e.g. Alumni Tracer Form 2025"
-                />
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div class="space-y-4">
+                <!-- Form Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="label">Year</label>
+                    <label class="label">Form Title</label>
+                    <input
+                      v-model="form.title"
+                      class="input input-bordered w-full"
+                      placeholder="e.g. Alumni Employment Tracer 2025"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label">Form Year</label>
                     <input
                       v-model.number="form.year"
                       type="number"
                       class="input input-bordered w-full"
+                      :min="2020"
+                      :max="2030"
                     />
                   </div>
 
@@ -48,28 +57,92 @@
                     />
                   </div>
 
-                  <div>
-                    <label class="label">Active</label>
+                  <div class="flex items-center gap-2">
+                    <label class="label">Active Status</label>
                     <input
                       type="checkbox"
-                      class="checkbox"
+                      class="checkbox checkbox-primary"
                       v-model="form.is_active"
                     />
+                    <span class="text-sm">{{
+                      form.is_active ? "Active" : "Inactive"
+                    }}</span>
                   </div>
                 </div>
 
-                <label class="label">Description</label>
-                <textarea
-                  v-model="form.description"
-                  class="textarea textarea-bordered w-full"
-                  rows="3"
-                ></textarea>
-
-                <!-- Questions builder -->
                 <div>
-                  <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-medium">Questions</h4>
-                    <div>
+                  <label class="label">Form Description</label>
+                  <textarea
+                    v-model="form.description"
+                    class="textarea textarea-bordered w-full"
+                    rows="3"
+                    placeholder="Describe the purpose of this employment tracer form..."
+                  ></textarea>
+                </div>
+
+                <!-- Core Employment Questions Preview -->
+                <div class="card app-surface p-4 app-border border">
+                  <h4
+                    class="font-medium mb-3 flex items-center text-medium-blue"
+                  >
+                    <svg
+                      class="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
+                      ></path>
+                    </svg>
+                    Core Employment Questions (Predefined)
+                  </h4>
+                  <div class="text-sm text-text opacity-80">
+                    These questions are automatically included in every
+                    employment tracer form and map to structured database fields
+                    for reporting:
+                  </div>
+                  <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div
+                      v-for="question in coreEmploymentQuestions"
+                      :key="question.id"
+                      class="text-sm p-3 app-surface-alt rounded border-l-4 border-medium-blue"
+                    >
+                      <span class="font-medium text-text">{{
+                        question.label
+                      }}</span>
+                      <span class="text-text opacity-60 ml-2"
+                        >({{ question.type }})</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Additional Questions Builder -->
+                <div
+                  class="card app-surface border-2 border-dashed app-border p-4"
+                >
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium flex items-center text-medium-blue">
+                      <svg
+                        class="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        ></path>
+                      </svg>
+                      Additional Survey Questions
+                    </h4>
+                    <div class="flex gap-2">
                       <button
                         class="btn btn-sm btn-success"
                         @click="addQuestion"
@@ -77,87 +150,117 @@
                         + Add Question
                       </button>
                       <button
-                        class="btn btn-sm btn-ghost ml-2"
+                        class="btn btn-sm btn-ghost"
                         @click="togglePreview"
                       >
-                        Preview
+                        {{ preview ? "Hide Preview" : "Show Preview" }}
                       </button>
                     </div>
+                  </div>
+
+                  <div class="text-sm text-text opacity-80 mb-4">
+                    Add custom questions specific to this year's employment
+                    tracer. These will be stored as flexible survey data.
                   </div>
 
                   <draggable
                     v-model="form.questions"
                     item-key="id"
-                    class="space-y-2"
+                    class="space-y-3"
+                    :disabled="form.questions.length === 0"
                   >
                     <template #item="{ element: q, index }">
-                      <div class="card card-compact bg-base-200 p-3">
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="w-full">
-                            <div class="flex gap-2 items-center">
-                              <span class="font-semibold"
-                                >Q{{ index + 1 }}.</span
+                      <div
+                        class="card card-compact app-surface-alt p-4 app-border border"
+                      >
+                        <div class="flex justify-between items-start gap-3">
+                          <div class="w-full space-y-3">
+                            <div class="flex gap-3 items-center">
+                              <span
+                                class="badge badge-outline font-semibold text-medium-blue border-medium-blue"
+                                >Q{{ index + 1 }}</span
                               >
                               <input
                                 v-model="q.label"
-                                class="input input-sm input-bordered w-full"
-                                placeholder="Question text"
+                                class="input input-sm input-bordered app-surface app-border flex-1 text-text"
+                                placeholder="Enter your question here..."
                               />
                             </div>
 
                             <div
-                              class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2"
+                              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
                             >
                               <select
                                 v-model="q.type"
-                                class="select select-sm select-bordered"
+                                class="select select-sm select-bordered app-surface app-border text-text"
+                                @change="handleQuestionTypeChange(q)"
                               >
-                                <option value="text">Text</option>
-                                <option value="textarea">Textarea</option>
+                                <option value="text">Text Input</option>
+                                <option value="textarea">
+                                  Long Text (Textarea)
+                                </option>
+                                <option value="number">Number Input</option>
                                 <option value="radio">
-                                  Single choice (radio)
+                                  Single Choice (Radio)
                                 </option>
                                 <option value="checkbox">
-                                  Multiple choice (checkbox)
+                                  Multiple Choice (Checkbox)
                                 </option>
-                                <option value="select">Dropdown</option>
+                                <option value="select">Dropdown Menu</option>
                               </select>
 
                               <input
                                 v-if="
-                                  q.type === 'text' || q.type === 'textarea'
+                                  ['text', 'textarea', 'number'].includes(
+                                    q.type
+                                  )
                                 "
                                 v-model="q.placeholder"
-                                class="input input-sm input-bordered"
-                                placeholder="Placeholder (optional)"
+                                class="input input-sm input-bordered app-surface app-border text-text"
+                                placeholder="Placeholder text (optional)"
                               />
 
-                              <input
+                              <div
                                 v-if="
-                                  q.type === 'select' ||
-                                  q.type === 'radio' ||
-                                  q.type === 'checkbox'
+                                  ['radio', 'checkbox', 'select'].includes(
+                                    q.type
+                                  )
                                 "
-                                v-model="q.optionInput"
-                                @keyup.enter.prevent="addOption(q)"
-                                class="input input-sm input-bordered"
-                                placeholder="Type option then press Enter"
-                              />
+                                class="flex gap-2"
+                              >
+                                <input
+                                  v-model="q.optionInput"
+                                  @keyup.enter.prevent="addOption(q)"
+                                  class="input input-sm input-bordered app-surface app-border text-text flex-1"
+                                  placeholder="Add option then press Enter"
+                                />
+                                <button
+                                  @click="addOption(q)"
+                                  class="btn btn-sm btn-outline border-medium-blue text-medium-blue hover:bg-medium-blue hover:text-white"
+                                  :disabled="!q.optionInput"
+                                >
+                                  Add
+                                </button>
+                              </div>
                             </div>
 
+                            <!-- Options Display -->
                             <div
                               v-if="q.options && q.options.length"
                               class="mt-2"
                             >
+                              <div class="text-sm text-text-muted mb-2">
+                                Options:
+                              </div>
                               <div class="flex flex-wrap gap-2">
                                 <span
                                   v-for="(opt, oi) in q.options"
                                   :key="oi"
-                                  class="badge badge-outline"
+                                  class="badge app-secondary text-white gap-2"
                                 >
                                   {{ opt }}
                                   <button
-                                    class="btn btn-xs btn-ghost ml-2"
+                                    class="btn btn-xs btn-ghost text-white hover:bg-red-500"
                                     @click="removeOption(q, oi)"
                                   >
                                     ×
@@ -167,28 +270,47 @@
                             </div>
                           </div>
 
-                          <div class="flex flex-col gap-2 ml-2">
+                          <div class="flex flex-col gap-1">
                             <button
                               class="btn btn-xs btn-warning"
                               @click="duplicateQuestion(index)"
+                              title="Duplicate"
                             >
-                              Dup
+                              📋
                             </button>
                             <button
                               class="btn btn-xs btn-error"
                               @click="removeQuestion(index)"
+                              title="Delete"
                             >
-                              Del
+                              🗑️
                             </button>
                           </div>
                         </div>
                       </div>
                     </template>
+                    <template #fallback>
+                      <div class="text-center p-8 text-text-muted">
+                        <div class="text-4xl mb-2">📝</div>
+                        <div>No additional questions yet</div>
+                        <div class="text-sm">
+                          Click "Add Question" to get started
+                        </div>
+                      </div>
+                    </template>
                   </draggable>
 
-                  <div class="mt-3 flex gap-2">
-                    <button class="btn btn-primary" @click="saveForm">
-                      Save
+                  <div class="mt-4 flex gap-2">
+                    <button
+                      class="btn btn-primary"
+                      @click="saveForm"
+                      :disabled="!isFormValid"
+                    >
+                      {{
+                        isNew
+                          ? "Create Employment Tracer"
+                          : "Update Employment Tracer"
+                      }}
                     </button>
                     <button class="btn btn-outline" @click="cancelEdit">
                       Cancel
@@ -203,62 +325,141 @@
           <transition name="fade">
             <div
               v-if="preview && editing"
-              class="card bg-base-100 shadow p-4 mt-3"
+              class="card app-surface shadow p-4 mt-4"
             >
-              <h3 class="font-semibold">Form Preview</h3>
-              <div class="mt-3 space-y-3">
-                <h4 class="font-medium">
-                  {{ form.title }}
-                  <span class="text-sm text-muted">({{ form.year }})</span>
-                </h4>
-                <p class="text-sm text-muted">{{ form.description }}</p>
+              <h3 class="font-semibold text-lg mb-4 flex items-center">
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+                Form Preview: {{ form.title || "Untitled Form" }}
+              </h3>
 
-                <div v-for="(q, i) in form.questions" :key="q.id" class="mt-2">
-                  <label class="label"
-                    ><span class="label-text"
-                      >{{ i + 1 }}. {{ q.label }}</span
-                    ></label
-                  >
-                  <div>
-                    <input
-                      v-if="q.type === 'text'"
-                      class="input input-bordered w-full"
-                      :placeholder="q.placeholder"
-                      disabled
-                    />
-                    <textarea
-                      v-if="q.type === 'textarea'"
-                      class="textarea textarea-bordered w-full"
-                      :placeholder="q.placeholder"
-                      disabled
-                    ></textarea>
-                    <div v-if="q.type === 'radio'">
-                      <label
-                        v-for="opt in q.options"
-                        :key="opt"
-                        class="flex items-center gap-2"
-                        ><input type="radio" disabled />
-                        <span>{{ opt }}</span></label
-                      >
-                    </div>
-                    <div v-if="q.type === 'checkbox'">
-                      <label
-                        v-for="opt in q.options"
-                        :key="opt"
-                        class="flex items-center gap-2"
-                        ><input type="checkbox" disabled />
-                        <span>{{ opt }}</span></label
-                      >
-                    </div>
-                    <select
-                      v-if="q.type === 'select'"
-                      class="select select-bordered w-full"
-                      disabled
+              <div class="space-y-6">
+                <!-- Core Employment Section Preview -->
+                <div
+                  class="card app-secondary-bg border border-medium-blue p-4"
+                >
+                  <h4 class="font-semibold text-medium-blue mb-3">
+                    Employment Information (Required)
+                  </h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div
+                      v-for="q in coreEmploymentQuestions.slice(0, 4)"
+                      :key="q.id"
+                      class="form-control"
                     >
-                      <option v-for="opt in q.options" :key="opt">
-                        {{ opt }}
-                      </option>
-                    </select>
+                      <label class="label text-text">{{ q.label }}</label>
+                      <input
+                        class="input input-sm input-bordered app-input text-text"
+                        :placeholder="q.placeholder || 'Preview only'"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Additional Questions Preview -->
+                <div
+                  v-if="form.questions.length"
+                  class="card app-surface-hover border border-gray-300 p-4"
+                >
+                  <h4 class="font-semibold text-text mb-3">
+                    Additional Survey Questions
+                  </h4>
+                  <div class="space-y-4">
+                    <div
+                      v-for="(q, i) in form.questions"
+                      :key="q.id"
+                      class="form-control"
+                    >
+                      <label class="label">
+                        <span class="label-text"
+                          >{{ i + 1 }}.
+                          {{ q.label || "Untitled Question" }}</span
+                        >
+                      </label>
+                      <div>
+                        <input
+                          v-if="q.type === 'text'"
+                          class="input input-sm input-bordered w-full"
+                          :placeholder="q.placeholder || 'Text input preview'"
+                          disabled
+                        />
+                        <textarea
+                          v-else-if="q.type === 'textarea'"
+                          class="textarea textarea-sm textarea-bordered w-full"
+                          :placeholder="q.placeholder || 'Textarea preview'"
+                          rows="2"
+                          disabled
+                        ></textarea>
+                        <input
+                          v-else-if="q.type === 'number'"
+                          type="number"
+                          class="input input-sm input-bordered w-full"
+                          :placeholder="q.placeholder || 'Number input'"
+                          disabled
+                        />
+                        <div v-else-if="q.type === 'radio'" class="space-y-2">
+                          <label
+                            v-for="opt in q.options"
+                            :key="opt"
+                            class="flex items-center gap-2"
+                          >
+                            <input
+                              type="radio"
+                              disabled
+                              class="radio radio-sm radio-primary"
+                            />
+                            <span>{{ opt }}</span>
+                          </label>
+                        </div>
+                        <div
+                          v-else-if="q.type === 'checkbox'"
+                          class="space-y-2"
+                        >
+                          <label
+                            v-for="opt in q.options"
+                            :key="opt"
+                            class="flex items-center gap-2"
+                          >
+                            <input
+                              type="checkbox"
+                              disabled
+                              class="checkbox checkbox-sm checkbox-primary"
+                            />
+                            <span>{{ opt }}</span>
+                          </label>
+                        </div>
+                        <select
+                          v-else-if="q.type === 'select'"
+                          class="select select-sm select-bordered w-full"
+                          disabled
+                        >
+                          <option selected>
+                            {{ q.options?.[0] || "Select an option" }}
+                          </option>
+                          <option v-for="opt in q.options?.slice(1)" :key="opt">
+                            {{ opt }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -266,43 +467,103 @@
           </transition>
         </div>
 
-        <!-- Past Forms Table -->
+        <!-- Employment Tracer Forms Table -->
         <div>
-          <div class="card bg-base-100 shadow p-3">
-            <h3 class="font-semibold mb-2">Past & Active Forms</h3>
+          <div class="card app-surface shadow p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-lg">Employment Tracer Forms</h3>
+              <div class="text-sm text-gray-500">
+                Total: {{ forms.length }} forms
+              </div>
+            </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto overflow-y-hidden relative">
               <table class="table table-zebra w-full">
                 <thead>
                   <tr>
                     <th>Year</th>
-                    <th>Title</th>
-                    <th>Active</th>
+                    <th>Form Title</th>
+                    <th>Status</th>
+                    <th>Additional Questions</th>
                     <th>Responses</th>
-                    <th></th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in forms" :key="item.form_id">
-                    <td>{{ item.form_year }}</td>
+                  <tr v-for="item in forms" :key="item.form_id" class="hover">
                     <td>
-                      <a
-                        @click="viewForm(item)"
-                        class="text-primary hover:text-primary-focus cursor-pointer underline"
-                      >
-                        {{ item.form_title }}
-                      </a>
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold">{{ item.form_year }}</span>
+                        <span
+                          v-if="item.is_active"
+                          class="badge badge-primary badge-xs"
+                          >Active</span
+                        >
+                      </div>
                     </td>
                     <td>
-                      <span v-if="item.is_active" class="badge badge-success"
-                        >Active</span
-                      >
-                      <span v-else class="badge badge-ghost">Inactive</span>
+                      <div class="flex flex-col">
+                        <span class="font-medium text-text">{{
+                          item.form_title
+                        }}</span>
+                        <span
+                          v-if="item.form_description"
+                          class="text-xs text-text-muted truncate max-w-xs"
+                        >
+                          {{ item.form_description }}
+                        </span>
+                      </div>
                     </td>
                     <td>
-                      <span class="badge badge-outline">
-                        {{ responseCounts[item.form_id] || 0 }}
+                      <span
+                        v-if="item.is_active"
+                        class="badge badge-success gap-2"
+                      >
+                        <svg
+                          class="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                          ></path>
+                        </svg>
+                        Active
                       </span>
+                      <span v-else class="badge badge-ghost text-text"
+                        >Inactive</span
+                      >
+                    </td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-outline text-text">
+                          {{
+                            Array.isArray(item.form_questions)
+                              ? item.form_questions.length
+                              : JSON.parse(item.form_questions || "[]").length
+                          }}
+                        </span>
+                        <span class="text-xs text-text-muted">custom</span>
+                      </div>
+                      <div class="text-xs text-text-muted mt-1">
+                        + {{ coreEmploymentQuestions.length }} core employment
+                      </div>
+                    </td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-info">
+                          {{ responseCounts[item.form_id] || 0 }}
+                        </span>
+                        <button
+                          v-if="responseCounts[item.form_id] > 0"
+                          @click="viewResponses(item)"
+                          class="btn btn-xs btn-ghost text-medium-blue hover:bg-medium-blue hover:text-white"
+                        >
+                          View
+                        </button>
+                      </div>
                     </td>
                     <td>
                       <div class="dropdown dropdown-end">
@@ -311,40 +572,64 @@
                           role="button"
                           class="btn btn-ghost btn-sm"
                         >
-                          <IconEllipsisV class="w-4 h-4" />
+                          <IconEllipsisV :size="16" />
                         </div>
                         <ul
                           tabindex="0"
-                          class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                          class="dropdown-content z-[1] menu p-2 shadow app-surface rounded-box w-52"
                         >
                           <li>
-                            <a @click="loadForm(item)">
-                              <IconEdit class="w-4 h-4" />
-                              Edit
+                            <a
+                              @click="viewForm(item)"
+                              class="flex items-center gap-2"
+                            >
+                              <IconEye :size="16" />
+                              Preview Form
                             </a>
                           </li>
                           <li>
-                            <a @click="viewResponses(item)">
-                              <IconEye class="w-4 h-4" />
+                            <a
+                              @click="loadForm(item)"
+                              class="flex items-center gap-2"
+                            >
+                              <IconEdit :size="16" />
+                              Edit Form
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              @click="viewResponses(item)"
+                              class="flex items-center gap-2"
+                            >
+                              <IconBarChart3 :size="16" />
                               View Responses
                             </a>
                           </li>
                           <li>
-                            <a @click="duplicateForm(item)">
-                              <IconFileText class="w-4 h-4" />
-                              Duplicate
+                            <a
+                              @click="duplicateForm(item)"
+                              class="flex items-center gap-2"
+                            >
+                              <IconFileText :size="16" />
+                              Duplicate Form
                             </a>
                           </li>
                           <li v-if="!item.is_active">
-                            <a @click="activateForm(item)">
-                              <IconCheck class="w-4 h-4" />
+                            <a
+                              @click="activateForm(item)"
+                              class="flex items-center gap-2 text-success"
+                            >
+                              <IconCheck :size="16" />
                               Make Active
                             </a>
                           </li>
                           <li>
-                            <a @click="deleteForm(item)" class="text-error">
-                              <IconTrash2 class="w-4 h-4" />
-                              Delete
+                            <a
+                              @click="deleteForm(item)"
+                              class="flex items-center gap-2 text-error"
+                            >
+                              <IconTrash2 :size="16" />
+                              Delete Form
                             </a>
                           </li>
                         </ul>
@@ -353,123 +638,342 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
 
-            <div class="mt-3 flex justify-between items-center">
-              <div class="text-sm text-muted">
-                Showing {{ forms.length }} forms
-              </div>
-              <div>
-                <!-- pagination placeholder -->
+              <div v-if="forms.length === 0" class="text-center py-12">
+                <div class="text-4xl mb-4">📊</div>
+                <div class="text-lg font-medium text-text mb-2">
+                  No Employment Tracer Forms Yet
+                </div>
+                <div class="text-sm text-text-muted mb-4">
+                  Create your first employment tracer form to start collecting
+                  alumni employment data.
+                </div>
+                <button
+                  class="btn app-primary text-white"
+                  @click="openCreate()"
+                >
+                  Create Your First Employment Tracer
+                </button>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Form Preview Modal -->
+        <dialog ref="viewFormModal" class="modal">
+          <form method="dialog" class="modal-box w-11/12 max-w-5xl">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <svg
+                class="w-6 h-6 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              {{ viewFormData.title }}
+            </h3>
+
+            <!-- Form Details -->
+            <div class="mb-6 p-4 app-surface-hover rounded-lg">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <svg
+                    class="w-4 h-4 text-text-muted"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H9z"
+                    ></path>
+                  </svg>
+                  <span class="font-semibold text-text">Year:</span>
+                  <span class="text-text">{{ viewFormData.year }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg
+                    class="w-4 h-4 text-text-muted"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <span class="font-semibold">Status:</span>
+                  <span
+                    v-if="viewFormData.is_active"
+                    class="badge badge-success badge-sm ml-1"
+                    >Active</span
+                  >
+                  <span v-else class="badge badge-ghost badge-sm ml-1 text-text"
+                    >Inactive</span
+                  >
+                </div>
+                <div
+                  v-if="viewFormData.deadline"
+                  class="flex items-center gap-2"
+                >
+                  <svg
+                    class="w-4 h-4 text-text-muted"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H9z"
+                    ></path>
+                  </svg>
+                  <span class="font-semibold text-text">Deadline:</span>
+                  <span class="text-text">{{
+                    new Date(viewFormData.deadline).toLocaleDateString()
+                  }}</span>
+                </div>
+              </div>
+              <div v-if="viewFormData.description" class="mt-4">
+                <span class="font-semibold text-text">Description:</span>
+                <p class="mt-1 text-text">{{ viewFormData.description }}</p>
+              </div>
+            </div>
+
+            <!-- Form Preview -->
+            <div class="space-y-6">
+              <!-- Core Employment Questions -->
+              <div class="card app-secondary-bg border border-medium-blue p-4">
+                <h4
+                  class="font-semibold text-medium-blue mb-3 flex items-center"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
+                    ></path>
+                  </svg>
+                  Core Employment Questions ({{
+                    coreEmploymentQuestions.length
+                  }})
+                </h4>
+                <div class="text-sm text-text mb-3">
+                  These questions are automatically included in every employment
+                  tracer form:
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div
+                    v-for="(q, i) in coreEmploymentQuestions.slice(0, 6)"
+                    :key="q.id"
+                    class="p-3 app-surface rounded border-l-4 border-medium-blue"
+                  >
+                    <label
+                      class="label label-text font-medium text-sm text-text"
+                    >
+                      {{ i + 1 }}. {{ q.label }}
+                      <span v-if="q.required" class="text-red-500 ml-1">*</span>
+                    </label>
+                    <div class="mt-1">
+                      <input
+                        v-if="q.type === 'text'"
+                        class="input input-xs input-bordered w-full"
+                        :placeholder="q.placeholder || 'Preview disabled'"
+                        disabled
+                      />
+                      <textarea
+                        v-else-if="q.type === 'textarea'"
+                        class="textarea textarea-xs textarea-bordered w-full"
+                        rows="2"
+                        :placeholder="q.placeholder || 'Preview disabled'"
+                        disabled
+                      ></textarea>
+                      <select
+                        v-else-if="q.type === 'select'"
+                        class="select select-xs select-bordered w-full"
+                        disabled
+                      >
+                        <option>{{ q.options?.[0] || "Select option" }}</option>
+                      </select>
+                      <div v-else-if="q.type === 'radio'" class="space-y-1">
+                        <label
+                          v-for="opt in q.options?.slice(0, 3)"
+                          :key="opt"
+                          class="flex items-center gap-2 text-xs"
+                        >
+                          <input
+                            type="radio"
+                            disabled
+                            class="radio radio-xs radio-primary"
+                          />
+                          <span>{{ opt }}</span>
+                        </label>
+                        <div
+                          v-if="q.options?.length > 3"
+                          class="text-xs text-gray-400"
+                        >
+                          ... and {{ q.options.length - 3 }} more
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-if="coreEmploymentQuestions.length > 6"
+                  class="mt-3 text-sm text-gray-500"
+                >
+                  ... and {{ coreEmploymentQuestions.length - 6 }} more core
+                  employment questions
+                </div>
+              </div>
+
+              <!-- Additional Custom Questions -->
+              <div
+                v-if="viewFormData.questions?.length"
+                class="card bg-base-200/50 border border-gray-200 p-4"
+              >
+                <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
+                  <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    ></path>
+                  </svg>
+                  Additional Custom Questions ({{
+                    viewFormData.questions.length
+                  }})
+                </h4>
+                <div class="space-y-3">
+                  <div
+                    v-for="(q, i) in viewFormData.questions"
+                    :key="q.id"
+                    class="p-3 bg-white rounded"
+                  >
+                    <label class="label label-text font-medium text-sm">
+                      {{ coreEmploymentQuestions.length + i + 1 }}.
+                      {{ q.label || "Untitled Question" }}
+                    </label>
+                    <div class="mt-1">
+                      <input
+                        v-if="q.type === 'text'"
+                        class="input input-xs input-bordered w-full"
+                        :placeholder="q.placeholder || 'Preview disabled'"
+                        disabled
+                      />
+                      <textarea
+                        v-else-if="q.type === 'textarea'"
+                        class="textarea textarea-xs textarea-bordered w-full"
+                        :placeholder="q.placeholder || 'Preview disabled'"
+                        rows="2"
+                        disabled
+                      ></textarea>
+                      <input
+                        v-else-if="q.type === 'number'"
+                        type="number"
+                        class="input input-xs input-bordered w-full"
+                        :placeholder="q.placeholder || 'Number input'"
+                        disabled
+                      />
+                      <div v-else-if="q.type === 'radio'" class="space-y-1">
+                        <label
+                          v-for="opt in q.options"
+                          :key="opt"
+                          class="flex items-center gap-2 text-xs"
+                        >
+                          <input
+                            type="radio"
+                            disabled
+                            class="radio radio-xs radio-primary"
+                          />
+                          <span>{{ opt }}</span>
+                        </label>
+                      </div>
+                      <div v-else-if="q.type === 'checkbox'" class="space-y-1">
+                        <label
+                          v-for="opt in q.options"
+                          :key="opt"
+                          class="flex items-center gap-2 text-xs"
+                        >
+                          <input
+                            type="checkbox"
+                            disabled
+                            class="checkbox checkbox-xs checkbox-primary"
+                          />
+                          <span>{{ opt }}</span>
+                        </label>
+                      </div>
+                      <select
+                        v-else-if="q.type === 'select'"
+                        class="select select-xs select-bordered w-full"
+                        disabled
+                      >
+                        <option disabled selected>Select an option</option>
+                        <option v-for="opt in q.options" :key="opt">
+                          {{ opt }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="text-center py-8 text-gray-500">
+                <svg
+                  class="w-12 h-12 mx-auto mb-3 text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  ></path>
+                </svg>
+                <div class="text-sm">
+                  No additional custom questions defined
+                </div>
+                <div class="text-xs text-gray-400">
+                  This form only includes the core employment questions
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-action">
+              <button class="btn btn-outline" @click="loadForm(viewFormData)">
+                Edit Form
+              </button>
+              <button class="btn">Close Preview</button>
+            </div>
+          </form>
+        </dialog>
       </div>
-
-      <!-- View Form Modal -->
-      <dialog ref="viewFormModal" class="modal">
-        <form method="dialog" class="modal-box w-11/12 max-w-4xl">
-          <h3 class="font-bold text-lg mb-4">{{ viewFormData.title }}</h3>
-
-          <!-- Form Details -->
-          <div class="mb-4 p-4 bg-base-200 rounded-lg">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span class="font-semibold">Year:</span> {{ viewFormData.year }}
-              </div>
-              <div>
-                <span class="font-semibold">Status:</span>
-                <span
-                  v-if="viewFormData.is_active"
-                  class="badge badge-success badge-sm ml-2"
-                  >Active</span
-                >
-                <span v-else class="badge badge-ghost badge-sm ml-2"
-                  >Inactive</span
-                >
-              </div>
-              <div v-if="viewFormData.deadline">
-                <span class="font-semibold">Deadline:</span>
-                {{ viewFormData.deadline }}
-              </div>
-            </div>
-            <div v-if="viewFormData.description" class="mt-3">
-              <span class="font-semibold">Description:</span>
-              <p class="mt-1 text-gray-600">{{ viewFormData.description }}</p>
-            </div>
-          </div>
-
-          <!-- Form Preview -->
-          <div class="space-y-4">
-            <h4 class="font-semibold">Form Questions:</h4>
-            <div
-              v-for="(q, i) in viewFormData.questions"
-              :key="q.id"
-              class="p-3 bg-base-100 rounded-lg"
-            >
-              <label class="label">
-                <span class="label-text font-medium"
-                  >{{ i + 1 }}. {{ q.label }}</span
-                >
-              </label>
-              <div>
-                <input
-                  v-if="q.type === 'text'"
-                  class="input input-bordered w-full"
-                  :placeholder="q.placeholder || 'Text input'"
-                  disabled
-                />
-                <textarea
-                  v-if="q.type === 'textarea'"
-                  class="textarea textarea-bordered w-full"
-                  :placeholder="q.placeholder || 'Textarea input'"
-                  rows="3"
-                  disabled
-                ></textarea>
-                <div v-if="q.type === 'radio'" class="space-y-2">
-                  <label
-                    v-for="opt in q.options"
-                    :key="opt"
-                    class="flex items-center gap-2"
-                  >
-                    <input type="radio" disabled class="radio radio-sm" />
-                    <span>{{ opt }}</span>
-                  </label>
-                </div>
-                <div v-if="q.type === 'checkbox'" class="space-y-2">
-                  <label
-                    v-for="opt in q.options"
-                    :key="opt"
-                    class="flex items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      disabled
-                      class="checkbox checkbox-sm"
-                    />
-                    <span>{{ opt }}</span>
-                  </label>
-                </div>
-                <select
-                  v-if="q.type === 'select'"
-                  class="select select-bordered w-full"
-                  disabled
-                >
-                  <option disabled selected>Select an option</option>
-                  <option v-for="opt in q.options" :key="opt">
-                    {{ opt }}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-action">
-            <button class="btn">Close</button>
-          </div>
-        </form>
-      </dialog>
     </div>
 
     <!-- Form Responses Component -->
@@ -478,7 +982,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
 import FormResponses from "@/components/FormReponses.vue";
@@ -493,12 +997,110 @@ axios.defaults.withCredentials = true;
 // Router instance
 const router = useRouter();
 
-// state
+// State
 const forms = ref([]);
 const editing = ref(false);
 const isNew = ref(true);
 const preview = ref(false);
 const responseCounts = ref({});
+
+// Core employment questions that are always included
+const coreEmploymentQuestions = ref([
+  {
+    id: "employment_status",
+    label: "Employment Status",
+    type: "radio",
+    maps_to: "employment_status",
+    required: true,
+    options: [
+      "Employed",
+      "Unemployed",
+      "Self-Employed",
+      "Underemployed",
+      "Continuing Education",
+    ],
+  },
+  {
+    id: "company_name",
+    label: "Company/Organization Name",
+    type: "text",
+    maps_to: "company_name",
+    conditional: 'employment_status == "employed"',
+    placeholder: "Enter company or organization name",
+  },
+  {
+    id: "job_title",
+    label: "Job Title/Position",
+    type: "text",
+    maps_to: "job_title",
+    conditional: 'employment_status == "employed"',
+    placeholder: "Enter your job title",
+  },
+  {
+    id: "job_description",
+    label: "Job Description",
+    type: "textarea",
+    maps_to: "job_description",
+    conditional: 'employment_status == "employed"',
+    placeholder: "Describe your job responsibilities",
+  },
+  {
+    id: "salary_range",
+    label: "Salary Range",
+    type: "select",
+    maps_to: "salary_range",
+    conditional: 'employment_status == "employed"',
+    options: [
+      "Below 20,000",
+      "20,000-40,000",
+      "40,000-60,000",
+      "60,000-80,000",
+      "80,000-100,000",
+      "Above 100,000",
+    ],
+  },
+  {
+    id: "employment_type",
+    label: "Employment Type",
+    type: "radio",
+    maps_to: "employment_type",
+    conditional: 'employment_status == "employed"',
+    options: ["Full-time", "Part-time", "Contract", "Freelance", "Temporary"],
+  },
+  {
+    id: "industry",
+    label: "Industry",
+    type: "text",
+    maps_to: "industry",
+    conditional: 'employment_status == "employed"',
+    placeholder: "e.g., Information Technology, Healthcare, Education",
+  },
+  {
+    id: "work_location",
+    label: "Work Location",
+    type: "text",
+    maps_to: "work_location",
+    conditional: 'employment_status == "employed"',
+    placeholder: "City, Province/State, Country",
+  },
+  {
+    id: "work_setup",
+    label: "Work Setup",
+    type: "radio",
+    maps_to: "work_setup",
+    conditional: 'employment_status == "employed"',
+    options: ["On-site", "Remote", "Hybrid"],
+  },
+  {
+    id: "months_to_find_job",
+    label: "Months it took to find this job after graduation",
+    type: "number",
+    maps_to: "months_to_find_job",
+    conditional: 'employment_status == "employed"',
+    min: 0,
+    max: 60,
+  },
+]);
 
 const form = reactive({
   form_id: null,
@@ -507,7 +1109,7 @@ const form = reactive({
   description: "",
   deadline: null,
   is_active: true,
-  questions: [],
+  questions: [], // These are additional questions beyond core employment
 });
 
 // Form Responses Component Reference
@@ -517,7 +1119,12 @@ const formResponsesComponent = ref(null);
 const viewFormModal = ref(null);
 const viewFormData = ref({});
 
-// helpers
+// Computed properties
+const isFormValid = computed(() => {
+  return form.title.trim() !== "" && form.year >= 2020 && form.year <= 2030;
+});
+
+// Form management helpers
 const resetForm = () => {
   form.form_id = null;
   form.title = "";
@@ -549,10 +1156,25 @@ const duplicateQuestion = (index) => {
   form.questions.splice(index + 1, 0, q);
 };
 
+const handleQuestionTypeChange = (question) => {
+  // Reset options when changing question type
+  if (!["radio", "checkbox", "select"].includes(question.type)) {
+    question.options = [];
+    question.optionInput = "";
+  } else if (!question.options) {
+    question.options = [];
+  }
+
+  // Reset placeholder for option-based questions
+  if (["radio", "checkbox", "select"].includes(question.type)) {
+    question.placeholder = "";
+  }
+};
+
 const addOption = (q) => {
-  if (!q.optionInput) return;
+  if (!q.optionInput || !q.optionInput.trim()) return;
   q.options = q.options || [];
-  q.options.push(q.optionInput);
+  q.options.push(q.optionInput.trim());
   q.optionInput = "";
 };
 
@@ -570,8 +1192,9 @@ const fetchResponseCounts = async () => {
     const counts = {};
     for (const form of forms.value) {
       try {
+        // Use admin tracer forms endpoint for counting
         const res = await axios.get(
-          `/admin/form_responses.php?action=count&form_id=${form.form_id}`
+          `/admin/tracer_forms.php?action=count&form_id=${form.form_id}`
         );
         counts[form.form_id] = res.data.count || 0;
       } catch (err) {
@@ -587,16 +1210,15 @@ const fetchResponseCounts = async () => {
 
 const fetchForms = async () => {
   try {
-    console.log("Fetching forms list..."); // Debug log
+    console.log("Fetching employment tracer forms...");
     const res = await axios.get("/admin/tracer_forms.php?action=list");
-    console.log("Forms list response:", res.data); // Debug log
+    console.log("Forms list response:", res.data);
 
-    // Ensure res.data is an array before filtering
     const data = res.data;
     if (Array.isArray(data)) {
-      // Filter out empty/invalid forms (e.g., missing form_id or form_title)
+      // Filter out empty/invalid forms
       forms.value = data.filter((f) => f && f.form_id && f.form_title);
-      console.log("Filtered forms:", forms.value); // Debug log
+      console.log("Filtered forms:", forms.value);
 
       // Fetch response counts after loading forms
       await fetchResponseCounts();
@@ -606,7 +1228,10 @@ const fetchForms = async () => {
     }
   } catch (err) {
     console.error("Error in fetchForms:", err);
-    alert("Failed to load forms");
+    messageService.showMessage(
+      "Failed to load employment tracer forms",
+      "error"
+    );
     forms.value = [];
   }
 };
@@ -619,21 +1244,19 @@ const openCreate = () => {
 };
 
 const loadForm = async (item) => {
-  // load into editor
   try {
-    console.log("Loading form for editing:", item); // Debug log
+    console.log("Loading form for editing:", item);
     const res = await axios.get(
       `/admin/tracer_forms.php?action=get&form_id=${item.form_id}`
     );
-    console.log("Load form response:", res.data); // Debug log
-    
+    console.log("Load form response:", res.data);
+
     const d = res.data;
-    
-    // Check if response has success property and handle accordingly
+
     if (d.success === false) {
       throw new Error(d.message || "Failed to load form");
     }
-    
+
     // Populate form data
     form.form_id = d.form_id;
     form.title = d.form_title || "";
@@ -641,9 +1264,9 @@ const loadForm = async (item) => {
     form.description = d.form_description || "";
     form.deadline = d.deadline_date || null;
     form.is_active = !!d.is_active;
-    
-    // Handle questions - ensure it's an array
-    if (typeof d.form_questions === 'string') {
+
+    // Handle questions - these are the additional questions beyond core employment
+    if (typeof d.form_questions === "string") {
       form.questions = JSON.parse(d.form_questions || "[]");
     } else if (Array.isArray(d.form_questions)) {
       form.questions = d.form_questions;
@@ -653,77 +1276,99 @@ const loadForm = async (item) => {
 
     editing.value = true;
     isNew.value = false;
-    console.log("Form loaded successfully for editing"); // Debug log
+    console.log("Form loaded successfully for editing");
   } catch (err) {
     console.error("Error loading form:", err);
-    console.error("Response data:", err.response?.data);
-    alert(`Failed to load form for editing: ${err.message || err.response?.data?.message || "Unknown error"}`);
+    messageService.showMessage(
+      `Failed to load form for editing: ${
+        err.message || err.response?.data?.message || "Unknown error"
+      }`,
+      "error"
+    );
   }
 };
 
 const saveForm = async () => {
-  // validate
-  if (!form.title || !form.year) {
-    alert("Please provide title and year");
+  if (!isFormValid.value) {
+    messageService.showMessage(
+      "Please provide a valid title and year",
+      "error"
+    );
     return;
   }
-  // prepare payload
+
+  // Prepare payload - only additional questions are stored in form_questions
   const payload = {
     form_id: form.form_id,
     form_title: form.title,
     form_year: form.year,
     form_description: form.description,
-    form_questions: JSON.stringify(form.questions),
+    form_questions: JSON.stringify(form.questions), // Only additional questions
     deadline_date: form.deadline,
     is_active: form.is_active,
   };
 
-  console.log("Sending payload:", payload); // Debug log
+  console.log("Sending payload:", payload);
 
   try {
     const res = await axios.post("/admin/tracer_forms.php", payload);
-    console.log("Response:", res.data); // Debug log
+    console.log("Response:", res.data);
+
     if (res.data.success) {
-      alert("Form saved");
+      const message = isNew.value
+        ? "Employment tracer form created successfully!"
+        : "Employment tracer form updated successfully!";
+      messageService.showMessage(message, "success");
       editing.value = false;
-      // Safely refresh the forms list
+
       try {
         await fetchForms();
       } catch (fetchError) {
         console.error("Error refreshing forms list:", fetchError);
-        // Don't show error to user, form was saved successfully
       }
     } else {
-      alert(res.data.message || "Failed to save");
+      messageService.showMessage(
+        res.data.message || "Failed to save form",
+        "error"
+      );
     }
   } catch (err) {
     console.error("Error details:", err.response || err);
-    alert(`Error saving form: ${err.response?.data?.message || err.message}`);
+    messageService.showMessage(
+      `Error saving form: ${err.response?.data?.message || err.message}`,
+      "error"
+    );
   }
 };
 
 const cancelEdit = () => {
   editing.value = false;
+  preview.value = false;
 };
 
 const duplicateForm = async (item) => {
   try {
-    console.log("Attempting to duplicate form:", item); // Debug log
+    console.log("Attempting to duplicate form:", item);
     const res = await axios.post("/admin/tracer_forms.php?action=duplicate", {
       form_id: item.form_id,
     });
-    console.log("Duplicate response:", res.data); // Debug log
-    
+    console.log("Duplicate response:", res.data);
+
     if (res.data.success) {
       await fetchForms();
-      alert("Form duplicated successfully");
+      messageService.showMessage(
+        "Employment tracer form duplicated successfully",
+        "success"
+      );
     } else {
-      alert(`Failed to duplicate: ${res.data.message || "Unknown error"}`);
+      messageService.showMessage(
+        `Failed to duplicate: ${res.data.message || "Unknown error"}`,
+        "error"
+      );
     }
   } catch (err) {
     console.error("Error duplicating form:", err);
-    console.error("Response data:", err.response?.data);
-    
+
     let errorMessage = "Failed to duplicate form";
     if (err.response?.status === 401) {
       errorMessage = "Authentication failed. Please log in again.";
@@ -731,40 +1376,66 @@ const duplicateForm = async (item) => {
       errorMessage = "Access denied. Admin permissions required.";
     } else if (err.response?.data?.message) {
       errorMessage = err.response.data.message;
-    } else if (err.message) {
-      errorMessage = err.message;
     }
-    
-    alert(errorMessage);
+
+    messageService.showMessage(errorMessage, "error");
   }
 };
 
 const deleteForm = async (item) => {
-  if (!confirm("Delete this form and all responses?")) return;
+  if (
+    !confirm(
+      `Delete "${item.form_title}" and all responses? This cannot be undone.`
+    )
+  )
+    return;
+
   try {
     const res = await axios.post("/admin/tracer_forms.php?action=delete", {
       form_id: item.form_id,
     });
-    if (res.data.success) fetchForms();
-    else alert("Delete failed");
+
+    if (res.data.success) {
+      await fetchForms();
+      messageService.showMessage(
+        "Employment tracer form deleted successfully",
+        "success"
+      );
+    } else {
+      messageService.showMessage("Failed to delete form", "error");
+    }
   } catch (err) {
     console.error(err);
-    alert("Delete failed");
+    messageService.showMessage("Failed to delete form", "error");
   }
 };
 
 const activateForm = async (item) => {
-  if (!confirm("Make this form active? This will deactivate other forms."))
+  if (
+    !confirm(
+      `Make "${item.form_title}" the active employment tracer form? This will deactivate all other forms.`
+    )
+  ) {
     return;
+  }
+
   try {
     const res = await axios.post("/admin/tracer_forms.php?action=activate", {
       form_id: item.form_id,
     });
-    if (res.data.success) fetchForms();
-    else alert("Activate failed");
+
+    if (res.data.success) {
+      await fetchForms();
+      messageService.showMessage(
+        `"${item.form_title}" is now the active employment tracer form`,
+        "success"
+      );
+    } else {
+      messageService.showMessage("Failed to activate form", "error");
+    }
   } catch (err) {
     console.error(err);
-    alert("Activate failed");
+    messageService.showMessage("Failed to activate form", "error");
   }
 };
 
@@ -777,33 +1448,30 @@ const viewResponses = async (item) => {
 
 const viewForm = async (item) => {
   try {
-    console.log("Attempting to view form:", item); // Debug log
+    console.log("Attempting to view form:", item);
 
-    // First check if we can reach the backend
     const url = `/admin/tracer_forms.php?action=get&form_id=${item.form_id}`;
-    console.log("Request URL:", url); // Debug log
-    console.log("Full URL:", axios.defaults.baseURL + url); // Debug log
-
     const res = await axios.get(url);
-    console.log("Response status:", res.status); // Debug log
-    console.log("Response received:", res.data); // Debug log
+    console.log("Response received:", res.data);
 
     const d = res.data;
 
-    // Check if we got an error response
     if (d.success === false) {
       console.error("API returned error:", d.message);
-      alert(`Error: ${d.message}`);
+      messageService.showMessage(`Error: ${d.message}`, "error");
       return;
     }
 
-    // Check if we have the required fields
     if (!d.form_id || !d.form_title) {
       console.error("Invalid form data received:", d);
-      alert("Invalid form data received from server");
+      messageService.showMessage(
+        "Invalid form data received from server",
+        "error"
+      );
       return;
     }
 
+    // Prepare view data with both core and additional questions
     viewFormData.value = {
       form_id: d.form_id,
       title: d.form_title,
@@ -811,17 +1479,16 @@ const viewForm = async (item) => {
       description: d.form_description || "",
       deadline: d.deadline_date || null,
       is_active: !!d.is_active,
+      coreQuestions: coreEmploymentQuestions.value,
       questions: Array.isArray(d.form_questions)
         ? d.form_questions
         : JSON.parse(d.form_questions || "[]"),
     };
-    console.log("View form data set:", viewFormData.value); // Debug log
+
+    console.log("View form data set:", viewFormData.value);
     viewFormModal.value.showModal();
   } catch (err) {
     console.error("Error loading form for view:", err);
-    console.error("Error status:", err.response?.status); // Additional debug info
-    console.error("Error response data:", err.response?.data); // Additional debug info
-    console.error("Error message:", err.message); // Additional debug info
 
     let errorMessage = "Failed to load form details";
     if (err.response?.status === 401) {
@@ -830,16 +1497,14 @@ const viewForm = async (item) => {
       errorMessage = "Access denied. Admin permissions required.";
     } else if (err.response?.data?.message) {
       errorMessage = err.response.data.message;
-    } else if (err.message) {
-      errorMessage = err.message;
     }
 
-    alert(errorMessage);
+    messageService.showMessage(errorMessage, "error");
   }
 };
 
 onMounted(() => {
-  console.log("TracerFormsAdmin mounted, fetching forms..."); // Debug log
+  console.log("TracerFormsAdmin mounted, fetching forms...");
   fetchForms();
 });
 
@@ -856,5 +1521,65 @@ const handleLogout = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Prevent dropdown from affecting card layout */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  position: absolute !important;
+  right: 0 !important;
+  top: 100% !important;
+  transform: none !important;
+  margin-top: 0.25rem;
+  max-height: 250px;
+  overflow-y: auto;
+  min-width: 200px;
+}
+
+/* Ensure table doesn't expand due to dropdown */
+.table {
+  table-layout: fixed;
+}
+
+.table td:last-child {
+  width: 80px;
+  position: relative;
+  overflow: visible !important;
+}
+
+.table tbody tr {
+  position: relative;
+}
+
+/* Prevent overflow issues - key fix */
+.overflow-x-auto {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Ensure card container doesn't cause issues */
+.card {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* Container adjustments */
+.space-y-6 {
+  overflow: visible;
+}
+
+/* Specific positioning for dropdown */
+.static-dropdown {
+  position: static !important;
+}
+
+.static-dropdown .dropdown-content {
+  position: absolute !important;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
 }
 </style>

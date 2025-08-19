@@ -96,5 +96,22 @@ export const messageService = {
   // Get current messages
   get messages() {
     return messageState.messages;
+  },
+
+  // Convenience methods
+  showSuccess(message, title = 'Success') {
+    return this.alert(message, 'success', title);
+  },
+
+  showError(message, title = 'Error') {
+    return this.alert(message, 'error', title);
+  },
+
+  showWarning(message, title = 'Warning') {
+    return this.alert(message, 'warning', title);
+  },
+
+  showInfo(message, title = 'Information') {
+    return this.alert(message, 'info', title);
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <div class="drawer-side">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <aside class="flex flex-col h-screen w-80 bg-base-100 text-base-content">
+    <aside class="flex flex-col h-screen w-70 bg-base-100 text-base-content">
       <!-- Menu Items -->
       <div class="flex-1 p-4">
         <ul class="space-y-2">
@@ -35,7 +35,7 @@
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
             <li>
-              <router-link to="/profile"  >
+              <router-link to="/alumni_profile"  >
               <IconUser class="w-4 h-4" /> Profile                
               </router-link>
             </li>

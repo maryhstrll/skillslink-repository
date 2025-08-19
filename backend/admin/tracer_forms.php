@@ -60,6 +60,18 @@ try {
         exit;
     }
 
+    if ($action === 'count' && isset($_GET['form_id'])) {
+        $form_id = (int)$_GET['form_id'];
+        
+        // Count responses from employment_records table (our hybrid system)
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM employment_records WHERE tracer_form_id = :form_id");
+        $stmt->execute([':form_id' => $form_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['count' => $result['count'] ?? 0]);
+        exit;
+    }
+
     // POST actions below require admin
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Processing POST request");

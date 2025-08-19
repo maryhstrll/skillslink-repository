@@ -75,6 +75,30 @@
             required
           />
         </div>
+        <!-- Birthdate -->
+        <div class="form-control mt-4">
+          <label class="label">
+            <span class="label-text">Birthdate</span>
+          </label>
+          <input
+            v-model="form.birthdate"
+            type="date"
+            class="input input-bordered glass"
+            required
+          />
+        </div>
+        <!-- Sex -->
+        <div class="form-control mt-4">
+          <label class="label">
+            <span class="label-text">Gender</span>
+          </label>
+          <select v-model="form.gender" class="select select-bordered glass" required>
+            <option value="" disabled>Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
         <!-- Program Selection -->
         <div class="form-control mt-4">
           <label class="label">
@@ -234,6 +258,8 @@ export default {
         middleName: "",
         lastName: "",
         studentId: "",
+        birthdate: "",
+        gender: "",
         password: "",
         confirmPassword: "",
         email: "",
@@ -278,6 +304,8 @@ export default {
           middleName: this.form.middleName,
           lastName: this.form.lastName,
           studentId: this.form.studentId,
+          birthdate: this.form.birthdate,
+          gender: this.form.gender,
           password: this.form.password,
           email: this.form.email,
           programId: this.form.programId,
@@ -322,6 +350,8 @@ export default {
         middleName: "",
         lastName: "",
         studentId: "",
+        birthdate: "",
+        gender: "",
         password: "",
         confirmPassword: "",
         email: "",

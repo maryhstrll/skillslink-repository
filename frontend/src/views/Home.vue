@@ -4,7 +4,7 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <!-- Navbar -->
-    <div class="navbar bg-base-100/80 backdrop-blur-md">
+    <div class="navbar bg-base-100/60 backdrop-blur-md">
       <div class="flex-1">
         <a class="btn btn-ghost text-2xl font-bold text-white">SkillsLink</a>
       </div>
@@ -18,7 +18,7 @@
           Connecting Simeon Suan Vocational and Technical College Alumni for a Brighter Future
         </p>
         <div class="space-x-4">
-          <button v-if="!isAuthenticated" class="btn btn-primary glass" @click="openLoginModal">
+          <button v-if="!isAuthenticated" class="btn btn-lg btn-navy text-lg" @click="openLoginModal">
             Get Started
           </button>
           <router-link v-else to="/dashboard" class="btn btn-primary glass">
@@ -180,6 +180,12 @@ export default {
 }
 a .btn {
   background-color: blue;
+}
+.btn-navy {
+  transition: background-color 0.3s ease;
+}
+.btn-navy:hover {
+  background-color: var(--color-dark-blue); /* Darker navy on hover */
 }
 </style>
 

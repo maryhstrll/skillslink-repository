@@ -90,83 +90,64 @@
 
         <!-- Tabs -->
         <div class="tabs tabs-boxed mb-4">
-          <a class="tab tab-active">Overview</a>
-          <a class="tab">Edit Profile</a>
-          <a class="tab">Social Links</a>
+          <a :class="['tab', activeTab === 'overview' ? 'tab-active' : '']" @click="activeTab = 'overview'">Overview</a>
+          <a :class="['tab', activeTab === 'edit' ? 'tab-active' : '']" @click="activeTab = 'edit'">Edit Profile</a>
+          <a :class="['tab', activeTab === 'social' ? 'tab-active' : '']" @click="activeTab = 'social'">Social Links</a>
         </div>
 
-        <!-- Overview Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="card bg-base-100 shadow-md rounded-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg">Personal Information</h3>
-              <p><strong>Full Name:</strong> {{ profile.user_info.full_name || 'Not provided' }}</p>
-              <p><strong>Gender:</strong> {{ profile.personal_info.gender || 'Not specified' }}</p>
-              <p><strong>Date of Birth:</strong> {{ formatDate(profile.personal_info.date_of_birth) || 'Not provided' }}</p>
-              <p><strong>Phone:</strong> {{ profile.personal_info.phone_number || 'Not provided' }}</p>
-              <p><strong>Alternative Phone:</strong> {{ profile.personal_info.alternative_phone || 'Not provided' }}</p>
+        <!-- Tab Content -->
+        <div v-if="activeTab === 'overview'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card bg-base-100 shadow-md rounded-xl">
+              <div class="card-body">
+                <h3 class="card-title text-lg">Personal Information</h3>
+                <p><strong>Full Name:</strong> {{ profile.user_info.full_name || 'Not provided' }}</p>
+                <p><strong>Gender:</strong> {{ profile.personal_info.gender || 'Not specified' }}</p>
+                <p><strong>Date of Birth:</strong> {{ formatDate(profile.personal_info.date_of_birth) || 'Not provided' }}</p>
+                <p><strong>Phone:</strong> {{ profile.personal_info.phone_number || 'Not provided' }}</p>
+                <p><strong>Alternative Phone:</strong> {{ profile.personal_info.alternative_phone || 'Not provided' }}</p>
+              </div>
             </div>
-          </div>
 
-          <div class="card bg-base-100 shadow-md rounded-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg">Address</h3>
-              <p><strong>Address:</strong> {{ profile.address.address || 'Not provided' }}</p>
-              <p><strong>City:</strong> {{ profile.address.city || 'Not provided' }}</p>
-              <p><strong>Province:</strong> {{ profile.address.province || 'Not provided' }}</p>
-              <p><strong>Country:</strong> {{ profile.address.country || 'Philippines' }}</p>
-              <p><strong>Postal Code:</strong> {{ profile.address.postal_code || 'Not provided' }}</p>
+            <div class="card bg-base-100 shadow-md rounded-xl">
+              <div class="card-body">
+                <h3 class="card-title text-lg">Address</h3>
+                <p><strong>Barangay:</strong> {{ profile.address.barangay || 'Not provided' }}</p>
+                <p><strong>City:</strong> {{ profile.address.city || 'Not provided' }}</p>
+                <p><strong>Province:</strong> {{ profile.address.province || 'Not provided' }}</p>
+                <p><strong>Country:</strong> {{ profile.address.country || 'Philippines' }}</p>
+                <p><strong>Postal Code:</strong> {{ profile.address.postal_code || 'Not provided' }}</p>
+              </div>
             </div>
-          </div>
-          
-          <div class="card bg-base-100 shadow-md rounded-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg">Academic Information</h3>
-              <p><strong>Program:</strong> {{ profile.academic_info.program_name || 'Not specified' }}</p>
-              <p><strong>Department:</strong> {{ profile.academic_info.department || 'Not specified' }}</p>
-              <p><strong>Batch:</strong> {{ profile.academic_info.batch_name || 'Not specified' }}</p>
-              <p><strong>Year Graduated:</strong> {{ profile.academic_info.year_graduated || 'Not specified' }}</p>
-              <p><strong>GPA:</strong> {{ profile.academic_info.gpa || 'Not provided' }}</p>
+            
+            <div class="card bg-base-100 shadow-md rounded-xl">
+              <div class="card-body">
+                <h3 class="card-title text-lg">Academic Information</h3>
+                <p><strong>Program:</strong> {{ profile.academic_info.program_name || 'Not specified' }}</p>
+                <p><strong>Department:</strong> {{ profile.academic_info.department || 'Not specified' }}</p>
+                <p><strong>Batch:</strong> {{ profile.academic_info.batch_name || 'Not specified' }}</p>
+                <p><strong>Year Graduated:</strong> {{ profile.academic_info.year_graduated || 'Not specified' }}</p>
+                <p><strong>GPA:</strong> {{ profile.academic_info.gpa || 'Not provided' }}</p>
+              </div>
             </div>
-          </div>
 
-          <div class="card bg-base-100 shadow-md rounded-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg">Employment Status</h3>
-              <p><strong>Status:</strong> {{ formatEmploymentStatus(profile.employment.status) || 'Not specified' }}</p>
-              <p v-if="profile.employment.company"><strong>Company:</strong> {{ profile.employment.company }}</p>
-              <p v-if="profile.employment.position"><strong>Position:</strong> {{ profile.employment.position }}</p>
-              <p v-if="profile.employment.employment_type"><strong>Employment Type:</strong> {{ formatEmploymentType(profile.employment.employment_type) }}</p>
-              <p v-if="profile.employment.work_setup"><strong>Work Setup:</strong> {{ formatWorkSetup(profile.employment.work_setup) }}</p>
+            <div class="card bg-base-100 shadow-md rounded-xl">
+              <div class="card-body">
+                <h3 class="card-title text-lg">Employment Status</h3>
+                <p><strong>Status:</strong> {{ formatEmploymentStatus(profile.employment.status) || 'Not specified' }}</p>
+                <p v-if="profile.employment.company"><strong>Company:</strong> {{ profile.employment.company }}</p>
+                <p v-if="profile.employment.position"><strong>Position:</strong> {{ profile.employment.position }}</p>
+                <p v-if="profile.employment.employment_type"><strong>Employment Type:</strong> {{ formatEmploymentType(profile.employment.employment_type) }}</p>
+                <p v-if="profile.employment.work_setup"><strong>Work Setup:</strong> {{ formatWorkSetup(profile.employment.work_setup) }}</p>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Social Links -->
-        <div class="card bg-base-100 shadow-md rounded-xl mt-6">
-          <div class="card-body">
-            <h3 class="card-title text-lg">Social Links</h3>
-            <p>
-              <strong>LinkedIn:</strong>
-              <a v-if="profile.social_links.linkedin_profile" 
-                 :href="profile.social_links.linkedin_profile" 
-                 target="_blank" 
-                 class="link link-primary">
-                {{ profile.social_links.linkedin_profile }}
-              </a>
-              <span v-else class="text-gray-500">Not provided</span>
-            </p>
-            <p>
-              <strong>Facebook:</strong>
-              <a v-if="profile.social_links.facebook_profile" 
-                 :href="profile.social_links.facebook_profile" 
-                 target="_blank" 
-                 class="link link-primary">
-                {{ profile.social_links.facebook_profile }}
-              </a>
-              <span v-else class="text-gray-500">Not provided</span>
-            </p>
-          </div>
+        <div v-else-if="activeTab === 'edit'">
+          <AlumniProfileEdit :profile="profile" @updated="fetchProfile" />
+        </div>
+        <div v-else-if="activeTab === 'social'">
+          <SocialLinksEdit :profile="profile" @updated="fetchProfile" />
         </div>
       </div>
     </div>
@@ -175,6 +156,8 @@
 
 <script setup>
 import Layout from "@/components/Layout.vue";
+import AlumniProfileEdit from "@/components/AlumniProfileEdit.vue";
+import SocialLinksEdit from "@/components/SocialLinksEdit.vue";
 import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import alumniService from "@/services/alumni.js";
@@ -184,6 +167,7 @@ const profile = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const imageError = ref(false);
+const activeTab = ref('overview');
 
 const handleLogout = () => {
   router.push("/home");

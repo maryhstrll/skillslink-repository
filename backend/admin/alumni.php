@@ -52,7 +52,7 @@ function getAllAlumni() {
                     a.program_id,
                     a.batch_id,
                     a.gpa,
-                    a.address,
+                    a.barangay,
                     a.city,
                     a.province,
                     a.linkedin_profile,
@@ -123,7 +123,7 @@ function createAlumni($data) {
         $alumniSql = "INSERT INTO alumni (
             user_id, student_id, first_name, last_name, middle_name, 
             phone_number, program_id, year_graduated, graduation_date,
-            address, city, province, linkedin_profile, facebook_profile
+            barangay, city, province, linkedin_profile, facebook_profile
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $alumniStmt = $pdo->prepare($alumniSql);
@@ -137,7 +137,7 @@ function createAlumni($data) {
             $data['program_id'],
             $data['year_graduated'],
             $data['graduation_date'] ?? null,
-            $data['address'] ?? null,
+            $data['barangay'] ?? null,
             $data['city'] ?? null,
             $data['province'] ?? null,
             $data['linkedin_profile'] ?? null,
@@ -180,7 +180,7 @@ function updateAlumni($data) {
         $alumniSql = "UPDATE alumni SET 
             first_name = ?, last_name = ?, middle_name = ?, 
             phone_number = ?, program_id = ?, year_graduated = ?,
-            graduation_date = ?, address = ?, city = ?, province = ?,
+            graduation_date = ?, barangay = ?, city = ?, province = ?,
             linkedin_profile = ?, facebook_profile = ?, updated_at = CURRENT_TIMESTAMP
             WHERE alumni_id = ?";
         
@@ -193,7 +193,7 @@ function updateAlumni($data) {
             $data['program_id'],
             $data['year_graduated'],
             $data['graduation_date'] ?? null,
-            $data['address'] ?? null,
+            $data['barangay'] ?? null,
             $data['city'] ?? null,
             $data['province'] ?? null,
             $data['linkedin_profile'] ?? null,

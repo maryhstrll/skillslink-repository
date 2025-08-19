@@ -93,6 +93,54 @@ const alumniService = {
       console.error('Error fetching profile:', error)
       return null
     }
+  },
+
+  async updateProfile(profileData) {
+    try {
+      const response = await fetch('http://localhost/skillslink/backend/alumni/update_profile.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData)
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        return { success: true, message: data.message }
+      } else {
+        return { success: false, error: data.error || 'Failed to update profile' }
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      return { success: false, error: 'Network error occurred' }
+    }
+  },
+
+  async updateSocialLinks(socialLinksData) {
+    try {
+      const response = await fetch('http://localhost/skillslink/backend/alumni/update_social_links.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(socialLinksData)
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        return { success: true, message: data.message }
+      } else {
+        return { success: false, error: data.error || 'Failed to update social links' }
+      }
+    } catch (error) {
+      console.error('Error updating social links:', error)
+      return { success: false, error: 'Network error occurred' }
+    }
   }
 }
 
