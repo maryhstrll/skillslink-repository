@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
-import Dashboard from "@/views/Dashboard.vue";
 import Alumni from "@/views/Alumni.vue";
 import TracerFormsAdmin from "@/views/TracerFormsAdmin.vue";
 import AlumniTracerForm from "@/views/AlumniTracerForm.vue";
@@ -28,8 +27,38 @@ const routes = [
   { path: "/home", component: Home },
   {
     path: "/dashboard",
-    component: Dashboard,
-    meta: { requiresAuth: true, roles: ["admin", "alumni", "staff"] },
+    redirect: (to) => {
+      // Redirect /dashboard to appropriate role-based dashboard
+      const userRole = getUserRole();
+      switch (userRole) {
+        case 'admin':
+          return '/admin/dashboard';
+        case 'staff':
+          return '/staff/dashboard';
+        case 'alumni':
+          return '/alumni/dashboard';
+        default:
+          return '/alumni/dashboard'; // Safe default
+      }
+    }
+  },
+  {
+    path: "/admin/dashboard",
+    name: "AdminDashboard",
+    component: () => import("@/views/AdminDashboard.vue"),
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
+    path: "/alumni/dashboard", 
+    name: "AlumniDashboard",
+    component: () => import("@/views/AlumniDashboard.vue"),
+    meta: { requiresAuth: true, roles: ["alumni"] },
+  },
+  {
+    path: "/staff/dashboard",
+    name: "StaffDashboard", 
+    component: () => import("@/views/StaffDashboard.vue"),
+    meta: { requiresAuth: true, roles: ["staff"] },
   },
   {
     path: "/alumni",

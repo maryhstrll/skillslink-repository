@@ -119,7 +119,15 @@ onMounted(async () => {
 // Define all possible menu items
 const allMenuItems = [
   {
-    path: "/dashboard",
+    path: (role) => {
+      // Dynamic dashboard path based on user role
+      switch (role) {
+        case 'admin': return "/admin/dashboard";
+        case 'staff': return "/staff/dashboard";
+        case 'alumni': return "/alumni/dashboard";
+        default: return "/alumni/dashboard";
+      }
+    },
     label: "Dashboard",
     icon: "IconHome",
     roles: ["admin", "alumni", "staff"] // Available to all roles
@@ -166,11 +174,17 @@ const allMenuItems = [
 const menuItems = computed(() => {
   if (!currentUser.value || !currentUser.value.role) {
     // If no user or role, show only dashboard (safe default)
-    return allMenuItems.filter(item => item.path === "/dashboard");
+    return allMenuItems.filter(item => typeof item.path === 'function' || item.path === "/dashboard").map(item => ({
+      ...item,
+      path: typeof item.path === 'function' ? item.path('alumni') : item.path
+    }));
   }
   
   const userRole = currentUser.value.role;
-  return allMenuItems.filter(item => item.roles.includes(userRole));
+  return allMenuItems.filter(item => item.roles.includes(userRole)).map(item => ({
+    ...item,
+    path: typeof item.path === 'function' ? item.path(userRole) : item.path
+  }));
 });
 
 const handleProfile = () => {
