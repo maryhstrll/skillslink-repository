@@ -141,6 +141,44 @@ const alumniService = {
       console.error('Error updating social links:', error)
       return { success: false, error: 'Network error occurred' }
     }
+  },
+
+  async getTracerStatus() {
+    try {
+      const response = await fetch('http://localhost/skillslink/backend/alumni/get_tracer_status.php', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        return data
+      } else {
+        console.error('Tracer status API error:', data.message)
+        return { 
+          success: false, 
+          error: data.message,
+          has_active_form: false,
+          submitted: false,
+          status: 'Error',
+          description: 'Unable to fetch tracer form status'
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching tracer status:', error)
+      return { 
+        success: false, 
+        error: 'Network error occurred',
+        has_active_form: false,
+        submitted: false,
+        status: 'Error',
+        description: 'Unable to connect to server'
+      }
+    }
   }
 }
 

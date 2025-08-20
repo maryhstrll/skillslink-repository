@@ -30,9 +30,15 @@
                   Submitted: {{ formatDate(r.submitted_at) }}
                 </div>
               </div>
-              <div class="text-sm">
+              <div class="text-sm flex flex-col items-end gap-1">
                 <span class="badge badge-primary">
                   {{ r.completion_percentage || 0 }}% Complete
+                </span>
+                <span v-if="r.response_type === 'employment_record'" class="badge badge-info text-xs">
+                  Employment Data
+                </span>
+                <span v-else class="badge badge-secondary text-xs">
+                  Form Response
                 </span>
               </div>
             </div>
@@ -45,7 +51,7 @@
                 class="space-y-2"
               >
                 <div
-                  v-for="(answer, questionId) in r.responses"
+                  v-for="(answer, questionId) in getFilteredResponses(r.responses)"
                   :key="questionId"
                   class="bg-base-100 p-2 rounded text-xs"
                 >
@@ -111,8 +117,51 @@ const formatDate = (dateString) => {
 };
 
 const getQuestionText = (questionId) => {
+  // Define employment-specific question labels
+  const employmentQuestions = {
+    'employment_status': 'Employment Status',
+    'company_name': 'Company Name',
+    'occupation': 'Occupation/Job Title',
+    'job_description': 'Job Description',
+    'salary_range': 'Salary Range',
+    'work_classification': 'Work Classification',
+    'company_size': 'Company Size',
+    'industry': 'Industry',
+    'work_location': 'Work Location',
+    'is_local': 'Is Local Employment',
+    'is_abroad': 'Is Employment Abroad',
+    'employment_type': 'Employment Type/Nature',
+    'date_employed': 'Date Employed',
+    'job_relevance_to_course': 'Job Relevance to Course',
+    'skills_used': 'Skills Used',
+    'months_to_find_job': 'Months to Find Job',
+    'job_search_method': 'Job Search Method',
+    'additional_comments': 'Additional Comments'
+  };
+  
+  // Check if it's an employment question first
+  if (employmentQuestions[questionId]) {
+    return employmentQuestions[questionId];
+  }
+  
+  // Then check form questions
   const question = formQuestions.value.find(q => q.id == questionId);
-  return question ? question.label : `Question ID ${questionId}`;
+  return question ? question.label : `Question: ${questionId}`;
+};
+
+const getFilteredResponses = (responses) => {
+  if (!responses || typeof responses !== 'object') {
+    return {};
+  }
+  
+  const filtered = {};
+  Object.entries(responses).forEach(([key, value]) => {
+    if (value && value !== '' && value !== 'null' && value !== null) {
+      filtered[key] = value;
+    }
+  });
+  
+  return filtered;
 };
 
 const fetchFormQuestions = async (formId) => {

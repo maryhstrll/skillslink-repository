@@ -6,8 +6,23 @@ import TracerFormsAdmin from "@/views/TracerFormsAdmin.vue";
 import AlumniTracerForm from "@/views/AlumniTracerForm.vue";
 import Reports from "@/views/Reports.vue";
 import AlumniProfile from "@/views/AlumniProfile.vue";
-import Settings from "@/views/Settings.vue";
+import AdminSettings from "@/views/AdminSettings.vue";
+import AlumniSettings from "@/views/AlumniSettings.vue";
 import Users from "@/views/Users.vue";
+
+// Helper function to get user role
+const getUserRole = () => {
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      return userData.role || null;
+    }
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+  }
+  return null;
+};
 
 const routes = [
   { path: "/home", component: Home },
@@ -42,9 +57,27 @@ const routes = [
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
+    path: "/admin_settings",
+    component: AdminSettings,
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
+    path: "/alumni_settings", 
+    component: AlumniSettings,
+    meta: { requiresAuth: true, roles: ["alumni"] },
+  },
+  {
     path: "/settings",
-    component: Settings,
-    meta: { requiresAuth: true, roles: ["admin", "alumni", "staff"] },
+    redirect: (to) => {
+      // Redirect /settings to appropriate settings page based on user role
+      const userRole = getUserRole();
+      if (userRole === 'admin') {
+        return '/admin_settings';
+      } else if (userRole === 'alumni') {
+        return '/alumni_settings';
+      }
+      return '/admin_settings'; // default fallback
+    }
   },
   {
     path: "/users",
@@ -59,20 +92,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
-// Helper function to get user role
-const getUserRole = () => {
-  try {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const userData = JSON.parse(userStr);
-      return userData.role || null;
-    }
-  } catch (error) {
-    console.error("Error parsing user data:", error);
-  }
-  return null;
-};
 
 // Route protection
 router.beforeEach((to, from, next) => {

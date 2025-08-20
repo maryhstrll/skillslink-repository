@@ -7,6 +7,19 @@ const messageState = reactive({
 let messageId = 0;
 
 export const messageService = {
+  // Generic showMessage method (used by components)
+  showMessage(message, variant = 'info', duration = 3000) {
+    if (variant === 'error') {
+      return this.showError(message, duration);
+    } else if (variant === 'success') {
+      return this.showSuccess(message, duration);
+    } else if (variant === 'warning') {
+      return this.showWarning(message, duration);
+    } else {
+      return this.toast(message, variant, duration);
+    }
+  },
+
   // Show toast notification
   toast(message, variant = 'info', duration = 3000) {
     const id = messageId++;
@@ -113,5 +126,18 @@ export const messageService = {
 
   showInfo(message, title = 'Information') {
     return this.alert(message, 'info', title);
+  },
+
+  // Generic showMessage method for backward compatibility
+  showMessage(message, variant = 'info', duration = 3000) {
+    if (variant === 'success') {
+      return this.toast(message, 'success', duration);
+    } else if (variant === 'error') {
+      return this.toast(message, 'error', duration);
+    } else if (variant === 'warning') {
+      return this.toast(message, 'warning', duration);
+    } else {
+      return this.toast(message, 'info', duration);
+    }
   }
 };

@@ -83,10 +83,10 @@ try {
                 b.batch_year,
                 e.employment_status,
                 e.company_name as current_company,
-                e.job_title as current_position,
+                e.occupation as current_position,
                 e.salary_range,
-                e.employment_type,
-                e.work_setup
+                e.nature_of_employment as employment_type,
+                e.work_location as work_setup
             FROM users u
             LEFT JOIN alumni a ON u.student_id = a.student_id
             LEFT JOIN programs p ON a.program_id = p.program_id

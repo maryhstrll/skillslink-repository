@@ -80,7 +80,7 @@
                   ></textarea>
                 </div>
 
-                <!-- Core Employment Questions Preview -->
+                <!-- Core Employment Questions Selector -->
                 <div class="card app-surface p-4 app-border border">
                   <h4
                     class="font-medium mb-3 flex items-center text-medium-blue"
@@ -98,26 +98,75 @@
                         d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
                       ></path>
                     </svg>
-                    Core Employment Questions (Predefined)
+                    Employment Questions Configuration
                   </h4>
-                  <div class="text-sm text-text opacity-80">
-                    These questions are automatically included in every
-                    employment tracer form and map to structured database fields
-                    for reporting:
+                  <div class="text-sm text-text opacity-80 mb-4">
+                    Select which employment questions to include in this tracer form. 
+                    <strong>Required questions</strong> are always included automatically.
                   </div>
-                  <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div
-                      v-for="question in coreEmploymentQuestions"
-                      :key="question.id"
-                      class="text-sm p-3 app-surface-alt rounded border-l-4 border-medium-blue"
-                    >
-                      <span class="font-medium text-text">{{
-                        question.label
-                      }}</span>
-                      <span class="text-text opacity-60 ml-2"
-                        >({{ question.type }})</span
+                  
+                  <!-- Always Included Employment Questions (Required) -->
+                  <div class="mb-4">
+                    <h5 class="font-medium text-text mb-3">Required Employment Questions (Always Included)</h5>
+                    <div class="space-y-2">
+                      <div
+                        v-for="question in coreEmploymentQuestions.filter(q => q.always_include)"
+                        :key="question.id"
+                        class="p-3 app-secondary-bg rounded border-l-4 border-medium-blue"
                       >
+                        <div class="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            class="checkbox checkbox-primary checkbox-sm"
+                            checked
+                            disabled
+                          />
+                          <span class="font-medium text-text">{{ question.label }}</span>
+                          <span class="badge badge-primary badge-xs">Required</span>
+                        </div>
+                        <div class="text-xs text-text opacity-70 mt-1">
+                          <span v-if="question.conditional">📋 Only shown when: {{ question.conditional }}</span>
+                          <span v-if="question.options">Options: {{ question.options.slice(0, 3).join(', ') }}{{ question.options.length > 3 ? '...' : '' }}</span>
+                          <span v-if="question.type === 'text'">Text input</span>
+                          <span v-if="question.type === 'date'">Date picker</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  <!-- Optional Employment Questions -->
+                  <div class="space-y-2">
+                    <h5 class="font-medium text-text mb-3">Optional Employment Questions</h5>
+                    <div
+                      v-for="question in coreEmploymentQuestions.filter(q => q.optional)"
+                      :key="question.id"
+                      class="p-3 app-surface-alt rounded border"
+                    >
+                      <div class="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-primary checkbox-sm mt-1"
+                          :value="question.id"
+                          v-model="form.selectedEmploymentQuestions"
+                        />
+                        <div class="flex-1">
+                          <div class="flex items-center gap-2">
+                            <span class="font-medium text-text">{{ question.label }}</span>
+                            <span class="text-text opacity-60 text-xs">({{ question.type }})</span>
+                          </div>
+                          <div v-if="question.conditional" class="text-xs text-orange-600 mt-1">
+                            📋 Only shown when: {{ question.conditional }}
+                          </div>
+                          <div v-if="question.options" class="text-xs text-text opacity-60 mt-1">
+                            Options: {{ question.options.slice(0, 3).join(', ') }}{{ question.options.length > 3 ? '...' : '' }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3 text-sm text-text opacity-70">
+                    Selected: {{ enabledEmploymentQuestions.length }} employment questions will be included
                   </div>
                 </div>
 
@@ -539,16 +588,12 @@
                     <td>
                       <div class="flex items-center gap-2">
                         <span class="badge badge-outline text-text">
-                          {{
-                            Array.isArray(item.form_questions)
-                              ? item.form_questions.length
-                              : JSON.parse(item.form_questions || "[]").length
-                          }}
+                          {{ getAdditionalQuestionsCount(item) }}
                         </span>
                         <span class="text-xs text-text-muted">custom</span>
                       </div>
                       <div class="text-xs text-text-muted mt-1">
-                        + {{ coreEmploymentQuestions.length }} core employment
+                        + {{ getEmploymentQuestionsCount(item) }} employment
                       </div>
                     </td>
                     <td>
@@ -773,16 +818,15 @@
                     ></path>
                   </svg>
                   Core Employment Questions ({{
-                    coreEmploymentQuestions.length
+                    selectedEmploymentQuestionsForView.length
                   }})
                 </h4>
                 <div class="text-sm text-text mb-3">
-                  These questions are automatically included in every employment
-                  tracer form:
+                  These employment questions are included in this form:
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div
-                    v-for="(q, i) in coreEmploymentQuestions.slice(0, 6)"
+                    v-for="(q, i) in selectedEmploymentQuestionsForView.slice(0, 6)"
                     :key="q.id"
                     class="p-3 app-surface rounded border-l-4 border-medium-blue"
                   >
@@ -837,11 +881,10 @@
                   </div>
                 </div>
                 <div
-                  v-if="coreEmploymentQuestions.length > 6"
+                  v-if="selectedEmploymentQuestionsForView.length > 6"
                   class="mt-3 text-sm text-gray-500"
                 >
-                  ... and {{ coreEmploymentQuestions.length - 6 }} more core
-                  employment questions
+                  ... and {{ selectedEmploymentQuestionsForView.length - 6 }} more employment questions
                 </div>
               </div>
 
@@ -875,7 +918,7 @@
                     class="p-3 bg-white rounded"
                   >
                     <label class="label label-text font-medium text-sm">
-                      {{ coreEmploymentQuestions.length + i + 1 }}.
+                      {{ selectedEmploymentQuestionsForView.length + i + 1 }}.
                       {{ q.label || "Untitled Question" }}
                     </label>
                     <div class="mt-1">
@@ -985,7 +1028,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
-import FormResponses from "@/components/FormReponses.vue";
+import FormResponses from "@/components/FormResponses.vue";
 import axios from "axios";
 import draggable from "vuedraggable";
 import { messageService } from "@/services/messageService.js";
@@ -1004,7 +1047,7 @@ const isNew = ref(true);
 const preview = ref(false);
 const responseCounts = ref({});
 
-// Core employment questions that are always included
+// Core employment questions - Employment Status is always included, others are configurable
 const coreEmploymentQuestions = ref([
   {
     id: "employment_status",
@@ -1012,13 +1055,71 @@ const coreEmploymentQuestions = ref([
     type: "radio",
     maps_to: "employment_status",
     required: true,
+    always_include: true,
     options: [
       "Employed",
-      "Unemployed",
-      "Self-Employed",
-      "Underemployed",
-      "Continuing Education",
+      "Unemployed", 
+      "Further Studies",
+      "Not Looking",
     ],
+  },
+  {
+    id: "date_employed",
+    label: "Date Employed",
+    type: "date",
+    maps_to: "date_employed",
+    conditional: 'employment_status == "employed"',
+    optional: true,
+  },
+  {
+    id: "name_of_employer",
+    label: "Name of Employer",
+    type: "text",
+    maps_to: "company_name",
+    conditional: 'employment_status == "employed"',
+    placeholder: "Enter employer/company name",
+    optional: true,
+  },
+  {
+    id: "work_location",
+    label: "Work Location",
+    type: "text",
+    maps_to: "work_location",
+    conditional: 'employment_status == "employed"',
+    placeholder: "City, Province/State, Country",
+    optional: true,
+  },
+  {
+    id: "work_classification",
+    label: "Work Classification",
+    type: "radio",
+    maps_to: "work_classification",
+    conditional: 'employment_status == "employed"',
+    options: [
+      "Wage and Salary Workers",
+      "Self-employed without any paid employee",
+      "Employer in Own Family-Operated Farm or Business",
+      "Work Without Pay in Own-Family-Operated Farm or Business"
+    ],
+    optional: true,
+  },
+  {
+    id: "is_local",
+    label: "Local",
+    type: "radio",
+    maps_to: "is_local",
+    conditional: 'employment_status == "employed"',
+    options: ["Yes", "No"],
+    optional: true,
+  },
+  {
+    id: "is_abroad",
+    label: "Abroad",
+    type: "radio",
+    maps_to: "is_abroad",
+    conditional: 'employment_status == "employed"',
+    options: ["Yes", "No"],
+    optional: true,
   },
   {
     id: "company_name",
@@ -1027,6 +1128,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "company_name",
     conditional: 'employment_status == "employed"',
     placeholder: "Enter company or organization name",
+    optional: true,
   },
   {
     id: "job_title",
@@ -1035,6 +1137,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "job_title",
     conditional: 'employment_status == "employed"',
     placeholder: "Enter your job title",
+    optional: true,
   },
   {
     id: "job_description",
@@ -1043,6 +1146,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "job_description",
     conditional: 'employment_status == "employed"',
     placeholder: "Describe your job responsibilities",
+    optional: true,
   },
   {
     id: "salary_range",
@@ -1058,6 +1162,7 @@ const coreEmploymentQuestions = ref([
       "80,000-100,000",
       "Above 100,000",
     ],
+    optional: true,
   },
   {
     id: "employment_type",
@@ -1066,6 +1171,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "employment_type",
     conditional: 'employment_status == "employed"',
     options: ["Full-time", "Part-time", "Contract", "Freelance", "Temporary"],
+    optional: true,
   },
   {
     id: "industry",
@@ -1074,14 +1180,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "industry",
     conditional: 'employment_status == "employed"',
     placeholder: "e.g., Information Technology, Healthcare, Education",
-  },
-  {
-    id: "work_location",
-    label: "Work Location",
-    type: "text",
-    maps_to: "work_location",
-    conditional: 'employment_status == "employed"',
-    placeholder: "City, Province/State, Country",
+    optional: true,
   },
   {
     id: "work_setup",
@@ -1090,6 +1189,7 @@ const coreEmploymentQuestions = ref([
     maps_to: "work_setup",
     conditional: 'employment_status == "employed"',
     options: ["On-site", "Remote", "Hybrid"],
+    optional: true,
   },
   {
     id: "months_to_find_job",
@@ -1099,6 +1199,7 @@ const coreEmploymentQuestions = ref([
     conditional: 'employment_status == "employed"',
     min: 0,
     max: 60,
+    optional: true,
   },
 ]);
 
@@ -1110,6 +1211,7 @@ const form = reactive({
   deadline: null,
   is_active: true,
   questions: [], // These are additional questions beyond core employment
+  selectedEmploymentQuestions: [], // IDs of employment questions to include
 });
 
 // Form Responses Component Reference
@@ -1124,6 +1226,87 @@ const isFormValid = computed(() => {
   return form.title.trim() !== "" && form.year >= 2020 && form.year <= 2030;
 });
 
+const enabledEmploymentQuestions = computed(() => {
+  return coreEmploymentQuestions.value.filter(q => 
+    q.always_include || form.selectedEmploymentQuestions.includes(q.id)
+  );
+});
+
+const selectedEmploymentQuestionsForView = computed(() => {
+  if (!viewFormData.value.selectedEmploymentQuestions) return [];
+  return coreEmploymentQuestions.value.filter(q => 
+    viewFormData.value.selectedEmploymentQuestions.includes(q.id)
+  );
+});
+
+// Helper functions for parsing form questions in the table
+const getDefaultSelectedEmploymentQuestions = () => {
+  const alwaysInclude = coreEmploymentQuestions.value
+    .filter(q => q.always_include)
+    .map(q => q.id);
+  
+  // Add the requested fields that should be automatically checked by default
+  const autoChecked = [
+    "date_employed",
+    "name_of_employer", 
+    "work_location",
+    "work_classification",
+    "is_local",
+    "is_abroad"
+  ];
+  
+  // Combine and remove duplicates
+  return [...new Set([...alwaysInclude, ...autoChecked])];
+};
+
+const parseFormQuestions = (formQuestionsData) => {
+  const defaultSelected = getDefaultSelectedEmploymentQuestions();
+  
+  if (!formQuestionsData) return { additional_questions: [], selected_employment_questions: defaultSelected };
+  
+  if (typeof formQuestionsData === 'string') {
+    try {
+      const parsed = JSON.parse(formQuestionsData);
+      if (Array.isArray(parsed)) {
+        // Old format
+        return { additional_questions: parsed, selected_employment_questions: defaultSelected };
+      } else {
+        // New format - ensure always_include questions are included
+        const selectedQuestions = parsed.selected_employment_questions || defaultSelected;
+        const uniqueSelected = [...new Set([...defaultSelected, ...selectedQuestions])];
+        return { 
+          additional_questions: parsed.additional_questions || [], 
+          selected_employment_questions: uniqueSelected 
+        };
+      }
+    } catch (e) {
+      return { additional_questions: [], selected_employment_questions: defaultSelected };
+    }
+  } else if (Array.isArray(formQuestionsData)) {
+    // Old format
+    return { additional_questions: formQuestionsData, selected_employment_questions: defaultSelected };
+  } else {
+    // New format - ensure always_include questions are included
+    const selectedQuestions = formQuestionsData.selected_employment_questions || defaultSelected;
+    const uniqueSelected = [...new Set([...defaultSelected, ...selectedQuestions])];
+    return { 
+      additional_questions: formQuestionsData.additional_questions || [], 
+      selected_employment_questions: uniqueSelected 
+    };
+  }
+};
+
+const getAdditionalQuestionsCount = (item) => {
+  const parsed = parseFormQuestions(item.form_questions);
+  return (parsed.additional_questions || []).length;
+};
+
+const getEmploymentQuestionsCount = (item) => {
+  const parsed = parseFormQuestions(item.form_questions);
+  const selectedIds = parsed.selected_employment_questions || ["employment_status"];
+  return selectedIds.length;
+};
+
 // Form management helpers
 const resetForm = () => {
   form.form_id = null;
@@ -1133,6 +1316,26 @@ const resetForm = () => {
   form.deadline = null;
   form.is_active = true;
   form.questions = [];
+  // Initialize with all always_include questions and some commonly used optional questions by default
+  const alwaysIncludeQuestions = coreEmploymentQuestions.value
+    .filter(q => q.always_include)
+    .map(q => q.id);
+  
+  form.selectedEmploymentQuestions = [
+    ...alwaysIncludeQuestions,
+    // Add the requested fields that should be automatically checked by default
+    "date_employed",
+    "name_of_employer", 
+    "work_location",
+    "work_classification",
+    "is_local",
+    "is_abroad",
+    // Add some other commonly used optional questions by default
+    "company_name",
+    "job_title", 
+    "salary_range",
+    "employment_type"
+  ];
 };
 
 const addQuestion = () => {
@@ -1265,14 +1468,12 @@ const loadForm = async (item) => {
     form.deadline = d.deadline_date || null;
     form.is_active = !!d.is_active;
 
-    // Handle questions - these are the additional questions beyond core employment
-    if (typeof d.form_questions === "string") {
-      form.questions = JSON.parse(d.form_questions || "[]");
-    } else if (Array.isArray(d.form_questions)) {
-      form.questions = d.form_questions;
-    } else {
-      form.questions = [];
-    }
+    // Handle form questions - now contains both additional questions and selected employment questions
+    const formQuestionsData = parseFormQuestions(d.form_questions);
+
+    // Set the form data
+    form.questions = formQuestionsData.additional_questions || [];
+    form.selectedEmploymentQuestions = formQuestionsData.selected_employment_questions;
 
     editing.value = true;
     isNew.value = false;
@@ -1297,13 +1498,18 @@ const saveForm = async () => {
     return;
   }
 
-  // Prepare payload - only additional questions are stored in form_questions
+  // Prepare payload - store both additional questions and selected employment questions in form_questions JSON
+  const formData = {
+    additional_questions: form.questions, // Custom questions added by admin
+    selected_employment_questions: form.selectedEmploymentQuestions // IDs of employment questions to show
+  };
+  
   const payload = {
     form_id: form.form_id,
     form_title: form.title,
     form_year: form.year,
     form_description: form.description,
-    form_questions: JSON.stringify(form.questions), // Only additional questions
+    form_questions: JSON.stringify(formData), // Combined data
     deadline_date: form.deadline,
     is_active: form.is_active,
   };
@@ -1472,6 +1678,7 @@ const viewForm = async (item) => {
     }
 
     // Prepare view data with both core and additional questions
+    const parsedQuestions = parseFormQuestions(d.form_questions);
     viewFormData.value = {
       form_id: d.form_id,
       title: d.form_title,
@@ -1480,9 +1687,8 @@ const viewForm = async (item) => {
       deadline: d.deadline_date || null,
       is_active: !!d.is_active,
       coreQuestions: coreEmploymentQuestions.value,
-      questions: Array.isArray(d.form_questions)
-        ? d.form_questions
-        : JSON.parse(d.form_questions || "[]"),
+      questions: parsedQuestions.additional_questions,
+      selectedEmploymentQuestions: parsedQuestions.selected_employment_questions,
     };
 
     console.log("View form data set:", viewFormData.value);

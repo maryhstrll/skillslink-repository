@@ -264,9 +264,12 @@ const employmentData = reactive({
   job_description: '',
   salary_range: '',
   employment_type: '',
+  work_classification: '',
   industry: '',
   work_location: '',
-  work_setup: '',
+  is_local: '',
+  is_abroad: '',
+  date_employed: '',
   months_to_find_job: null
 });
 
@@ -298,6 +301,9 @@ const formatValue = (value) => {
 };
 
 const getQuestionLabel = (questionId) => {
+  if (!Array.isArray(additionalQuestions.value)) {
+    return questionId;
+  }
   const question = additionalQuestions.value.find(q => q.id === questionId);
   return question ? question.label : questionId;
 };
@@ -318,9 +324,11 @@ const loadForm = async () => {
       existingAdditionalData.value = data.existing_additional_data || {};
     } else {
       // Initialize data for new form
-      additionalQuestions.value.forEach(q => {
-        additionalData[q.id] = q.type === 'checkbox' ? [] : '';
-      });
+      if (Array.isArray(additionalQuestions.value)) {
+        additionalQuestions.value.forEach(q => {
+          additionalData[q.id] = q.type === 'checkbox' ? [] : '';
+        });
+      }
     }
     
   } catch (err) {
@@ -339,11 +347,13 @@ const enableEditing = () => {
   Object.assign(additionalData, existingAdditionalData.value);
   
   // Ensure checkbox answers are arrays
-  additionalQuestions.value.forEach(q => {
-    if (q.type === 'checkbox' && !Array.isArray(additionalData[q.id])) {
-      additionalData[q.id] = additionalData[q.id] ? [additionalData[q.id]] : [];
-    }
-  });
+  if (Array.isArray(additionalQuestions.value)) {
+    additionalQuestions.value.forEach(q => {
+      if (q.type === 'checkbox' && !Array.isArray(additionalData[q.id])) {
+        additionalData[q.id] = additionalData[q.id] ? [additionalData[q.id]] : [];
+      }
+    });
+  }
 };
 
 const cancelEditing = () => {
@@ -358,9 +368,11 @@ const cancelEditing = () => {
   });
   
   // Reinitialize additional data
-  additionalQuestions.value.forEach(q => {
-    additionalData[q.id] = q.type === 'checkbox' ? [] : '';
-  });
+  if (Array.isArray(additionalQuestions.value)) {
+    additionalQuestions.value.forEach(q => {
+      additionalData[q.id] = q.type === 'checkbox' ? [] : '';
+    });
+  }
 };
 
 const handleCheckboxChange = (questionId, option, event) => {

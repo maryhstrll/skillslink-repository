@@ -18,11 +18,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
       <!-- Tracer Form Status -->
       <div class="stat bg-base-100 rounded-lg shadow">
-        <div class="stat-figure text-primary">
-          <i class="fas fa-file-alt text-3xl"></i>
+        <div class="stat-figure" :class="tracerSubmitted ? 'text-success' : tracerStatus === 'Error' ? 'text-error' : 'text-primary'">
+          <i class="text-3xl fas" :class="tracerSubmitted ? 'fa-check-circle' : tracerStatus === 'Error' ? 'fa-exclamation-triangle' : 'fa-file-alt'"></i>
         </div>
         <div class="stat-title">Tracer Form</div>
-        <div class="stat-value text-primary">{{ tracerStatus }}</div>
+        <div class="stat-value" :class="tracerSubmitted ? 'text-success' : tracerStatus === 'Error' ? 'text-error' : 'text-primary'">
+          {{ tracerStatus }}
+        </div>
         <div class="stat-desc">{{ tracerDesc }}</div>
       </div>
 
@@ -89,8 +91,9 @@ const router = useRouter();
 
 // State
 const alumniName = ref(localStorage.getItem("username") || "Alumni");
-const tracerStatus = ref("Not Submitted"); // or "Submitted"
-const tracerDesc = ref("Submit your form for the current year.");
+const tracerStatus = ref("Loading..."); // or "Submitted"
+const tracerDesc = ref("Checking form status...");
+const tracerSubmitted = ref(false);
 const profileCompletion = ref(0);
 const loading = ref(true);
 
@@ -123,6 +126,29 @@ const fetchProfileData = async () => {
   }
 };
 
+// Fetch tracer form status
+const fetchTracerStatus = async () => {
+  try {
+    const statusData = await alumniService.getTracerStatus();
+    
+    if (statusData.success) {
+      tracerStatus.value = statusData.status || "Unknown";
+      tracerDesc.value = statusData.description || "No description available";
+      tracerSubmitted.value = statusData.submitted || false;
+    } else {
+      console.error('Error fetching tracer status:', statusData.error);
+      tracerStatus.value = "Error";
+      tracerDesc.value = statusData.description || "Unable to fetch form status";
+      tracerSubmitted.value = false;
+    }
+  } catch (error) {
+    console.error('Error fetching tracer status:', error);
+    tracerStatus.value = "Error";
+    tracerDesc.value = "Unable to connect to server";
+    tracerSubmitted.value = false;
+  }
+};
+
 // Navigate to profile page
 const navigateToProfile = () => {
   router.push('/alumni_profile');
@@ -131,5 +157,6 @@ const navigateToProfile = () => {
 // Fetch data when component mounts
 onMounted(() => {
   fetchProfileData();
+  fetchTracerStatus();
 });
 </script>

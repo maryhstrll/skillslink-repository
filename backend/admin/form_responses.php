@@ -62,24 +62,79 @@ try {
     if ($action === 'list' && isset($_GET['form_id'])) {
         if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
         $form_id = (int)$_GET['form_id'];
+        
+        // Get traditional form responses
         $sql = "SELECT fr.*, 
                        CONCAT(a.first_name, ' ', a.last_name) AS alumni_name,
                        u.email AS alumni_email,
-                       a.student_id AS alumni_student_id
+                       a.student_id AS alumni_student_id,
+                       'form_response' as response_type
                 FROM form_responses fr
                 LEFT JOIN alumni a ON fr.alumni_id = a.alumni_id
                 LEFT JOIN users u ON a.user_id = u.user_id
-                WHERE fr.form_id = :form_id
-                ORDER BY fr.submitted_at DESC";
+                WHERE fr.form_id = :form_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':form_id' => $form_id]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $form_responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get employment tracer responses (from employment_records table)
+        $employment_sql = "SELECT er.*, 
+                                  CONCAT(a.first_name, ' ', a.last_name) AS alumni_name,
+                                  u.email AS alumni_email,
+                                  a.student_id AS alumni_student_id,
+                                  'employment_record' as response_type,
+                                  er.record_id as response_id,
+                                  er.created_at as submitted_at,
+                                  100 as completion_percentage,
+                                  1 as is_complete
+                           FROM employment_records er
+                           LEFT JOIN alumni a ON er.alumni_id = a.alumni_id
+                           LEFT JOIN users u ON a.user_id = u.user_id
+                           WHERE er.tracer_form_id = :form_id";
+        $stmt = $pdo->prepare($employment_sql);
+        $stmt->execute([':form_id' => $form_id]);
+        $employment_responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convert employment records to response format
+        foreach ($employment_responses as &$emp) {
+            $emp['responses'] = [
+                'employment_status' => $emp['employment_status'],
+                'company_name' => $emp['company_name'],
+                'occupation' => $emp['occupation'],
+                'job_description' => $emp['job_description'],
+                'salary_range' => $emp['salary_range'],
+                'work_classification' => $emp['work_classification'],
+                'company_size' => $emp['company_size'],
+                'industry' => $emp['industry'],
+                'work_location' => $emp['work_location'],
+                'is_local' => ($emp['is_local'] === 'yes' || $emp['is_local'] === 1) ? 'Yes' : 'No',
+                'is_abroad' => ($emp['is_abroad'] === 'yes' || $emp['is_abroad'] === 1) ? 'Yes' : 'No',
+                'employment_type' => $emp['nature_of_employment'],
+                'date_employed' => $emp['date_employed'],
+                'job_relevance_to_course' => $emp['job_relevance_to_course'],
+                'skills_used' => $emp['skills_used'],
+                'months_to_find_job' => $emp['months_to_find_job'],
+                'job_search_method' => $emp['job_search_method'],
+                'additional_comments' => $emp['additional_comments']
+            ];
+            
+            // Remove null and empty values
+            $emp['responses'] = array_filter($emp['responses'], function($value) {
+                return $value !== null && $value !== '' && $value !== '0000-00-00';
+            });
+        }
+        
+        // Combine both types of responses
+        $rows = array_merge($form_responses, $employment_responses);
         
         // Process the responses for better display
         foreach ($rows as &$r) {
-            // Decode responses for readability
-            $responses_data = json_decode($r['responses'] ?? '[]', true);
-            $r['responses'] = $responses_data;
+            // Decode responses for readability (only for form_response type)
+            if ($r['response_type'] === 'form_response') {
+                $responses_data = json_decode($r['responses'] ?? '[]', true);
+                $r['responses'] = $responses_data;
+            }
+            // For employment_record type, responses are already processed above
             
             // Ensure completion percentage is shown properly
             if (empty($r['completion_percentage'])) {
@@ -92,6 +147,11 @@ try {
             }
         }
         
+        // Sort by submitted date (most recent first)
+        usort($rows, function($a, $b) {
+            return strtotime($b['submitted_at']) - strtotime($a['submitted_at']);
+        });
+        
         echo json_encode($rows);
         exit;
     }
@@ -100,10 +160,20 @@ try {
     if ($action === 'count' && isset($_GET['form_id'])) {
         if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
         $form_id = (int)$_GET['form_id'];
+        
+        // Count form responses
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM form_responses WHERE form_id = :form_id");
         $stmt->execute([':form_id' => $form_id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode(['count' => (int)$result['count']]);
+        $form_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        // Count employment records
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM employment_records WHERE tracer_form_id = :form_id");
+        $stmt->execute([':form_id' => $form_id]);
+        $employment_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        $total_count = $form_count + $employment_count;
+        
+        echo json_encode(['count' => (int)$total_count]);
         exit;
     }
 

@@ -58,17 +58,41 @@ try {
     $existing_additional = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Parse form questions
-    $all_questions = json_decode($form['form_questions'] ?? '[]', true);
+    $form_questions_data = json_decode($form['form_questions'] ?? '[]', true);
     
-    // Define core employment questions structure
-    $core_questions = [
+    // Handle both old format (array) and new format (object with additional_questions and selected_employment_questions)
+    if (is_array($form_questions_data)) {
+        // Check if it's the new format with additional_questions key
+        if (isset($form_questions_data['additional_questions'])) {
+            $all_questions = $form_questions_data['additional_questions'];
+            $selected_employment_questions = $form_questions_data['selected_employment_questions'] ?? [];
+        } else {
+            // Old format - treat as additional questions only
+            $all_questions = $form_questions_data;
+            $selected_employment_questions = ['employment_status']; // Default to employment status only
+        }
+    } else {
+        $all_questions = [];
+        $selected_employment_questions = ['employment_status'];
+    }
+    
+    // Define all available core employment questions
+    $all_core_questions = [
         [
             'id' => 'employment_status',
             'label' => 'Current Employment Status',
             'type' => 'radio',
             'required' => true,
-            'options' => ['Employed', 'Unemployed', 'Self Employed', 'Further Studies', 'Not Looking for Work'],
+            'options' => ['Employed', 'Unemployed', 'Further Studies', 'Not Looking'],
             'maps_to' => 'employment_status'
+        ],
+        [
+            'id' => 'date_employed',
+            'label' => 'Date Employed',
+            'type' => 'date',
+            'required' => false,
+            'conditional' => 'employment_status == "employed"',
+            'maps_to' => 'date_employed'
         ],
         [
             'id' => 'company_name',
@@ -84,7 +108,7 @@ try {
             'type' => 'text',
             'required' => false,
             'conditional' => 'employment_status == "employed"',
-            'maps_to' => 'job_title'
+            'maps_to' => 'job_title' // Frontend uses job_title, maps to occupation in DB
         ],
         [
             'id' => 'job_description',
@@ -99,18 +123,27 @@ try {
             'label' => 'Monthly Salary Range',
             'type' => 'select',
             'required' => false,
-            'options' => ['Below ₱15,000', '₱15,000 - ₱25,000', '₱25,000 - ₱35,000', '₱35,000 - ₱50,000', '₱50,000 - ₱75,000', '₱75,000 - ₱100,000', 'Above ₱100,000', 'Prefer not to say'],
+            'options' => ['Below 10,000', '10,000 to 20,000', '20,000 to 30,000', '30,000 to 40,000', '40,000 to 50,000', '50,000 to 60,000', 'Above 60,000'],
             'conditional' => 'employment_status == "employed"',
             'maps_to' => 'salary_range'
         ],
         [
-            'id' => 'employment_type',
-            'label' => 'Employment Type',
-            'type' => 'select',
+            'id' => 'work_classification',
+            'label' => 'Work Classification',
+            'type' => 'radio',
             'required' => false,
-            'options' => ['Full Time', 'Part Time', 'Contract', 'Freelance', 'Internship'],
+            'options' => ['Wage and Salary Workers', 'Self-employed without any paid employee', 'Employer in Own Family-Operated Farm or Business', 'Work Without Pay in Own-Family-Operated Farm or Business'],
             'conditional' => 'employment_status == "employed"',
-            'maps_to' => 'employment_type'
+            'maps_to' => 'work_classification'
+        ],
+        [
+            'id' => 'employment_type',
+            'label' => 'Nature of Employment',
+            'type' => 'radio',
+            'required' => false,
+            'options' => ['Permanent', 'Casual', 'Contractual', 'Seasonal or Short Term'],
+            'conditional' => 'employment_status == "employed"',
+            'maps_to' => 'employment_type' // Frontend uses employment_type, maps to nature_of_employment in DB
         ],
         [
             'id' => 'industry',
@@ -129,13 +162,22 @@ try {
             'maps_to' => 'work_location'
         ],
         [
-            'id' => 'work_setup',
-            'label' => 'Work Setup',
+            'id' => 'is_local',
+            'label' => 'Local',
             'type' => 'radio',
             'required' => false,
-            'options' => ['On-site', 'Remote', 'Hybrid'],
+            'options' => ['Yes', 'No'],
             'conditional' => 'employment_status == "employed"',
-            'maps_to' => 'work_setup'
+            'maps_to' => 'is_local'
+        ],
+        [
+            'id' => 'is_abroad',
+            'label' => 'Abroad',
+            'type' => 'radio',
+            'required' => false,
+            'options' => ['Yes', 'No'],
+            'conditional' => 'employment_status == "employed"',
+            'maps_to' => 'is_abroad'
         ],
         [
             'id' => 'months_to_find_job',
@@ -149,8 +191,16 @@ try {
         ]
     ];
     
-    // Additional questions are any questions from the form that don't map to employment_records
-    $additional_questions = $all_questions;
+    // Filter core questions based on selected employment questions
+    $core_questions = array_filter($all_core_questions, function($question) use ($selected_employment_questions) {
+        return in_array($question['id'], $selected_employment_questions);
+    });
+    
+    // Re-index the array
+    $core_questions = array_values($core_questions);
+    
+    // Additional questions are the custom questions from the form
+    $additional_questions = is_array($all_questions) ? $all_questions : [];
     
     if ($existing_employment || $existing_additional) {
         // User has already responded
@@ -160,13 +210,16 @@ try {
             $existing_employment_data = [
                 'employment_status' => $existing_employment['employment_status'],
                 'company_name' => $existing_employment['company_name'],
-                'job_title' => $existing_employment['job_title'],
+                'job_title' => $existing_employment['occupation'], // Database column is 'occupation'
                 'job_description' => $existing_employment['job_description'],
                 'salary_range' => $existing_employment['salary_range'],
-                'employment_type' => $existing_employment['employment_type'],
+                'employment_type' => $existing_employment['nature_of_employment'], // Database column is 'nature_of_employment'
+                'work_classification' => $existing_employment['work_classification'],
                 'industry' => $existing_employment['industry'],
                 'work_location' => $existing_employment['work_location'],
-                'work_setup' => $existing_employment['work_setup'],
+                'is_local' => $existing_employment['is_local'],
+                'is_abroad' => $existing_employment['is_abroad'],
+                'date_employed' => $existing_employment['date_employed'],
                 'months_to_find_job' => $existing_employment['months_to_find_job']
             ];
         }
