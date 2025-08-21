@@ -3,6 +3,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config.php';        // your DB connection (should provide $pdo or DB constants)
 require_once __DIR__ . '/../session.php';    // make sure this sets $_SESSION['user_id'] and maybe role
+require_once __DIR__ . '/../notification_helper.php';  // notification helper functions
 
 // helper: get JSON body if sent
 function get_json_body() {
@@ -152,9 +153,26 @@ try {
             $id = (int)($data['form_id']);
             $pdo->beginTransaction();
             try {
+                // Get form details before activation for notification
+                $stmt = $pdo->prepare("SELECT form_title, form_year, deadline_date FROM tracer_forms WHERE form_id = :id");
+                $stmt->execute([':id' => $id]);
+                $form_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                
                 $pdo->prepare("UPDATE tracer_forms SET is_active = 0")->execute();
                 $pdo->prepare("UPDATE tracer_forms SET is_active = 1 WHERE form_id = :id")->execute([':id' => $id]);
                 $pdo->commit();
+                
+                // Send notification to all alumni about form activation
+                if ($form_data) {
+                    $notification_result = notifyAlumniTracerFormActivated(
+                        $pdo, 
+                        $form_data['form_title'], 
+                        $form_data['form_year'], 
+                        $form_data['deadline_date']
+                    );
+                    logNotificationActivity('TRACER_FORM_ACTIVATED', $notification_result);
+                }
+                
                 echo json_encode(['success'=>true]);
                 exit;
             } catch (Exception $e) {
@@ -244,6 +262,13 @@ try {
                 ]);
                 error_log("Insert result: " . ($result ? 'success' : 'failed'));
                 $pdo->commit();
+                
+                // Send notification to all alumni if the form is created as active
+                if ($result && $is_active) {
+                    $notification_result = notifyAlumniNewTracerForm($pdo, $form_title, $form_year, $deadline);
+                    logNotificationActivity('NEW_TRACER_FORM_CREATED', $notification_result);
+                }
+                
                 echo json_encode(['success'=>true,'message'=>'Form created']);
                 exit;
             }

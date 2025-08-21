@@ -44,6 +44,49 @@
       </div>
     </div>
 
+    <!-- Notifications Section -->
+    <div class="card bg-base-100 shadow-xl" v-if="notifications.length > 0">
+      <div class="card-body">
+        <h2 class="card-title">
+          <i class="fas fa-bell"></i>
+          Recent Notifications
+          <div class="badge badge-primary" v-if="unreadCount > 0">{{ unreadCount }}</div>
+        </h2>
+        <div class="space-y-3">
+          <div 
+            v-for="notification in notifications.slice(0, 3)" 
+            :key="notification.notification_id"
+            class="p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow"
+            :class="[
+              getPriorityClass(notification.priority),
+              notification.status === 'read' ? 'opacity-60' : ''
+            ]"
+            @click="handleNotificationClick(notification)"
+          >
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center">
+                <i :class="getCategoryIcon(notification.category)" class="mr-2 text-sm"></i>
+                <h4 class="font-semibold text-sm">{{ notification.title }}</h4>
+              </div>
+              <div class="flex items-center">
+                <span 
+                  v-if="notification.status !== 'read'" 
+                  class="w-2 h-2 bg-blue-500 rounded-full mr-2"
+                ></span>
+                <span class="text-xs text-gray-500">
+                  {{ formatNotificationDate(notification.created_at) }}
+                </span>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700 leading-tight">{{ notification.message }}</p>
+          </div>
+        </div>
+        <div class="card-actions justify-end" v-if="notifications.length > 3">
+          <router-link to="/alumni/notifications" class="btn btn-sm btn-primary">View All</router-link>
+        </div>
+      </div>
+    </div>
+
     <!-- Announcements -->
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
@@ -86,6 +129,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import alumniService from "@/services/alumni.js";
+import notificationService from "@/services/notificationService.js";
 
 const router = useRouter();
 
@@ -97,10 +141,62 @@ const tracerSubmitted = ref(false);
 const profileCompletion = ref(0);
 const loading = ref(true);
 
+// Notification state
+const notifications = ref([]);
+const unreadCount = ref(0);
+
 // Static data - you can later connect these to actual APIs
 const announcements = ref([]);
-
 const events = ref([]);
+
+// Fetch notifications
+const fetchNotifications = async () => {
+  try {
+    const result = await notificationService.getNotifications();
+    if (result.success) {
+      notifications.value = result.data || [];
+      const countResult = await notificationService.getUnreadCount();
+      if (countResult.success) {
+        unreadCount.value = countResult.count;
+      }
+    } else {
+      console.error('Error fetching notifications:', result.error);
+    }
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+  }
+};
+
+// Handle notification click
+const handleNotificationClick = async (notification) => {
+  // Mark as read if not already read
+  if (notification.status !== 'read') {
+    const result = await notificationService.markAsRead(notification.notification_id);
+    if (result.success) {
+      notification.status = 'read';
+      unreadCount.value = Math.max(0, unreadCount.value - 1);
+    }
+  }
+  
+  // Handle specific notification actions
+  if (notification.category === 'announcement' && notification.title.includes('Tracer Form')) {
+    // Refresh tracer status when tracer form notification is clicked
+    await fetchTracerStatus();
+  }
+};
+
+// Utility methods for notifications
+const getPriorityClass = (priority) => {
+  return notificationService.getPriorityClass(priority);
+};
+
+const getCategoryIcon = (category) => {
+  return notificationService.getCategoryIcon(category);
+};
+
+const formatNotificationDate = (dateString) => {
+  return notificationService.formatNotificationDate(dateString);
+};
 
 // Fetch profile data to get real completion percentage
 const fetchProfileData = async () => {
@@ -158,5 +254,6 @@ const navigateToProfile = () => {
 onMounted(() => {
   fetchProfileData();
   fetchTracerStatus();
+  fetchNotifications();
 });
 </script>

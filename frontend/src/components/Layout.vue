@@ -30,23 +30,7 @@
           </div>
           <div class="flex-none">
             <!-- Notifications -->
-            <div class="dropdown dropdown-end">
-              <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-                <div class="indicator">
-                  <IconBell class="text-lg" />
-                  <span class="badge badge-xs badge-primary indicator-item">3</span>
-                </div>
-              </div>
-              <div
-                tabindex="0"
-                class="dropdown-content card card-compact w-64 bg-base-100 shadow"
-              >
-                <div class="card-body">
-                  <span class="font-bold text-lg">3 Notifications</span>
-                  <span class="text-info">You have new messages</span>
-                </div>
-              </div>
-            </div>
+            <NotificationBell v-if="currentUser && currentUser.role === 'alumni'" />
           </div>
         </nav>
         
@@ -69,11 +53,12 @@
 
 <script setup>
 import Sidebar from "./Sidebar.vue";
+import NotificationBell from "./NotificationBell.vue";
 import authService from "@/services/auth.js";
 import { messageService } from "@/services/messageService.js";
 import { useRouter } from "vue-router";
 import { ref, onMounted, computed } from "vue";
-import { Menu as IconMenu, Bell as IconBell } from 'lucide-vue-next';
+import { Menu as IconMenu } from 'lucide-vue-next';
 
 const props = defineProps({
   userName: {

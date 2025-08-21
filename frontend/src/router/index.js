@@ -86,6 +86,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
+    path: "/alumni/notifications",
+    name: "AlumniNotifications",
+    component: () => import("@/views/AlumniNotifications.vue"),
+    meta: { requiresAuth: true, roles: ["alumni"] },
+  },
+  {
     path: "/admin_settings",
     component: AdminSettings,
     meta: { requiresAuth: true, roles: ["admin"] },
