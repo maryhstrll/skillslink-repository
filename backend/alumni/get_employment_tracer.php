@@ -47,9 +47,9 @@ try {
     $form_id = $form['form_id'];
     $form_year = $form['form_year'];
     
-    // Check if user already submitted employment data for this form/year
-    $stmt = $pdo->prepare("SELECT * FROM employment_records WHERE alumni_id = ? AND form_year = ?");
-    $stmt->execute([$alumni_id, $form_year]);
+    // Check if user already submitted employment data for this specific form
+    $stmt = $pdo->prepare("SELECT * FROM employment_records WHERE alumni_id = ? AND tracer_form_id = ?");
+    $stmt->execute([$alumni_id, $form_id]);
     $existing_employment = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Check if user has additional responses

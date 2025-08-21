@@ -48,9 +48,9 @@ try {
     $form_year = $form['form_year'];
     $form_title = $form['form_title'] ?? "Tracer Form {$form_year}";
     
-    // Check if user already submitted employment data for this form/year
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM employment_records WHERE alumni_id = ? AND form_year = ?");
-    $stmt->execute([$alumni_id, $form_year]);
+    // Check if user already submitted employment data for this specific form
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM employment_records WHERE alumni_id = ? AND tracer_form_id = ?");
+    $stmt->execute([$alumni_id, $form_id]);
     $employment_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
     // Check if user has additional responses
