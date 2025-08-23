@@ -311,7 +311,7 @@ CREATE TABLE alumni_skills (
 CREATE TABLE document_requests (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     alumni_id INT NOT NULL,
-    document_type ENUM('Transcript of Records', 'Diploma', 'Certificate of Enrollment') NOT NULL,
+    document_type ENUM('Transcript of Records','Transcript of Competency', 'Diploma', 'Certificate of Training') NOT NULL,
     purpose VARCHAR(255),
     status ENUM('Pending', 'Processing', 'Ready for Pickup', 'Completed') DEFAULT 'Pending',
     request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

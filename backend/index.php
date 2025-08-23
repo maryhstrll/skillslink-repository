@@ -35,7 +35,8 @@ if ($api_index !== false && isset($uri[$api_index + 1])) {
                         'test' => 'GET /api/test',
                         'login' => 'POST /api/login',
                         'logout' => 'POST /api/logout',
-                        'session' => 'GET /api/session'
+                        'session' => 'GET /api/session',
+                        'document_requests' => 'GET|POST|PUT /api/document_requests'
                     ]
                 ]);
             } else {
@@ -71,6 +72,16 @@ if ($api_index !== false && isset($uri[$api_index + 1])) {
             } else {
                 http_response_code(501);
                 echo json_encode(['error' => 'Session endpoint not implemented yet']);
+            }
+            break;
+            
+        case 'document_requests':
+            // Document requests management
+            if (file_exists('alumni/document_requests.php')) {
+                require_once 'alumni/document_requests.php';
+            } else {
+                http_response_code(501);
+                echo json_encode(['error' => 'Document requests endpoint not implemented yet']);
             }
             break;
             

@@ -142,6 +142,18 @@ const allMenuItems = [
     roles: ["admin", "staff"] // Admin and staff only
   },
   {
+    path: "/alumni_document_requests",
+    label: "Document Requests", 
+    icon: "IconFileText",
+    roles: ["alumni"] // Alumni only
+  },
+  {
+    path: "/admin_document_requests",
+    label: "Document Requests",
+    icon: "IconFileText", 
+    roles: ["admin", "staff"] // Admin and staff only
+  },
+  {
     path: "/users",
     label: "Users",
     icon: "IconUserCog",

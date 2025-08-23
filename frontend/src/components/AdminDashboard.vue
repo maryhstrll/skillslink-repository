@@ -92,6 +92,28 @@
           </div>
         </div>
       </div>
+
+      <!-- Document Requests Management -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">
+            <i class="fas fa-file-alt"></i>
+            Document Requests
+          </h2>
+          <p class="text-base-content/70 mb-4">
+            Manage and process alumni document requests for transcripts, diplomas, and certificates.
+          </p>
+          <div class="card-actions justify-end">
+            <button 
+              class="btn btn-primary"
+              @click="router.push('/admin_document_requests')"
+            >
+              <i class="fas fa-cogs mr-2"></i>
+              Manage Requests
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 </template>
 

@@ -119,6 +119,18 @@ const routes = [
     component: Users,
     meta: { requiresAuth: true, roles: ["admin"] },
   },
+  {
+    path: "/alumni_document_requests",
+    name: "AlumniDocumentRequests",
+    component: () => import("@/views/AlumniDocumentRequests.vue"),
+    meta: { requiresAuth: true, roles: ["alumni"] },
+  },
+  {
+    path: "/admin_document_requests", 
+    name: "AdminDocumentRequests",
+    component: () => import("@/views/AdminDocumentRequests.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "staff"] },
+  },
   // Redirect any unknown routes to home
   { path: "/", redirect: "/home" },
 ];
