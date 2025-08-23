@@ -12,40 +12,43 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-figure text-primary">
-            <i class="fas fa-users text-3xl"></i>
+        <div class="stat bg-base-100 rounded-lg shadow relative">
+          <div class="absolute top-4 right-4">
+            <i class="fas fa-users text-3xl text-primary"></i>
           </div>
           <div class="stat-title">Total Alumni</div>
-          <div class="stat-value text-primary">{{ stats.totalAlumni }}</div>
-          <div class="stat-desc">↗︎ 400 (22%)</div>
+          <div class="stat-value text-primary">
+            <span v-if="loading" class="loading loading-spinner loading-sm"></span>
+            <span v-else>{{ stats.totalAlumni }}</span>
+          </div>
+          <div class="stat-desc">Registered alumni in system</div>
         </div>
         
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-figure text-secondary">
-            <i class="fas fa-briefcase text-3xl"></i>
+        <div class="stat bg-base-100 rounded-lg shadow relative">
+          <div class="absolute top-4 right-4">
+            <i class="fas fa-briefcase text-3xl text-secondary"></i>
           </div>
           <div class="stat-title">Active Jobs</div>
           <div class="stat-value text-secondary">{{ stats.activeJobs }}</div>
-          <div class="stat-desc">↗︎ 40 (2%)</div>
+          <div class="stat-desc">↗︎ 00 (0%)</div>
         </div>
         
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-figure text-accent">
-            <i class="fas fa-chart-line text-3xl"></i>
+        <div class="stat bg-base-100 rounded-lg shadow relative">
+          <div class="absolute top-4 right-4">
+            <i class="fas fa-chart-line text-3xl text-accent"></i>
           </div>
           <div class="stat-title">Success Rate</div>
           <div class="stat-value text-accent">{{ stats.successRate }}%</div>
-          <div class="stat-desc">↗︎ 90 (14%)</div>
+          <div class="stat-desc">↗︎ 00 (0%)</div>
         </div>
         
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-figure text-info">
-            <i class="fas fa-bell text-3xl"></i>
+        <div class="stat bg-base-100 rounded-lg shadow relative">
+          <div class="absolute top-4 right-4">
+            <i class="fas fa-bell text-3xl text-info"></i>
           </div>
           <div class="stat-title">Notifications</div>
           <div class="stat-value text-info">{{ stats.notifications }}</div>
-          <div class="stat-desc">3 new messages</div>
+          <div class="stat-desc">0 messages</div>
         </div>
       </div>
 
@@ -93,49 +96,43 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import alumniService from '@/services/alumni.js'
 
 const router = useRouter()
 
 // Dashboard stats
 const stats = ref({
-  totalAlumni: 1259,
-  activeJobs: 186,
-  successRate: 86,
-  notifications: 12
+  totalAlumni: 0,
+  activeJobs: 0,
+  successRate: 0,
+  notifications: 0
 })
 
+const loading = ref(true)
+
 // Recent activities
-const recentActivities = ref([
-  {
-    id: 1,
-    user: 'Sarah Johnson',
-    userInitials: 'SJ',
-    action: 'Updated profile',
-    time: '2 minutes ago',
-    status: 'Completed',
-    statusClass: 'badge-success'
-  },
-  {
-    id: 2,
-    user: 'Mike Chen',
-    userInitials: 'MC',
-    action: 'Applied for job',
-    time: '15 minutes ago',
-    status: 'Pending',
-    statusClass: 'badge-warning'
-  },
-  {
-    id: 3,
-    user: 'Emily Davis',
-    userInitials: 'ED',
-    action: 'Logged in',
-    time: '1 hour ago',
-    status: 'Active',
-    statusClass: 'badge-info'
+const recentActivities = ref([])
+
+// Fetch alumni data and update stats
+const fetchAlumniStats = async () => {
+  try {
+    loading.value = true
+    const alumniData = await alumniService.getAll()
+    stats.value.totalAlumni = alumniData.length
+  } catch (error) {
+    console.error('Error fetching alumni stats:', error)
+    stats.value.totalAlumni = 0
+  } finally {
+    loading.value = false
   }
-])
+}
+
+// Initialize data on component mount
+onMounted(() => {
+  fetchAlumniStats()
+})
 
 // Event handlers
 const handleLogout = () => {

@@ -50,7 +50,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div v-for="question in coreQuestions" :key="question.id" 
                      v-show="existingEmploymentData[question.maps_to]" class="p-3 bg-gray-50 rounded">
-                  <div class="font-medium text-sm">{{ question.label }}:</div>
+                  <div class="font-medium text-sm text-black">{{ question.label }}:</div>
                   <div class="text-gray-700">{{ formatValue(existingEmploymentData[question.maps_to]) }}</div>
                 </div>
               </div>
@@ -99,7 +99,7 @@
                     <!-- Radio buttons -->
                     <div v-if="question.type === 'radio'" class="space-y-2">
                       <label v-for="option in question.options" :key="option" 
-                             class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                             class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" 
                                :name="question.id"
                                :value="option.toLowerCase().replace(/ /g, '_')"

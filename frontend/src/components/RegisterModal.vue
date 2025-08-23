@@ -88,7 +88,7 @@
           />
         </div>
         <!-- Sex -->
-        <div class="form-control mt-4">
+        <div class="form-control mt-4 text-[#0b1524]">
           <label class="label">
             <span class="label-text">Gender</span>
           </label>
@@ -100,7 +100,7 @@
           </select>
         </div>
         <!-- Program Selection -->
-        <div class="form-control mt-4">
+        <div class="form-control mt-4 text-[#0b1524]">
           <label class="label">
             <span class="label-text flex items-center gap-2">Program
               <span v-if="isProgramsLoading" class="loading loading-spinner loading-xs" />

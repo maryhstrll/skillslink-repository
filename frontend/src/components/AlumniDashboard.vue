@@ -17,7 +17,8 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
       <!-- Tracer Form Status -->
-      <div class="stat bg-base-100 rounded-lg shadow">
+      <div class="stat bg-base-100 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow duration-300" 
+            @click="navigateToTracerForm">
         <div class="stat-figure" :class="tracerSubmitted ? 'text-success' : tracerStatus === 'Error' ? 'text-error' : 'text-primary'">
           <i class="text-3xl fas" :class="tracerSubmitted ? 'fa-check-circle' : tracerStatus === 'Error' ? 'fa-exclamation-triangle' : 'fa-file-alt'"></i>
         </div>
@@ -248,6 +249,11 @@ const fetchTracerStatus = async () => {
 // Navigate to profile page
 const navigateToProfile = () => {
   router.push('/alumni_profile');
+};
+
+// Navigate to TRACER Form
+const navigateToTracerForm = () => {
+  router.push('/alumni_tracer_form');
 };
 
 // Fetch data when component mounts

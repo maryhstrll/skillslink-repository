@@ -179,6 +179,75 @@ const alumniService = {
         description: 'Unable to connect to server'
       }
     }
+  },
+
+  async getEmploymentStatus() {
+    try {
+      const response = await fetch('http://localhost/skillslink/backend/alumni/get_employment_tracer.php', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.already_responded && data.existing_employment_data) {
+        // Return the latest employment data from employment_records table
+        return {
+          success: true,
+          employment: data.existing_employment_data
+        }
+      } else {
+        // No employment data found
+        return {
+          success: true,
+          employment: null
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching employment status:', error)
+      return { 
+        success: false, 
+        error: 'Network error occurred',
+        employment: null
+      }
+    }
+  },
+
+  async getAlumniEmployment(alumniId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_alumni_employment.php?alumni_id=${alumniId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        return {
+          success: true,
+          employment: data.employment
+        }
+      } else {
+        return {
+          success: false,
+          error: data.message,
+          employment: null
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching alumni employment:', error)
+      return { 
+        success: false, 
+        error: 'Network error occurred',
+        employment: null
+      }
+    }
   }
 }
 

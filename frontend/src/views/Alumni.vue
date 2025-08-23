@@ -40,7 +40,6 @@
                 <div class="flex justify-between items-start mb-3">
                   <div>
                     <h3 class="font-bold text-[#081F37] text-lg">{{ alumni.first_name }} {{ alumni.last_name }}</h3>
-                    <p class="text-[#1E549F] font-medium">ID: {{ alumni.alumni_id }}</p>
                   </div>
                   <div class="badge bg-[#5FC9F3] text-white border-none">{{ alumni.year_graduated }}</div>
                 </div>
@@ -51,7 +50,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Program:</span>
-                    <span class="font-medium text-[#1E549F]">{{ alumni.program_name || `Program ${alumni.program_id}` }}</span>
+                    <span class="font-medium text-[#1E549F]">{{ alumni.program_name || getProgramName(alumni.program_id) }}</span>
                   </div>
                   <div v-if="alumni.phone_number" class="flex justify-between">
                     <span class="text-gray-600">Phone:</span>
@@ -68,10 +67,10 @@
                           :disabled="loading">
                     <IconEdit class="w-3 h-3 mr-1" />Edit
                   </button>
-                  <button class="btn btn-sm bg-red-500 text-white border-none hover:bg-red-600 flex-1" 
-                          @click="deleteAlumni(alumni.alumni_id)"
+                  <button class="btn btn-sm bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA] flex-1" 
+                          @click="viewProfile(alumni)"
                           :disabled="loading">
-                    <IconTrash2 class="w-3 h-3 mr-1" />Delete
+                    <IconUserRound class="w-3 h-3 mr-1"/>View Profile
                   </button>
                 </div>
               </div>
@@ -83,7 +82,6 @@
             <table class="table w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="text-[#081F37] font-bold">ID</th>
                   <th class="text-[#081F37] font-bold">Name</th>
                   <th class="text-[#081F37] font-bold">Student ID</th>
                   <th class="text-[#081F37] font-bold">Program</th>
@@ -95,7 +93,7 @@
               </thead>
               <tbody>
                 <tr v-if="loading">
-                  <td colspan="8" class="text-center py-8">
+                  <td colspan="7" class="text-center py-8">
                     <div class="flex flex-col items-center">
                       <div class="loading loading-spinner loading-lg text-[#2E79BA]"></div>
                       <p class="text-gray-500 mt-4">Loading alumni data...</p>
@@ -103,7 +101,7 @@
                   </td>
                 </tr>
                 <tr v-else-if="alumniList.length === 0">
-                  <td colspan="8" class="text-center py-8 text-gray-500">
+                  <td colspan="7" class="text-center py-8 text-gray-500">
                     <div class="flex flex-col items-center">
                       <IconUsers class="w-16 h-16 mb-4 text-gray-300" />
                       <p>No alumni records found.</p>
@@ -112,13 +110,12 @@
                 </tr>
                 <tr v-else v-for="alumni in alumniList" :key="alumni.alumni_id" 
                     class="hover:bg-gradient-to-r hover:from-[#5FC9F3]/10 hover:to-[#2E79BA]/10 transition-all duration-300">
-                  <td class="font-medium text-[#1E549F]">{{ alumni.alumni_id }}</td>
                   <td class="font-semibold text-[#081F37]">
                     {{ alumni.first_name }} {{ alumni.last_name }}
                     <span v-if="alumni.middle_name" class="font-normal text-gray-600">{{ alumni.middle_name }}</span>
                   </td>
                   <td class="text-[#2E79BA]">{{ alumni.student_id }}</td>
-                  <td class="text-[#1E549F]">{{ alumni.program_name || `Program ${alumni.program_id}` }}</td>
+                  <td class="text-[#1E549F]">{{ alumni.program_name || getProgramName(alumni.program_id) }}</td>
                   <td>
                     <div class="badge bg-[#5FC9F3] text-white border-none">{{ alumni.year_graduated }}</div>
                   </td>
@@ -126,15 +123,15 @@
                   <td class="text-[#1E549F]">{{ alumni.city || '-' }}</td>
                   <td>
                     <div class="flex gap-2">
-                      <button class="btn btn-sm bg-[#2E79BA] text-white border-none hover:bg-[#1E549F] hover:scale-105 transition-all duration-300" 
+                      <button class="btn btn-m bg-[#2E79BA] text-white border-none hover:bg-[#1E549F] hover:scale-105 transition-all duration-300" 
                               @click="openEditModal(alumni)"
                               :disabled="loading">
-                        <i class="fas fa-edit"></i>
+                        <IconEdit class="w-4 h-4" />
                       </button>
-                      <button class="btn btn-sm bg-red-500 text-white border-none hover:bg-red-600 hover:scale-105 transition-all duration-300" 
-                              @click="deleteAlumni(alumni.alumni_id)"
+                      <button class="btn btn-m bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA] hover:scale-105 transition-all duration-300" 
+                              @click="viewProfile(alumni)"
                               :disabled="loading">
-                        <i class="fas fa-trash"></i>
+                        <IconUserRound class="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -209,13 +206,19 @@
                   </div>
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text text-[#081F37] font-medium">Program ID *</span>
+                      <span class="label-text text-[#081F37] font-medium">Program *</span>
                     </label>
-                    <input v-model="form.program_id" 
-                           class="input input-bordered w-full focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20" 
-                           placeholder="Enter program ID" 
-                           required 
-                           type="number" />
+                    <select v-model="form.program_id" 
+                            class="select select-bordered w-full focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20"
+                            :disabled="loadingPrograms" 
+                            required>
+                      <option value="" disabled>{{ loadingPrograms ? 'Loading programs...' : 'Select program' }}</option>
+                      <option v-for="program in programs" 
+                              :key="program.id || program.program_id" 
+                              :value="program.id || program.program_id">
+                        {{ program.name || program.program_name }}
+                      </option>
+                    </select>
                   </div>
                 </div>
                 
@@ -323,23 +326,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Admin Alumni Profile Modal -->
+    <AdminAlumniProfileModal 
+      :show="showProfileModal"
+      :alumni="selectedAlumni"
+      @close="closeProfileModal"
+      @edit="editFromProfile"
+    />
   </Layout>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import Layout from '@/components/Layout.vue'
+import AdminAlumniProfileModal from '@/components/AdminAlumniProfileModal.vue'
 import { useRouter } from 'vue-router'
 import alumniService from '@/services/alumni.js'
+import programsService from '@/services/programs.js'
 import { messageService } from '@/services/messageService.js'
 
 const router = useRouter()
 
 // State for alumni list and modal
 const alumniList = ref([])
+const programs = ref([])
 const showModal = ref(false)
+const showProfileModal = ref(false)
+const selectedAlumni = ref(null)
 const isEditMode = ref(false)
 const loading = ref(false)
+const loadingPrograms = ref(false)
 // Removed error ref - now using messageService
 
 const form = reactive({
@@ -375,7 +392,25 @@ const fetchAlumni = async () => {
   }
 }
 
-onMounted(fetchAlumni)
+// Fetch programs for the dropdown
+const fetchPrograms = async () => {
+  try {
+    loadingPrograms.value = true
+    const data = await programsService.list()
+    programs.value = data
+  } catch (err) {
+    console.error('Error fetching programs:', err)
+    messageService.toast('Failed to load programs', 'error')
+    programs.value = []
+  } finally {
+    loadingPrograms.value = false
+  }
+}
+
+onMounted(() => {
+  fetchAlumni()
+  fetchPrograms()
+})
 
 // Modal controls
 const openAddModal = () => {
@@ -490,6 +525,27 @@ const deleteAlumni = async (id) => {
       loading.value = false
     }
   }
+}
+
+const viewProfile = (alumni) => {
+  selectedAlumni.value = alumni
+  showProfileModal.value = true
+}
+
+const closeProfileModal = () => {
+  showProfileModal.value = false
+  selectedAlumni.value = null
+}
+
+const editFromProfile = (alumni) => {
+  // Open the edit modal from the profile modal
+  openEditModal(alumni)
+}
+
+const getProgramName = (programId) => {
+  if (!programId || !programs.value.length) return `Program ${programId}`
+  const program = programs.value.find(p => (p.id || p.program_id) == programId)
+  return program ? (program.name || program.program_name) : `Program ${programId}`
 }
 
 const handleLogout = () => {

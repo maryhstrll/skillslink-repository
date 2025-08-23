@@ -1,23 +1,29 @@
 <template>
   <Layout @logout="handleLogout">
-    <div class="space-y-6 p-4">
+    <div class="space-y-4 sm:space-y-6 p-3 sm:p-4">
       <!-- Header -->
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold">Employment Tracer Forms Management</h2>
-        <div>
-          <button class="btn btn-primary mr-2" @click="openCreate()">
-            Create New Employment Tracer
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+        <h2 class="text-xl sm:text-2xl font-bold">Employment Tracer Forms Management</h2>
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button class="btn btn-primary flex items-center gap-2 text-sm" @click="openCreate()">
+            <IconPlus :size="16" />
+            <span class="hidden sm:inline">Create New Employment Tracer</span>
+            <span class="sm:hidden">Create New</span>
           </button>
-          <button class="btn btn-outline" @click="fetchForms">Refresh</button>
+          <button class="btn btn-outline flex items-center gap-2 text-sm" @click="fetchForms">
+            <IconRefreshCw :size="16" />
+            Refresh
+          </button>
         </div>
       </div>
 
-      <div class="space-y-6">
+      <div class="space-y-4 sm:space-y-6">
         <!-- Form Builder / Editor (collapses when not editing) -->
         <div>
           <transition name="fade">
-            <div v-if="editing" class="card app-surface shadow p-4">
-              <h3 class="font-semibold text-lg mb-3">
+            <div v-if="editing" class="card app-surface shadow p-3 sm:p-4">
+              <h3 class="font-semibold text-lg sm:text-xl mb-3 flex items-center gap-2">
+                <IconFileText :size="20" />
                 {{
                   isNew
                     ? "Create New Employment Tracer Form"
@@ -27,9 +33,14 @@
 
               <div class="space-y-4">
                 <!-- Form Details -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div>
-                    <label class="label">Form Title</label>
+                    <label class="label">
+                      <span class="label-text flex items-center gap-2">
+                        <IconEdit :size="16" />
+                        Form Title
+                      </span>
+                    </label>
                     <input
                       v-model="form.title"
                       class="input input-bordered w-full"
@@ -38,7 +49,12 @@
                   </div>
 
                   <div>
-                    <label class="label">Form Year</label>
+                    <label class="label">
+                      <span class="label-text flex items-center gap-2">
+                        <IconBarChart3 :size="16" />
+                        Form Year
+                      </span>
+                    </label>
                     <input
                       v-model.number="form.year"
                       type="number"
@@ -49,7 +65,12 @@
                   </div>
 
                   <div>
-                    <label class="label">Deadline</label>
+                    <label class="label">
+                      <span class="label-text flex items-center gap-2">
+                        <IconBarChart3 :size="16" />
+                        Deadline
+                      </span>
+                    </label>
                     <input
                       v-model="form.deadline"
                       type="date"
@@ -57,21 +78,28 @@
                     />
                   </div>
 
-                  <div class="flex items-center gap-2">
-                    <label class="label">Active Status</label>
+                  <div class="flex items-center gap-2 pt-8">
                     <input
                       type="checkbox"
                       class="checkbox checkbox-primary"
                       v-model="form.is_active"
                     />
-                    <span class="text-sm">{{
-                      form.is_active ? "Active" : "Inactive"
-                    }}</span>
+                    <label class="label-text flex items-center gap-2">
+                      <IconCheck :size="16" />
+                      <span class="text-sm">{{
+                        form.is_active ? "Active" : "Inactive"
+                      }}</span>
+                    </label>
                   </div>
                 </div>
 
                 <div>
-                  <label class="label">Form Description</label>
+                  <label class="label">
+                    <span class="label-text flex items-center gap-2">
+                      <IconFileText :size="16" />
+                      Form Description
+                    </span>
+                  </label>
                   <textarea
                     v-model="form.description"
                     class="textarea textarea-bordered w-full"
@@ -81,23 +109,11 @@
                 </div>
 
                 <!-- Core Employment Questions Selector -->
-                <div class="card app-surface p-4 app-border border">
+                <div class="card app-surface p-3 sm:p-4 app-border border">
                   <h4
                     class="font-medium mb-3 flex items-center text-medium-blue"
                   >
-                    <svg
-                      class="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
-                      ></path>
-                    </svg>
+                    <IconUsers class="w-5 h-5 mr-2" />
                     Employment Questions Configuration
                   </h4>
                   <div class="text-sm text-text opacity-80 mb-4">
@@ -191,17 +207,20 @@
                       </svg>
                       Additional Survey Questions
                     </h4>
-                    <div class="flex gap-2">
+                    <div class="flex flex-col sm:flex-row gap-2">
                       <button
-                        class="btn btn-sm btn-success"
+                        class="btn btn-sm btn-success flex items-center gap-2"
                         @click="addQuestion"
                       >
-                        + Add Question
+                        <IconPlus :size="16" />
+                        Add Question
                       </button>
                       <button
-                        class="btn btn-sm btn-ghost"
+                        class="btn btn-sm btn-ghost flex items-center gap-2"
                         @click="togglePreview"
                       >
+                        <IconEye :size="16" v-if="!preview" />
+                        <IconEyeOff :size="16" v-else />
                         {{ preview ? "Hide Preview" : "Show Preview" }}
                       </button>
                     </div>
@@ -349,19 +368,21 @@
                     </template>
                   </draggable>
 
-                  <div class="mt-4 flex gap-2">
+                  <div class="mt-4 flex flex-col sm:flex-row gap-2">
                     <button
-                      class="btn btn-primary"
+                      class="btn btn-primary flex items-center gap-2 justify-center"
                       @click="saveForm"
                       :disabled="!isFormValid"
                     >
+                      <IconSave :size="16" />
                       {{
                         isNew
                           ? "Create Employment Tracer"
                           : "Update Employment Tracer"
                       }}
                     </button>
-                    <button class="btn btn-outline" @click="cancelEdit">
+                    <button class="btn btn-outline flex items-center gap-2 justify-center" @click="cancelEdit">
+                      <IconX :size="16" />
                       Cancel
                     </button>
                   </div>
@@ -518,24 +539,29 @@
 
         <!-- Employment Tracer Forms Table -->
         <div>
-          <div class="card app-surface shadow p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-semibold text-lg">Employment Tracer Forms</h3>
-              <div class="text-sm text-gray-500">
+          <div class="card app-surface shadow p-3 sm:p-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+              <h3 class="font-semibold text-lg flex items-center gap-2">
+                <IconFileText :size="20" />
+                Employment Tracer Forms
+              </h3>
+              <div class="text-sm text-gray-500 flex items-center gap-2">
+                <IconBarChart3 :size="16" />
                 Total: {{ forms.length }} forms
               </div>
             </div>
 
-            <div class="overflow-x-auto overflow-y-hidden relative">
-              <table class="table table-zebra w-full">
+            <!-- Responsive Table with Horizontal Scroll -->
+            <div class="overflow-x-auto">
+              <table class="table table-zebra w-full min-w-[800px]">
                 <thead>
                   <tr>
-                    <th>Year</th>
-                    <th>Form Title</th>
-                    <th>Status</th>
-                    <th>Additional Questions</th>
-                    <th>Responses</th>
-                    <th>Actions</th>
+                    <th class="w-20">Year</th>
+                    <th class="min-w-[200px]">Form Title</th>
+                    <th class="w-24">Status</th>
+                    <th class="w-32">Questions</th>
+                    <th class="w-24">Responses</th>
+                    <th class="w-20">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -568,17 +594,7 @@
                         v-if="item.is_active"
                         class="badge badge-success gap-2"
                       >
-                        <svg
-                          class="w-3 h-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                          ></path>
-                        </svg>
+                        <IconCheck :size="12" />
                         Active
                       </span>
                       <span v-else class="badge badge-ghost text-text"
@@ -586,95 +602,99 @@
                       >
                     </td>
                     <td>
-                      <div class="flex items-center gap-2">
-                        <span class="badge badge-outline text-text">
-                          {{ getAdditionalQuestionsCount(item) }}
-                        </span>
-                        <span class="text-xs text-text-muted">custom</span>
-                      </div>
-                      <div class="text-xs text-text-muted mt-1">
-                        + {{ getEmploymentQuestionsCount(item) }} employment
+                      <div class="flex flex-col text-sm">
+                        <div class="flex items-center gap-1 mb-1">
+                          <IconUsers :size="12" />
+                          <span class="badge badge-outline badge-xs">
+                            {{ getAdditionalQuestionsCount(item) }}
+                          </span>
+                          <span class="text-xs opacity-60">custom</span>
+                        </div>
+                        <div class="text-xs opacity-60">
+                          + {{ getEmploymentQuestionsCount(item) }} employment
+                        </div>
                       </div>
                     </td>
                     <td>
                       <div class="flex items-center gap-2">
-                        <span class="badge badge-info">
+                        <IconBarChart3 :size="14" />
+                        <span class="badge badge-info badge-sm">
                           {{ responseCounts[item.form_id] || 0 }}
                         </span>
                         <button
                           v-if="responseCounts[item.form_id] > 0"
                           @click="viewResponses(item)"
-                          class="btn btn-xs btn-ghost text-medium-blue hover:bg-medium-blue hover:text-white"
+                          class="btn btn-xs btn-ghost text-blue-500 hover:bg-blue-500 hover:text-white"
                         >
                           View
                         </button>
                       </div>
                     </td>
                     <td>
-                      <div class="dropdown dropdown-end">
+                      <div class="dropdown dropdown-end dropdown-hover">
                         <div
                           tabindex="0"
                           role="button"
-                          class="btn btn-ghost btn-sm"
+                          class="btn btn-ghost btn-sm btn-circle"
                         >
                           <IconEllipsisV :size="16" />
                         </div>
                         <ul
                           tabindex="0"
-                          class="dropdown-content z-[1] menu p-2 shadow app-surface rounded-box w-52"
+                          class="dropdown-content menu p-1 shadow-lg bg-base-100 rounded-box w-36 border border-base-300 z-50"
                         >
                           <li>
                             <a
                               @click="viewForm(item)"
-                              class="flex items-center gap-2"
+                              class="flex items-center gap-2 text-xs py-1"
                             >
-                              <IconEye :size="16" />
-                              Preview Form
+                              <IconEye :size="14" />
+                              Preview
                             </a>
                           </li>
                           <li>
                             <a
                               @click="loadForm(item)"
-                              class="flex items-center gap-2"
+                              class="flex items-center gap-2 text-xs py-1"
                             >
-                              <IconEdit :size="16" />
-                              Edit Form
+                              <IconEdit :size="14" />
+                              Edit
                             </a>
                           </li>
                           <li>
                             <a
                               @click="viewResponses(item)"
-                              class="flex items-center gap-2"
+                              class="flex items-center gap-2 text-xs py-1"
                             >
-                              <IconBarChart3 :size="16" />
-                              View Responses
+                              <IconBarChart3 :size="14" />
+                              Responses
                             </a>
                           </li>
                           <li>
                             <a
                               @click="duplicateForm(item)"
-                              class="flex items-center gap-2"
+                              class="flex items-center gap-2 text-xs py-1"
                             >
-                              <IconFileText :size="16" />
-                              Duplicate Form
+                              <IconFileText :size="14" />
+                              Duplicate
                             </a>
                           </li>
                           <li v-if="!item.is_active">
                             <a
                               @click="activateForm(item)"
-                              class="flex items-center gap-2 text-success"
+                              class="flex items-center gap-2 text-success text-xs py-1"
                             >
-                              <IconCheck :size="16" />
-                              Make Active
+                              <IconCheck :size="14" />
+                              Activate
                             </a>
                           </li>
                           <li>
                             <a
                               @click="deleteForm(item)"
-                              class="flex items-center gap-2 text-error"
+                              class="flex items-center gap-2 text-error text-xs py-1"
                             >
-                              <IconTrash2 :size="16" />
-                              Delete Form
+                              <IconTrash2 :size="14" />
+                              Delete
                             </a>
                           </li>
                         </ul>
@@ -685,7 +705,7 @@
               </table>
 
               <div v-if="forms.length === 0" class="text-center py-12">
-                <div class="text-4xl mb-4">📊</div>
+                <IconFileText :size="48" class="mx-auto text-gray-400 mb-4" />
                 <div class="text-lg font-medium text-text mb-2">
                   No Employment Tracer Forms Yet
                 </div>
@@ -694,9 +714,10 @@
                   alumni employment data.
                 </div>
                 <button
-                  class="btn app-primary text-white"
+                  class="btn app-primary text-white flex items-center gap-2 mx-auto"
                   @click="openCreate()"
                 >
+                  <IconPlus :size="16" />
                   Create Your First Employment Tracer
                 </button>
               </div>
@@ -706,58 +727,22 @@
 
         <!-- Form Preview Modal -->
         <dialog ref="viewFormModal" class="modal">
-          <form method="dialog" class="modal-box w-11/12 max-w-5xl">
-            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-              <svg
-                class="w-6 h-6 text-primary"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                ></path>
-              </svg>
-              {{ viewFormData.title }}
+          <form method="dialog" class="modal-box w-11/12 max-w-5xl max-h-[90vh] overflow-y-auto">
+            <h3 class="font-bold text-lg sm:text-xl mb-4 flex items-center gap-2">
+              <IconFileText :size="24" class="text-primary" />
+              <span class="truncate">{{ viewFormData.title }}</span>
             </h3>
 
             <!-- Form Details -->
-            <div class="mb-6 p-4 app-surface-hover rounded-lg">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div class="mb-6 p-3 sm:p-4 app-surface-hover rounded-lg">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                 <div class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 text-text-muted"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H9z"
-                    ></path>
-                  </svg>
+                  <IconBarChart3 :size="16" class="text-text-muted" />
                   <span class="font-semibold text-text">Year:</span>
                   <span class="text-text">{{ viewFormData.year }}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 text-text-muted"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                  </svg>
+                  <IconCheck :size="16" class="text-text-muted" />
                   <span class="font-semibold">Status:</span>
                   <span
                     v-if="viewFormData.is_active"
@@ -772,21 +757,9 @@
                   v-if="viewFormData.deadline"
                   class="flex items-center gap-2"
                 >
-                  <svg
-                    class="w-4 h-4 text-text-muted"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H9z"
-                    ></path>
-                  </svg>
+                  <IconBarChart3 :size="16" class="text-text-muted" />
                   <span class="font-semibold text-text">Deadline:</span>
-                  <span class="text-text">{{
+                  <span class="text-text text-xs sm:text-sm">{{
                     new Date(viewFormData.deadline).toLocaleDateString()
                   }}</span>
                 </div>
@@ -1008,11 +981,15 @@
               </div>
             </div>
 
-            <div class="modal-action">
-              <button class="btn btn-outline" @click="loadForm(viewFormData)">
+            <div class="modal-action flex flex-col sm:flex-row gap-2">
+              <button class="btn btn-outline flex items-center gap-2" @click="loadForm(viewFormData)">
+                <IconEdit :size="16" />
                 Edit Form
               </button>
-              <button class="btn">Close Preview</button>
+              <button class="btn flex items-center gap-2">
+                <IconX :size="16" />
+                Close Preview
+              </button>
             </div>
           </form>
         </dialog>
@@ -1729,7 +1706,7 @@ const handleLogout = () => {
   opacity: 0;
 }
 
-/* Prevent dropdown from affecting card layout */
+/* Dropdown styling - clean and simple */
 .dropdown {
   position: relative;
 }
@@ -1738,54 +1715,73 @@ const handleLogout = () => {
   position: absolute !important;
   right: 0 !important;
   top: 100% !important;
-  transform: none !important;
   margin-top: 0.25rem;
-  max-height: 250px;
-  overflow-y: auto;
-  min-width: 200px;
+  z-index: 50 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Ensure table doesn't expand due to dropdown */
+.dropdown-end .dropdown-content {
+  right: 0;
+  left: auto;
+}
+
+/* Table styling improvements */
 .table {
-  table-layout: fixed;
+  table-layout: auto;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
 }
 
 .table td:last-child {
-  width: 80px;
-  position: relative;
-  overflow: visible !important;
+  width: 60px;
+  text-align: center;
 }
 
-.table tbody tr {
-  position: relative;
-}
-
-/* Prevent overflow issues - key fix */
-.overflow-x-auto {
-  position: relative;
-  overflow: visible !important;
-}
-
-/* Ensure card container doesn't cause issues */
+/* Container styling */
 .card {
   overflow: visible !important;
-  position: relative;
 }
 
-/* Container adjustments */
-.space-y-6 {
-  overflow: visible;
+.overflow-x-auto {
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
-/* Specific positioning for dropdown */
-.static-dropdown {
-  position: static !important;
-}
-
-.static-dropdown .dropdown-content {
-  position: absolute !important;
-  right: 0;
-  top: 100%;
-  margin-top: 4px;
+/* Mobile responsive styling */
+@media (max-width: 640px) {
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-xs {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+  }
+  
+  .badge-xs {
+    font-size: 0.625rem;
+  }
+  
+  .dropdown-content li a {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Form input responsive styling */
+  .input,
+  .textarea,
+  .select {
+    font-size: 1rem; /* Prevents zoom on iOS */
+  }
+  
+  .grid {
+    gap: 1rem;
+  }
 }
 </style>

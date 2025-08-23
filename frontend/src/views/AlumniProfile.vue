@@ -133,12 +133,35 @@
 
             <div class="card bg-base-100 shadow-md rounded-xl">
               <div class="card-body">
-                <h3 class="card-title text-lg">Employment Status</h3>
-                <p><strong>Status:</strong> {{ formatEmploymentStatus(profile.employment.status) || 'Not specified' }}</p>
-                <p v-if="profile.employment.company"><strong>Company:</strong> {{ profile.employment.company }}</p>
-                <p v-if="profile.employment.position"><strong>Position:</strong> {{ profile.employment.position }}</p>
-                <p v-if="profile.employment.employment_type"><strong>Employment Type:</strong> {{ formatEmploymentType(profile.employment.employment_type) }}</p>
-                <p v-if="profile.employment.work_setup"><strong>Work Setup:</strong> {{ formatWorkSetup(profile.employment.work_setup) }}</p>
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="card-title text-lg">Employment Status</h3>
+                  <button 
+                    @click="refreshEmploymentData" 
+                    class="btn btn-sm btn-circle btn-ghost"
+                    title="Refresh employment data">
+                    <i class="fas fa-sync-alt" :class="{ 'animate-spin': loading }"></i>
+                  </button>
+                </div>
+                <div v-if="employmentData">
+                  <p><strong>Status:</strong> {{ formatEmploymentStatus(employmentData.employment_status) || 'Not specified' }}</p>
+                  <p v-if="employmentData.company_name"><strong>Company:</strong> {{ employmentData.company_name }}</p>
+                  <p v-if="employmentData.job_title"><strong>Position:</strong> {{ employmentData.job_title }}</p>
+                  <p v-if="employmentData.employment_type"><strong>Employment Type:</strong> {{ formatEmploymentType(employmentData.employment_type) }}</p>
+                  <p v-if="employmentData.work_classification"><strong>Work Classification:</strong> {{ employmentData.work_classification }}</p>
+                  <p v-if="employmentData.salary_range"><strong>Salary Range:</strong> {{ employmentData.salary_range }}</p>
+                  <p v-if="employmentData.date_employed"><strong>Date Employed:</strong> {{ formatDate(employmentData.date_employed) }}</p>
+                  <div v-if="employmentData.submitted_at" class="text-xs text-gray-500 mt-2">
+                    Last updated: {{ formatDate(employmentData.submitted_at) }}
+                  </div>
+                </div>
+                <div v-else class="text-gray-500">
+                  <p>No employment information available. Please complete the employment tracer form to update this section.</p>
+                  <div class="mt-2">
+                    <button @click="$router.push('/alumni-tracer-form')" class="btn btn-sm btn-primary">
+                      Complete Tracer Form
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -164,6 +187,7 @@ import alumniService from "@/services/alumni.js";
 
 const router = useRouter();
 const profile = ref(null);
+const employmentData = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const imageError = ref(false);
@@ -200,6 +224,25 @@ const fetchProfile = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const fetchEmploymentData = async () => {
+  try {
+    const employmentResponse = await alumniService.getEmploymentStatus();
+    
+    if (employmentResponse.success && employmentResponse.employment) {
+      employmentData.value = employmentResponse.employment;
+    } else {
+      employmentData.value = null;
+    }
+  } catch (err) {
+    console.error('Error fetching employment data:', err);
+    employmentData.value = null;
+  }
+};
+
+const refreshEmploymentData = async () => {
+  await fetchEmploymentData();
 };
 
 const formatDate = (dateString) => {
@@ -276,7 +319,8 @@ const handleImageError = () => {
   imageError.value = true;
 };
 
-onMounted(() => {
-  fetchProfile();
+onMounted(async () => {
+  await fetchProfile();
+  await fetchEmploymentData();
 });
 </script>
