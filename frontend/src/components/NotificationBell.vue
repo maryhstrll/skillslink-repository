@@ -15,7 +15,7 @@
     <!-- Notification Dropdown -->
     <div 
       v-show="isOpen"
-      class="absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-xl w-80 z-[9999]"
+      class="notification-dropdown-fixed absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-xl w-80"
       @click.stop
     >
       <div class="p-4">
@@ -154,13 +154,16 @@ const updateUnreadCount = async () => {
 
 const toggleDropdown = (event) => {
   event.stopPropagation();
+  console.log('Toggling dropdown, current state:', isOpen.value);
   isOpen.value = !isOpen.value;
+  console.log('New state:', isOpen.value);
   if (isOpen.value) {
     loadNotifications();
   }
 };
 
 const closeDropdown = () => {
+  console.log('Closing dropdown');
   isOpen.value = false;
 };
 
@@ -225,6 +228,7 @@ const formatNotificationDate = (dateString) => {
 
 // Lifecycle
 onMounted(() => {
+  console.log('NotificationBell mounted');
   loadNotifications();
   
   // Poll for new notifications every 30 seconds
@@ -278,12 +282,13 @@ onUnmounted(() => {
   background: #555;
 }
 
-/* Force the dropdown to show above other elements */
-.z-\[9999\] {
-  z-index: 9999 !important;
+/* Force the dropdown to show above navbar */
+.notification-dropdown-fixed {
+  position: absolute !important;
+  z-index: 99999 !important;
 }
 
-/* Ensure proper positioning */
+/* Force positioning above everything */
 .absolute {
   position: absolute !important;
 }

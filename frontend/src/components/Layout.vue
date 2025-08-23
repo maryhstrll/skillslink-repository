@@ -7,7 +7,7 @@
       <!-- Main Content -->
       <div class="drawer-content flex flex-col">
         <!-- Navbar - now inside main content area -->
-        <nav class="navbar bg-base-100 shadow-lg">
+        <nav class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
           <div class="flex-none lg:hidden">
             <label for="my-drawer" class="btn btn-square btn-ghost">
               <IconMenu class="text-lg" />
@@ -28,7 +28,7 @@
               SSVTC - SkillsLink
             </router-link>
           </div>
-          <div class="flex-none">
+          <div class="bell flex-none mr-2">
             <!-- Notifications -->
             <NotificationBell v-if="currentUser && currentUser.role === 'alumni'" />
           </div>

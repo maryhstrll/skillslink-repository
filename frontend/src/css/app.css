@@ -94,3 +94,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Z-index layering for UI components */
+/* Ensure toasts appear above fixed navbar (z-40) */
+.toast {
+  z-index: 50 !important;
+}
+
+/* Ensure modals appear above everything */
+.modal {
+  z-index: 60 !important;
+}
+
+/* Notification dropdown should be above navbar but below modals */
+.notification-dropdown {
+  z-index: 50 !important;
+}
+
