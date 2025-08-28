@@ -12,8 +12,8 @@
             <p class="text-white/80 text-sm md:text-base">Manage and track alumni information</p>
           </div>
             <div class="text-right">
-              <div class="stat-title text-white/90">Total Alumni</div>
-              <div class="stat-value text-[#5FC9F3]">
+              <div class="stat-title text-[15px] text-white">Total Alumni</div>
+              <div class="stat-value text-5xl text-[#5FC9F3]">
                 {{ loading ? '...' : (hasActiveFilters ? `${filteredAlumni.length} / ${alumniList.length}` : alumniList.length) }}
               </div>
             </div>

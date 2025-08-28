@@ -141,48 +141,130 @@
 
     <!-- Update Status Modal -->
     <div v-if="showStatusModal" class="modal modal-open">
-      <div class="modal-box bg-white relative">
-        <button class="btn btn-sm btn-circle absolute right-2 top-2" @click="closeStatusModal">✕</button>
-        <h3 class="font-bold text-lg text-gray-800 mb-4">Update Request Status</h3>
+      <div class="modal-box bg-white relative max-w-2xl shadow-2xl">
+        <!-- Close Button -->
+        <button 
+          class="btn btn-sm btn-circle absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-none text-gray-600 hover:text-gray-800 transition-colors" 
+          @click="closeStatusModal"
+        >
+          ✕
+        </button>
         
-        <div v-if="selectedRequest" class="space-y-4">
-          <!-- Request Details -->
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="font-medium text-gray-800 mb-2">Request Details</h4>
-            <div class="grid grid-cols-2 gap-2 text-sm">
-              <div><strong>Alumni:</strong> {{ selectedRequest.full_name }}</div>
-              <div><strong>Student ID:</strong> {{ selectedRequest.student_id }}</div>
-              <div><strong>Document:</strong> {{ selectedRequest.document_type }}</div>
-              <div><strong>Current Status:</strong> 
-                <span class="badge ml-1" :class="getStatusClass(selectedRequest.status)">
-                  {{ selectedRequest.status }}
-                </span>
+        <!-- Header -->
+        <div class="border-b border-gray-200 pb-4 mb-6">
+          <h3 class="font-bold text-2xl text-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] rounded-lg flex items-center justify-center">
+              <i class="fas fa-edit text-white text-sm"></i>
+            </div>
+            Update Request Status
+          </h3>
+          <p class="text-gray-500 mt-2">Modify the processing status of this document request</p>
+        </div>
+        
+        <div v-if="selectedRequest" class="space-y-6">
+          <!-- Request Details Card -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <i class="fas fa-info text-white text-sm"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 text-lg">Request Information</h4>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Alumni Name</span>
+                  <span class="text-gray-800 font-medium">{{ selectedRequest.full_name }}</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Student ID</span>
+                  <span class="text-gray-800 font-mono">{{ selectedRequest.student_id }}</span>
+                </div>
+              </div>
+              
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Document Type</span>
+                  <div class="flex items-center gap-2">
+                    <i :class="getDocumentTypeIcon(selectedRequest.document_type)" class="text-blue-500"></i>
+                    <span class="text-gray-800 font-medium">{{ selectedRequest.document_type }}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Current Status</span>
+                  <div class="flex items-center gap-2 mt-1">
+                    <i :class="getStatusIcon(selectedRequest.status)" class="text-sm"></i>
+                    <span class="badge badge-lg" :class="getStatusClass(selectedRequest.status)">
+                      {{ selectedRequest.status }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div v-if="selectedRequest.purpose" class="mt-2">
-              <strong>Purpose:</strong> {{ selectedRequest.purpose }}
+            
+            <div v-if="selectedRequest.purpose" class="mt-4 pt-4 border-t border-blue-200">
+              <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Purpose</span>
+              <p class="text-gray-800 mt-1 bg-white p-3 rounded-lg border border-blue-100">
+                {{ selectedRequest.purpose }}
+              </p>
             </div>
           </div>
 
           <!-- Status Update Form -->
-          <form @submit.prevent="updateStatus" class="space-y-4">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text text-gray-700">New Status *</span>
-              </label>
-              <select v-model="newStatus" class="select select-bordered w-full bg-white text-gray-800" required>
-                <option value="">Select new status</option>
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Ready for Pickup">Ready for Pickup</option>
-                <option value="Completed">Completed</option>
-              </select>
+          <form @submit.prevent="updateStatus" class="space-y-6">
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <i class="fas fa-sync-alt text-white text-sm"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 text-lg">Update Status</h4>
+              </div>
+              
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text text-gray-700 font-medium">New Status *</span>
+                </label>
+                <select 
+                  v-model="newStatus" 
+                  class="select select-bordered w-full bg-white text-gray-800 border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors" 
+                  required
+                >
+                  <option value="" disabled>Select new status</option>
+                  <option value="Pending" class="flex items-center">
+                    🕐 Pending
+                  </option>
+                  <option value="Processing" class="flex items-center">
+                    ⚙️ Processing
+                  </option>
+                  <option value="Ready for Pickup" class="flex items-center">
+                    📋 Ready for Pickup
+                  </option>
+                  <option value="Completed" class="flex items-center">
+                    ✅ Completed
+                  </option>
+                </select>
+              </div>
             </div>
 
-            <div class="modal-action">
-              <button type="button" class="btn btn-outline" @click="closeStatusModal">Cancel</button>
-              <button type="submit" class="btn btn-primary" :disabled="updating || !newStatus">
-                <span v-if="updating" class="loading loading-spinner loading-sm"></span>
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <button 
+                type="button" 
+                class="btn btn-outline px-6 py-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-colors" 
+                @click="closeStatusModal"
+              >
+                <i class="fas fa-times mr-2"></i>
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                class="btn bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] text-white border-none hover:from-[#2E79BA] hover:to-[#1a5490] px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200" 
+                :disabled="updating || !newStatus"
+                :class="{ 'opacity-50 cursor-not-allowed': updating || !newStatus }"
+              >
+                <span v-if="updating" class="loading loading-spinner loading-sm mr-2"></span>
+                <i v-else class="fas fa-save mr-2"></i>
                 {{ updating ? 'Updating...' : 'Update Status' }}
               </button>
             </div>
@@ -374,5 +456,89 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Modal enhancements */
+.modal-box {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-open {
+  backdrop-filter: blur(4px);
+}
+
+/* Form styling */
+.select:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Button hover effects */
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+/* Badge styling improvements */
+.badge-lg {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Gradient text animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+/* Card hover effects */
+.bg-gradient-to-r.from-blue-50:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Loading animation improvements */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status icon colors */
+.fas.fa-clock {
+  color: #f59e0b;
+}
+
+.fas.fa-cog {
+  color: #3b82f6;
+}
+
+.fas.fa-clipboard-check {
+  color: #8b5cf6;
+}
+
+.fas.fa-check-circle {
+  color: #10b981;
 }
 </style>

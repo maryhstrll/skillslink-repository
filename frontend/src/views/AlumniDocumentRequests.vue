@@ -79,40 +79,125 @@
 
     <!-- New Request Modal -->
     <div v-if="showModal" class="modal modal-open">
-      <div class="modal-box bg-white relative">
-        <button class="btn btn-sm btn-circle absolute right-2 top-2" @click="closeModal">✕</button>
-        <h3 class="font-bold text-lg text-gray-800 mb-4">Request Document</h3>
+      <div class="modal-box bg-white relative max-w-2xl shadow-2xl">
+        <!-- Close Button -->
+        <button 
+          class="btn btn-sm btn-circle absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-none text-gray-600 hover:text-gray-800 transition-colors" 
+          @click="closeModal"
+        >
+          ✕
+        </button>
         
-        <form @submit.prevent="submitRequest" class="space-y-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text text-gray-700">Document Type *</span>
-            </label>
-            <select v-model="form.document_type" class="select select-bordered w-full bg-white text-gray-800" required>
-              <option value="">Select document type</option>
-              <option value="Transcript of Records">Transcript of Records</option>
-              <option value="Transcript of Competency">Transcript of Competency</option>
-              <option value="Diploma">Diploma</option>
-              <option value="Certificate of Training">Certificate of Training</option>
-            </select>
+        <!-- Header -->
+        <div class="border-b border-gray-200 pb-4 mb-6">
+          <h3 class="font-bold text-2xl text-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] rounded-lg flex items-center justify-center">
+              <i class="fas fa-file-plus text-white text-sm"></i>
+            </div>
+            Request Document
+          </h3>
+          <p class="text-gray-500 mt-2">Submit a request for official academic documents</p>
+        </div>
+        
+        <form @submit.prevent="submitRequest" class="space-y-6">
+          <!-- Document Type Selection -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <i class="fas fa-file-alt text-white text-sm"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 text-lg">Document Selection</h4>
+            </div>
+            
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-gray-700 font-medium">Document Type *</span>
+                <span class="label-text-alt text-red-500">Required</span>
+              </label>
+              <select 
+                v-model="form.document_type" 
+                class="select select-bordered w-full bg-white text-gray-800 border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors" 
+                required
+              >
+                <option value="" disabled>Select document type</option>
+                <option value="Transcript of Records" class="flex items-center">
+                  📊 Transcript of Records
+                </option>
+                <option value="Transcript of Competency" class="flex items-center">
+                  📋 Transcript of Competency
+                </option>
+                <option value="Diploma" class="flex items-center">
+                  🎓 Diploma
+                </option>
+                <option value="Certificate of Training" class="flex items-center">
+                  📜 Certificate of Training
+                </option>
+              </select>
+              <div class="label">
+                <span class="label-text-alt text-gray-500">Choose the type of document you need</span>
+              </div>
+            </div>
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text text-gray-700">Purpose</span>
-            </label>
-            <textarea 
-              v-model="form.purpose" 
-              class="textarea textarea-bordered w-full bg-white text-gray-800" 
-              placeholder="Briefly describe the purpose of this request (optional)"
-              rows="3">
-            </textarea>
+          <!-- Purpose Section -->
+          <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <i class="fas fa-comment-alt text-white text-sm"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 text-lg">Request Details</h4>
+            </div>
+            
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-gray-700 font-medium">Purpose</span>
+                <span class="label-text-alt text-gray-500">Optional</span>
+              </label>
+              <textarea 
+                v-model="form.purpose" 
+                class="textarea textarea-bordered w-full bg-white text-gray-800 border-2 border-gray-200 focus:border-green-500 focus:outline-none transition-colors min-h-[100px]" 
+                placeholder="Briefly describe the purpose of this request (e.g., for job application, further studies, etc.)"
+                rows="4"
+              ></textarea>
+              <div class="label">
+                <span class="label-text-alt text-gray-500">Providing a purpose helps us prioritize your request</span>
+              </div>
+            </div>
           </div>
 
-          <div class="modal-action">
-            <button type="button" class="btn btn-outline" @click="closeModal">Cancel</button>
-            <button type="submit" class="btn btn-primary" :disabled="submitting">
-              <span v-if="submitting" class="loading loading-spinner loading-sm"></span>
+          <!-- Important Notice -->
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <i class="fas fa-info text-white text-xs"></i>
+              </div>
+              <div>
+                <h5 class="font-medium text-amber-800 mb-1">Processing Information</h5>
+                <p class="text-amber-700 text-sm leading-relaxed">
+                  Document requests typically take 3-5 business days to process. You will be notified via email when your document is ready for pickup or when the status changes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button 
+              type="button" 
+              class="btn btn-outline px-6 py-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-colors" 
+              @click="closeModal"
+            >
+              <i class="fas fa-times mr-2"></i>
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="btn bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] text-white border-none hover:from-[#2E79BA] hover:to-[#1a5490] px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200" 
+              :disabled="submitting || !form.document_type"
+              :class="{ 'opacity-50 cursor-not-allowed': submitting || !form.document_type }"
+            >
+              <span v-if="submitting" class="loading loading-spinner loading-sm mr-2"></span>
+              <i v-else class="fas fa-paper-plane mr-2"></i>
               {{ submitting ? 'Submitting...' : 'Submit Request' }}
             </button>
           </div>
@@ -261,5 +346,145 @@ onMounted(() => {
 
 .table tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Modal enhancements */
+.modal-box {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-open {
+  backdrop-filter: blur(4px);
+}
+
+/* Form styling */
+.select:focus,
+.textarea:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Button hover effects */
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+/* Gradient text animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+/* Card hover effects */
+.bg-gradient-to-r.from-blue-50:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Loading animation improvements */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status icon colors */
+.fas.fa-clock {
+  color: #f59e0b;
+}
+
+.fas.fa-cog {
+  color: #3b82f6;
+}
+
+.fas.fa-clipboard-check {
+  color: #8b5cf6;
+}
+
+.fas.fa-check-circle {
+  color: #10b981;
+}
+
+/* Form validation styling */
+.select:invalid {
+  border-color: #ef4444;
+}
+
+.select:valid {
+  border-color: #10b981;
+}
+
+/* Textarea enhancements */
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.textarea:focus {
+  border-color: #10b981;
+}
+
+/* Notice box animations */
+.bg-amber-50 {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Label styling improvements */
+.label-text-alt {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Icon styling */
+.fas {
+  transition: transform 0.2s ease;
+}
+
+.btn:hover .fas {
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .modal-box {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
