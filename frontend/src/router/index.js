@@ -8,6 +8,7 @@ import AlumniProfile from "@/views/AlumniProfile.vue";
 import AdminSettings from "@/views/AdminSettings.vue";
 import AlumniSettings from "@/views/AlumniSettings.vue";
 import Users from "@/views/Users.vue";
+import ApiTest from "@/views/ApiTest.vue";
 
 // Helper function to get user role
 const getUserRole = () => {
@@ -25,6 +26,7 @@ const getUserRole = () => {
 
 const routes = [
   { path: "/home", component: Home },
+  { path: "/api-test", component: ApiTest },
   {
     path: "/dashboard",
     redirect: (to) => {

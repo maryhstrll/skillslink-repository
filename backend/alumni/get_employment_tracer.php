@@ -188,6 +188,15 @@ try {
             'max' => 60,
             'conditional' => 'employment_status == "employed"',
             'maps_to' => 'months_to_find_job'
+        ],
+        [
+            'id' => 'job_relevance_to_course',
+            'label' => 'How relevant is your current job to your course/program?',
+            'type' => 'radio',
+            'required' => false,
+            'options' => ['Highly Relevant', 'Somewhat Relevant', 'Not Relevant'],
+            'conditional' => 'employment_status == "employed"',
+            'maps_to' => 'job_relevance_to_course'
         ]
     ];
     

@@ -24,7 +24,7 @@
   /* Semantic tokens (Light) */
   --color-bg: var(--color-navy); /* page background or can be #f9fafb if pref */
   --color-surface: #ffffff;
-  --color-surface-alt: #f1f5f9;
+  --color-surface-alt: #b5cce2;
   --color-border: #e2e8f0;
   --color-text: #0f172a;
   --color-text-invert: #ffffff;

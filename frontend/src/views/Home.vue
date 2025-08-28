@@ -4,18 +4,28 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <!-- Navbar -->
-    <div class="navbar bg-base-100/60 backdrop-blur-md">
-      <div class="flex-1">
-        <a class="btn btn-ghost text-2xl font-bold text-white">SkillsLink</a>
+    <div class="navbar bg-[#1E549F]">
+      <div class="flex-1 sticky top-0 z-50">
+        <a class="btn btn-ghost text-2xl font-bold text-white hover:bg-[#081F37]">SkillsLink</a>
       </div>
     </div>
 
     <!-- Hero Section -->
     <div class="flex-grow flex items-center justify-center">
-      <div class="text-center text-white p-6">
-        <h1 class="text-5xl font-bold mb-4">Welcome to SkillsLink</h1>
-        <p class="text-xl mb-6">
-          Connecting Simeon Suan Vocational and Technical College Alumni for a Brighter Future
+      <div class="text-center text-white p-15 bg-[#2E79BA]/30 backdrop-blur-none">
+        <div class="flex justify-center items-center space-x-15 mb-6">
+          <a href="https://ssvtctesda.com/" target="_blank">
+            <img src="../assets/logo1.png" alt="Logo 1" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
+          </a>
+          <a href="https://www.tesda.gov.ph/" target="_blank">
+            <img src="../assets/logo2.png" alt="Logo 2" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
+          </a>
+        </div>
+        <h1 class="text-6xl font-bold mb-4">Welcome to SkillsLink</h1>
+        <p class="text-2xl mb-6">
+          <em>– the official Alumni Tracer System of Simeon Suan Vocational and Technical College (SSVTC).</em> <br>
+          Stay connected, update your career journey, and easily request school documents in one platform. <br>
+          Together, we build stronger links between the college and its graduates.
         </p>
         <div class="space-x-4">
           <button v-if="!isAuthenticated" class="btn btn-lg btn-navy text-lg" @click="openLoginModal">

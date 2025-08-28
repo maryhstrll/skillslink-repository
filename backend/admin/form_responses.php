@@ -124,17 +124,83 @@ try {
             });
         }
         
-        // Combine both types of responses
-        $rows = array_merge($form_responses, $employment_responses);
+        // Merge responses from same alumni into single entries
+        $merged_responses = [];
         
-        // Process the responses for better display
-        foreach ($rows as &$r) {
-            // Decode responses for readability (only for form_response type)
-            if ($r['response_type'] === 'form_response') {
-                $responses_data = json_decode($r['responses'] ?? '[]', true);
-                $r['responses'] = $responses_data;
+        // Process form responses first
+        foreach ($form_responses as $form_resp) {
+            $alumni_key = $form_resp['alumni_id'];
+            $responses_data = json_decode($form_resp['responses'] ?? '[]', true);
+            
+            $merged_responses[$alumni_key] = [
+                'response_id' => $form_resp['response_id'],
+                'form_id' => $form_resp['form_id'],
+                'alumni_id' => $form_resp['alumni_id'],
+                'alumni_name' => $form_resp['alumni_name'],
+                'alumni_email' => $form_resp['alumni_email'],
+                'alumni_student_id' => $form_resp['alumni_student_id'],
+                'responses' => $responses_data ?: [],
+                'is_complete' => $form_resp['is_complete'],
+                'completion_percentage' => $form_resp['completion_percentage'] ?: 0,
+                'submitted_at' => $form_resp['submitted_at'],
+                'response_type' => 'combined_response',
+                'has_form_data' => true,
+                'has_employment_data' => false
+            ];
+        }
+        
+        // Merge employment responses into existing entries or create new ones
+        foreach ($employment_responses as $emp_resp) {
+            $alumni_key = $emp_resp['alumni_id'];
+            
+            if (isset($merged_responses[$alumni_key])) {
+                // Merge employment data into existing form response
+                $merged_responses[$alumni_key]['responses'] = array_merge(
+                    $merged_responses[$alumni_key]['responses'],
+                    $emp_resp['responses']
+                );
+                $merged_responses[$alumni_key]['has_employment_data'] = true;
+                
+                // Update completion percentage if employment data is more recent or complete
+                if ($emp_resp['completion_percentage'] > $merged_responses[$alumni_key]['completion_percentage']) {
+                    $merged_responses[$alumni_key]['completion_percentage'] = $emp_resp['completion_percentage'];
+                }
+                
+                // Use the more recent submission date
+                if (strtotime($emp_resp['submitted_at']) > strtotime($merged_responses[$alumni_key]['submitted_at'])) {
+                    $merged_responses[$alumni_key]['submitted_at'] = $emp_resp['submitted_at'];
+                }
+            } else {
+                // Create new entry with only employment data
+                $merged_responses[$alumni_key] = [
+                    'response_id' => $emp_resp['response_id'],
+                    'form_id' => $form_id,
+                    'alumni_id' => $emp_resp['alumni_id'],
+                    'alumni_name' => $emp_resp['alumni_name'],
+                    'alumni_email' => $emp_resp['alumni_email'],
+                    'alumni_student_id' => $emp_resp['alumni_student_id'],
+                    'responses' => $emp_resp['responses'],
+                    'is_complete' => $emp_resp['is_complete'],
+                    'completion_percentage' => $emp_resp['completion_percentage'] ?: 100,
+                    'submitted_at' => $emp_resp['submitted_at'],
+                    'response_type' => 'combined_response',
+                    'has_form_data' => false,
+                    'has_employment_data' => true
+                ];
             }
-            // For employment_record type, responses are already processed above
+        }
+        
+        // Convert back to indexed array
+        $rows = array_values($merged_responses);
+        
+        // Process the merged responses for better display
+        foreach ($rows as &$r) {
+            // Remove null and empty values from responses
+            if (is_array($r['responses'])) {
+                $r['responses'] = array_filter($r['responses'], function($value) {
+                    return $value !== null && $value !== '' && $value !== '0000-00-00';
+                });
+            }
             
             // Ensure completion percentage is shown properly
             if (empty($r['completion_percentage'])) {
@@ -161,19 +227,17 @@ try {
         if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
         $form_id = (int)$_GET['form_id'];
         
-        // Count form responses
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM form_responses WHERE form_id = :form_id");
+        // Count unique alumni who have submitted responses (either form or employment data)
+        $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
+                    SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                    UNION
+                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                ) AS combined_responses";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([':form_id' => $form_id]);
-        $form_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        $unique_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         
-        // Count employment records
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM employment_records WHERE tracer_form_id = :form_id");
-        $stmt->execute([':form_id' => $form_id]);
-        $employment_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        $total_count = $form_count + $employment_count;
-        
-        echo json_encode(['count' => (int)$total_count]);
+        echo json_encode(['count' => (int)$unique_count]);
         exit;
     }
 

@@ -13,6 +13,7 @@ CREATE TABLE users (
     student_id VARCHAR(50) NULL,
     birthdate DATE,
     gender VARCHAR(10),
+    program_id INT NOT NULL,
     last_login TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     phone_verified BOOLEAN DEFAULT FALSE,
@@ -26,7 +27,8 @@ CREATE TABLE users (
     KEY `idx_role` (`role`),
     KEY `idx_active` (`is_active`),
     KEY `fk_users_approved_by` (`approved_by`),
-    KEY `idx_approval_status` (`approval_status`)
+    KEY `idx_approval_status` (`approval_status`),
+    KEY `fk_users_program_id` (`program_id`)
 );
 
 -- 2. Programs Table

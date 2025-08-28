@@ -21,11 +21,11 @@
         <!-- Form Builder / Editor (collapses when not editing) -->
         <div>
           <transition name="fade">
-            <div v-if="editing" class="card app-surface shadow p-3 sm:p-4">
+            <div v-if="state.editing" class="card app-surface shadow p-3 sm:p-4">
               <h3 class="font-semibold text-lg sm:text-xl mb-3 flex items-center gap-2">
                 <IconFileText :size="20" />
                 {{
-                  isNew
+                  state.isNew
                     ? "Create New Employment Tracer Form"
                     : "Edit Employment Tracer Form"
                 }}
@@ -219,9 +219,9 @@
                         class="btn btn-sm btn-ghost flex items-center gap-2"
                         @click="togglePreview"
                       >
-                        <IconEye :size="16" v-if="!preview" />
+                        <IconEye :size="16" v-if="!state.preview" />
                         <IconEyeOff :size="16" v-else />
-                        {{ preview ? "Hide Preview" : "Show Preview" }}
+                        {{ state.preview ? "Hide Preview" : "Show Preview" }}
                       </button>
                     </div>
                   </div>
@@ -376,7 +376,7 @@
                     >
                       <IconSave :size="16" />
                       {{
-                        isNew
+                        state.isNew
                           ? "Create Employment Tracer"
                           : "Update Employment Tracer"
                       }}
@@ -394,7 +394,7 @@
           <!-- Preview (rendered form) -->
           <transition name="fade">
             <div
-              v-if="preview && editing"
+              v-if="state.preview && state.editing"
               class="card app-surface shadow p-4 mt-4"
             >
               <h3 class="font-semibold text-lg mb-4 flex items-center">
@@ -547,7 +547,7 @@
               </h3>
               <div class="text-sm text-gray-500 flex items-center gap-2">
                 <IconBarChart3 :size="16" />
-                Total: {{ forms.length }} forms
+                Total: {{ state.forms.length }} forms
               </div>
             </div>
 
@@ -565,7 +565,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in forms" :key="item.form_id" class="hover">
+                  <tr v-for="item in state.forms" :key="item.form_id" class="hover">
                     <td>
                       <div class="flex items-center gap-2">
                         <span class="font-semibold">{{ item.form_year }}</span>
@@ -619,10 +619,10 @@
                       <div class="flex items-center gap-2">
                         <IconBarChart3 :size="14" />
                         <span class="badge badge-info badge-sm">
-                          {{ responseCounts[item.form_id] || 0 }}
+                          {{ state.responseCounts[item.form_id] || 0 }}
                         </span>
                         <button
-                          v-if="responseCounts[item.form_id] > 0"
+                          v-if="state.responseCounts[item.form_id] > 0"
                           @click="viewResponses(item)"
                           class="btn btn-xs btn-ghost text-blue-500 hover:bg-blue-500 hover:text-white"
                         >
@@ -704,7 +704,7 @@
                 </tbody>
               </table>
 
-              <div v-if="forms.length === 0" class="text-center py-12">
+              <div v-if="state.forms.length === 0" class="text-center py-12">
                 <IconFileText :size="48" class="mx-auto text-gray-400 mb-4" />
                 <div class="text-lg font-medium text-text mb-2">
                   No Employment Tracer Forms Yet
@@ -730,7 +730,7 @@
           <form method="dialog" class="modal-box w-11/12 max-w-5xl max-h-[90vh] overflow-y-auto">
             <h3 class="font-bold text-lg sm:text-xl mb-4 flex items-center gap-2">
               <IconFileText :size="24" class="text-primary" />
-              <span class="truncate">{{ viewFormData.title }}</span>
+              <span class="truncate">{{ state.viewFormData.title }}</span>
             </h3>
 
             <!-- Form Details -->
@@ -739,13 +739,13 @@
                 <div class="flex items-center gap-2">
                   <IconBarChart3 :size="16" class="text-text-muted" />
                   <span class="font-semibold text-text">Year:</span>
-                  <span class="text-text">{{ viewFormData.year }}</span>
+                  <span class="text-text">{{ state.viewFormData.year }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <IconCheck :size="16" class="text-text-muted" />
                   <span class="font-semibold">Status:</span>
                   <span
-                    v-if="viewFormData.is_active"
+                    v-if="state.viewFormData.is_active"
                     class="badge badge-success badge-sm ml-1"
                     >Active</span
                   >
@@ -754,19 +754,19 @@
                   >
                 </div>
                 <div
-                  v-if="viewFormData.deadline"
+                  v-if="state.viewFormData.deadline"
                   class="flex items-center gap-2"
                 >
                   <IconBarChart3 :size="16" class="text-text-muted" />
                   <span class="font-semibold text-text">Deadline:</span>
                   <span class="text-text text-xs sm:text-sm">{{
-                    new Date(viewFormData.deadline).toLocaleDateString()
+                    new Date(state.viewFormData.deadline).toLocaleDateString()
                   }}</span>
                 </div>
               </div>
-              <div v-if="viewFormData.description" class="mt-4">
+              <div v-if="state.viewFormData.description" class="mt-4">
                 <span class="font-semibold text-text">Description:</span>
-                <p class="mt-1 text-text">{{ viewFormData.description }}</p>
+                <p class="mt-1 text-text">{{ state.viewFormData.description }}</p>
               </div>
             </div>
 
@@ -863,7 +863,7 @@
 
               <!-- Additional Custom Questions -->
               <div
-                v-if="viewFormData.questions?.length"
+                v-if="state.viewFormData.questions?.length"
                 class="card bg-base-200/50 border border-gray-200 p-4"
               >
                 <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
@@ -881,12 +881,12 @@
                     ></path>
                   </svg>
                   Additional Custom Questions ({{
-                    viewFormData.questions.length
+                    state.viewFormData.questions.length
                   }})
                 </h4>
                 <div class="space-y-3">
                   <div
-                    v-for="(q, i) in viewFormData.questions"
+                    v-for="(q, i) in state.viewFormData.questions"
                     :key="q.id"
                     class="p-3 bg-white rounded"
                   >
@@ -982,7 +982,7 @@
             </div>
 
             <div class="modal-action flex flex-col sm:flex-row gap-2">
-              <button class="btn btn-outline flex items-center gap-2" @click="loadForm(viewFormData)">
+              <button class="btn btn-outline flex items-center gap-2" @click="loadForm(state.viewFormData)">
                 <IconEdit :size="16" />
                 Edit Form
               </button>
@@ -1002,6 +1002,26 @@
 </template>
 
 <script setup>
+/**
+ * TracerFormsAdmin.vue
+ * 
+ * Administrative interface for managing Employment Tracer Forms
+ * 
+ * Features:
+ * - Create, edit, duplicate, and delete tracer forms
+ * - Configure core employment questions and add custom questions
+ * - Preview forms before publishing
+ * - View form responses and statistics  
+ * - Manage form activation status
+ * 
+ * Structure:
+ * - Constants: Employment options and configurations
+ * - State Management: Reactive state for forms, editing, and UI
+ * - Utility Functions: Helper functions for form parsing and rendering
+ * - Form Management: CRUD operations for forms
+ * - API Functions: Backend communication
+ */
+
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
@@ -1010,35 +1030,67 @@ import axios from "axios";
 import draggable from "vuedraggable";
 import { messageService } from "@/services/messageService.js";
 
-// Configure axios (ensure backend is properly accessible)
+// Note: Icons are globally registered in main.js as Lucide icons
+// Available as: IconPlus, IconRefreshCw, IconFileText, IconEdit, IconBarChart3,
+// IconCheck, IconUsers, IconSave, IconX, IconEye, IconEyeOff, IconEllipsisV, IconTrash2
+
+// Configuration
 axios.defaults.baseURL = "http://localhost/skillslink/backend";
 axios.defaults.withCredentials = true;
 
-// Router instance
+// Router
 const router = useRouter();
 
-// State
-const forms = ref([]);
-const editing = ref(false);
-const isNew = ref(true);
-const preview = ref(false);
-const responseCounts = ref({});
+// Reactive state
+const state = reactive({
+  forms: [],
+  editing: false,
+  isNew: true,
+  preview: false,
+  responseCounts: {},
+  viewFormData: {}
+});
 
-// Core employment questions - Employment Status is always included, others are configurable
+const form = reactive({
+  form_id: null,
+  title: "",
+  year: new Date().getFullYear(),
+  description: "",
+  deadline: null,
+  is_active: true,
+  questions: [], // Additional custom questions
+  selectedEmploymentQuestions: [], // IDs of employment questions to include
+});
+
+// Refs
+const formResponsesComponent = ref(null);
+const viewFormModal = ref(null);
+// Constants
+const EMPLOYMENT_STATUS_OPTIONS = ["Employed", "Unemployed", "Further Studies", "Not Looking"];
+const WORK_CLASSIFICATION_OPTIONS = [
+  "Wage and Salary Workers",
+  "Self-employed without any paid employee", 
+  "Employer in Own Family-Operated Farm or Business",
+  "Work Without Pay in Own-Family-Operated Farm or Business"
+];
+const SALARY_RANGES = [
+  "Below 20,000", "20,000-40,000", "40,000-60,000",
+  "60,000-80,000", "80,000-100,000", "Above 100,000"
+];
+const EMPLOYMENT_TYPES = ["Permanent", "Casual", "Contractual", "Seasonal or Short Term"];
+const WORK_SETUPS = ["On-site", "Remote", "Hybrid"];
+const YES_NO_OPTIONS = ["Yes", "No"];
+
+// Core employment questions configuration
 const coreEmploymentQuestions = ref([
   {
     id: "employment_status",
-    label: "Employment Status",
+    label: "Employment Status", 
     type: "radio",
     maps_to: "employment_status",
     required: true,
     always_include: true,
-    options: [
-      "Employed",
-      "Unemployed", 
-      "Further Studies",
-      "Not Looking",
-    ],
+    options: EMPLOYMENT_STATUS_OPTIONS,
   },
   {
     id: "date_employed",
@@ -1072,21 +1124,16 @@ const coreEmploymentQuestions = ref([
     type: "radio",
     maps_to: "work_classification",
     conditional: 'employment_status == "employed"',
-    options: [
-      "Wage and Salary Workers",
-      "Self-employed without any paid employee",
-      "Employer in Own Family-Operated Farm or Business",
-      "Work Without Pay in Own-Family-Operated Farm or Business"
-    ],
+    options: WORK_CLASSIFICATION_OPTIONS,
     optional: true,
   },
   {
     id: "is_local",
     label: "Local",
     type: "radio",
-    maps_to: "is_local",
+    maps_to: "is_local", 
     conditional: 'employment_status == "employed"',
-    options: ["Yes", "No"],
+    options: YES_NO_OPTIONS,
     optional: true,
   },
   {
@@ -1095,7 +1142,7 @@ const coreEmploymentQuestions = ref([
     type: "radio",
     maps_to: "is_abroad",
     conditional: 'employment_status == "employed"',
-    options: ["Yes", "No"],
+    options: YES_NO_OPTIONS,
     optional: true,
   },
   {
@@ -1131,14 +1178,7 @@ const coreEmploymentQuestions = ref([
     type: "select",
     maps_to: "salary_range",
     conditional: 'employment_status == "employed"',
-    options: [
-      "Below 20,000",
-      "20,000-40,000",
-      "40,000-60,000",
-      "60,000-80,000",
-      "80,000-100,000",
-      "Above 100,000",
-    ],
+    options: SALARY_RANGES,
     optional: true,
   },
   {
@@ -1147,7 +1187,7 @@ const coreEmploymentQuestions = ref([
     type: "radio",
     maps_to: "employment_type",
     conditional: 'employment_status == "employed"',
-    options: ["Full-time", "Part-time", "Contract", "Freelance", "Temporary"],
+    options: EMPLOYMENT_TYPES,
     optional: true,
   },
   {
@@ -1165,7 +1205,7 @@ const coreEmploymentQuestions = ref([
     type: "radio",
     maps_to: "work_setup",
     conditional: 'employment_status == "employed"',
-    options: ["On-site", "Remote", "Hybrid"],
+    options: WORK_SETUPS,
     optional: true,
   },
   {
@@ -1178,25 +1218,16 @@ const coreEmploymentQuestions = ref([
     max: 60,
     optional: true,
   },
+  {
+    id: "job_relevance_to_course",
+    label: "How relevant is your current job to your course/program?",
+    type: "radio",
+    maps_to: "job_relevance_to_course",
+    conditional: 'employment_status == "employed"',
+    options: ["Highly Relevant", "Somewhat Relevant", "Not Relevant"],
+    optional: true,
+  },
 ]);
-
-const form = reactive({
-  form_id: null,
-  title: "",
-  year: new Date().getFullYear(),
-  description: "",
-  deadline: null,
-  is_active: true,
-  questions: [], // These are additional questions beyond core employment
-  selectedEmploymentQuestions: [], // IDs of employment questions to include
-});
-
-// Form Responses Component Reference
-const formResponsesComponent = ref(null);
-
-// Form view modal
-const viewFormModal = ref(null);
-const viewFormData = ref({});
 
 // Computed properties
 const isFormValid = computed(() => {
@@ -1210,11 +1241,23 @@ const enabledEmploymentQuestions = computed(() => {
 });
 
 const selectedEmploymentQuestionsForView = computed(() => {
-  if (!viewFormData.value.selectedEmploymentQuestions) return [];
+  if (!state.viewFormData.selectedEmploymentQuestions) return [];
   return coreEmploymentQuestions.value.filter(q => 
-    viewFormData.value.selectedEmploymentQuestions.includes(q.id)
+    state.viewFormData.selectedEmploymentQuestions.includes(q.id)
   );
 });
+
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+// Helper functions for rendering form fields
+const renderFormField = (question, disabled = false, size = 'sm') => {
+  const baseClasses = disabled ? 'disabled' : '';
+  const sizeClasses = size === 'xs' ? 'input-xs textarea-xs select-xs radio-xs checkbox-xs' : 'input-sm textarea-sm select-sm radio-sm checkbox-sm';
+  
+  return question;
+};
 
 // Helper functions for parsing form questions in the table
 const getDefaultSelectedEmploymentQuestions = () => {
@@ -1229,7 +1272,10 @@ const getDefaultSelectedEmploymentQuestions = () => {
     "work_location",
     "work_classification",
     "is_local",
-    "is_abroad"
+    "is_abroad",
+    "salary_range",
+    "months_to_find_job",
+    "job_relevance_to_course"
   ];
   
   // Combine and remove duplicates
@@ -1284,6 +1330,10 @@ const getEmploymentQuestionsCount = (item) => {
   return selectedIds.length;
 };
 
+// =============================================================================
+// FORM MANAGEMENT FUNCTIONS  
+// =============================================================================
+
 // Form management helpers
 const resetForm = () => {
   form.form_id = null;
@@ -1311,7 +1361,9 @@ const resetForm = () => {
     "company_name",
     "job_title", 
     "salary_range",
-    "employment_type"
+    "employment_type",
+    "months_to_find_job",
+    "job_relevance_to_course"
   ];
 };
 
@@ -1363,16 +1415,19 @@ const removeOption = (q, oi) => {
 };
 
 const togglePreview = () => {
-  preview.value = !preview.value;
+  state.preview = !state.preview;
 };
+
+// =============================================================================
+// API FUNCTIONS
+// =============================================================================
 
 // API calls
 const fetchResponseCounts = async () => {
   try {
     const counts = {};
-    for (const form of forms.value) {
+    for (const form of state.forms) {
       try {
-        // Use admin tracer forms endpoint for counting
         const res = await axios.get(
           `/admin/tracer_forms.php?action=count&form_id=${form.form_id}`
         );
@@ -1382,7 +1437,7 @@ const fetchResponseCounts = async () => {
         counts[form.form_id] = 0;
       }
     }
-    responseCounts.value = counts;
+    state.responseCounts = counts;
   } catch (err) {
     console.error("Error fetching response counts:", err);
   }
@@ -1397,14 +1452,14 @@ const fetchForms = async () => {
     const data = res.data;
     if (Array.isArray(data)) {
       // Filter out empty/invalid forms
-      forms.value = data.filter((f) => f && f.form_id && f.form_title);
-      console.log("Filtered forms:", forms.value);
+      state.forms = data.filter((f) => f && f.form_id && f.form_title);
+      console.log("Filtered forms:", state.forms);
 
       // Fetch response counts after loading forms
       await fetchResponseCounts();
     } else {
       console.error("Expected array but got:", data);
-      forms.value = [];
+      state.forms = [];
     }
   } catch (err) {
     console.error("Error in fetchForms:", err);
@@ -1412,15 +1467,15 @@ const fetchForms = async () => {
       "Failed to load employment tracer forms",
       "error"
     );
-    forms.value = [];
+    state.forms = [];
   }
 };
 
 const openCreate = () => {
   resetForm();
-  editing.value = true;
-  isNew.value = true;
-  preview.value = false;
+  state.editing = true;
+  state.isNew = true;
+  state.preview = false;
 };
 
 const loadForm = async (item) => {
@@ -1452,8 +1507,8 @@ const loadForm = async (item) => {
     form.questions = formQuestionsData.additional_questions || [];
     form.selectedEmploymentQuestions = formQuestionsData.selected_employment_questions;
 
-    editing.value = true;
-    isNew.value = false;
+    state.editing = true;
+    state.isNew = false;
     console.log("Form loaded successfully for editing");
   } catch (err) {
     console.error("Error loading form:", err);
@@ -1498,11 +1553,11 @@ const saveForm = async () => {
     console.log("Response:", res.data);
 
     if (res.data.success) {
-      const message = isNew.value
+      const message = state.isNew
         ? "Employment tracer form created successfully!"
         : "Employment tracer form updated successfully!";
       messageService.showMessage(message, "success");
-      editing.value = false;
+      state.editing = false;
 
       try {
         await fetchForms();
@@ -1525,8 +1580,8 @@ const saveForm = async () => {
 };
 
 const cancelEdit = () => {
-  editing.value = false;
-  preview.value = false;
+  state.editing = false;
+  state.preview = false;
 };
 
 const duplicateForm = async (item) => {
@@ -1656,7 +1711,7 @@ const viewForm = async (item) => {
 
     // Prepare view data with both core and additional questions
     const parsedQuestions = parseFormQuestions(d.form_questions);
-    viewFormData.value = {
+    state.viewFormData = {
       form_id: d.form_id,
       title: d.form_title,
       year: d.form_year,
@@ -1668,7 +1723,7 @@ const viewForm = async (item) => {
       selectedEmploymentQuestions: parsedQuestions.selected_employment_questions,
     };
 
-    console.log("View form data set:", viewFormData.value);
+    console.log("View form data set:", state.viewFormData);
     viewFormModal.value.showModal();
   } catch (err) {
     console.error("Error loading form for view:", err);
@@ -1685,6 +1740,10 @@ const viewForm = async (item) => {
     messageService.showMessage(errorMessage, "error");
   }
 };
+
+// =============================================================================
+// LIFECYCLE & EVENT HANDLERS
+// =============================================================================
 
 onMounted(() => {
   console.log("TracerFormsAdmin mounted, fetching forms...");

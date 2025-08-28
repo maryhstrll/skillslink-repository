@@ -13,8 +13,74 @@
           </div>
             <div class="text-right">
               <div class="stat-title text-white/90">Total Alumni</div>
-              <div class="stat-value text-[#5FC9F3]">{{ loading ? '...' : alumniList.length }}</div>
+              <div class="stat-value text-[#5FC9F3]">
+                {{ loading ? '...' : (hasActiveFilters ? `${filteredAlumni.length} / ${alumniList.length}` : alumniList.length) }}
+              </div>
             </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white/95 backdrop-blur-sm rounded shadow-xl border border-white/30 overflow-hidden">
+          <div class="p-4 bg-gradient-to-r from-[#2E79BA]/10 to-[#1E549F]/10">
+            <h3 class="text-lg font-semibold text-[#081F37] mb-4">Filter Alumni</h3>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <!-- Search Filter -->
+              <div class="form-control flex-1">
+                <div class="input-group">
+                  <input 
+                    v-model="searchQuery" 
+                    type="text" 
+                    placeholder="Search by name, student ID..." 
+                    class="input input-bordered flex-1 focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20"
+                  />
+                  <button class="btn btn-square bg-[#2E79BA] text-white border-none hover:bg-[#1E549F]">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Program Filter -->
+              <select 
+                v-model="selectedProgram" 
+                class="select select-bordered focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20 min-w-[200px]"
+              >
+                <option value="">All Programs</option>
+                <option v-for="program in programs" 
+                        :key="program.id || program.program_id" 
+                        :value="program.id || program.program_id">
+                  {{ program.name || program.program_name }}
+                </option>
+              </select>
+              
+              <!-- Year Graduated Filter -->
+              <select 
+                v-model="selectedYear" 
+                class="select select-bordered focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20 min-w-[160px]"
+              >
+                <option value="">All Years</option>
+                <option v-for="year in availableYears" 
+                        :key="year" 
+                        :value="year">
+                  {{ year }}
+                </option>
+              </select>
+              
+              <!-- Clear Filters Button -->
+              <button 
+                class="btn bg-gray-200 text-gray-700 border-none hover:bg-gray-300"
+                @click="clearFilters"
+                :disabled="!hasActiveFilters"
+              >
+                <i class="fas fa-times mr-2"></i>
+                Clear
+              </button>
+            </div>
+            
+            <!-- Filter Results Summary -->
+            <div class="mt-3 text-sm text-gray-600">
+              Showing {{ filteredAlumni.length }} of {{ alumniList.length }} alumni
+            </div>
+          </div>
         </div>
 
         <!-- Alumni Table/Cards -->
@@ -30,11 +96,11 @@
               <div class="loading loading-spinner loading-lg text-[#2E79BA]"></div>
               <p class="text-gray-500 mt-4">Loading alumni data...</p>
             </div>
-            <div v-else-if="alumniList.length === 0" class="text-center py-8 text-gray-500">
+            <div v-else-if="filteredAlumni.length === 0" class="text-center py-8 text-gray-500">
               <IconUsers class="w-16 h-16 mb-4 text-gray-300 mx-auto" />
-              <p>No alumni records found.</p>
+              <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
             </div>
-            <div v-else v-for="alumni in alumniList" :key="alumni.alumni_id" 
+            <div v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
                  class="card bg-gradient-to-r from-white to-gray-50 shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
               <div class="card-body p-4">
                 <div class="flex justify-between items-start mb-3">
@@ -100,15 +166,15 @@
                     </div>
                   </td>
                 </tr>
-                <tr v-else-if="alumniList.length === 0">
+                <tr v-else-if="filteredAlumni.length === 0">
                   <td colspan="7" class="text-center py-8 text-gray-500">
                     <div class="flex flex-col items-center">
                       <IconUsers class="w-16 h-16 mb-4 text-gray-300" />
-                      <p>No alumni records found.</p>
+                      <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
                     </div>
                   </td>
                 </tr>
-                <tr v-else v-for="alumni in alumniList" :key="alumni.alumni_id" 
+                <tr v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
                     class="hover:bg-gradient-to-r hover:from-[#5FC9F3]/10 hover:to-[#2E79BA]/10 transition-all duration-300">
                   <td class="font-semibold text-[#081F37]">
                     {{ alumni.first_name }} {{ alumni.last_name }}
@@ -338,7 +404,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/Layout.vue'
 import AdminAlumniProfileModal from '@/components/AdminAlumniProfileModal.vue'
 import { useRouter } from 'vue-router'
@@ -357,7 +423,11 @@ const selectedAlumni = ref(null)
 const isEditMode = ref(false)
 const loading = ref(false)
 const loadingPrograms = ref(false)
-// Removed error ref - now using messageService
+
+// Filter states
+const searchQuery = ref('')
+const selectedProgram = ref('')
+const selectedYear = ref('')
 
 const form = reactive({
   alumni_id: null,
@@ -374,6 +444,49 @@ const form = reactive({
   linkedin_profile: '',
   facebook_profile: ''
 })
+
+// Computed properties for filtering
+const availableYears = computed(() => {
+  const years = [...new Set(alumniList.value.map(alumni => alumni.year_graduated))].filter(Boolean)
+  return years.sort((a, b) => b - a) // Sort descending (newest first)
+})
+
+const filteredAlumni = computed(() => {
+  let filtered = alumniList.value
+
+  // Search filter
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    filtered = filtered.filter(alumni => {
+      const fullName = `${alumni.first_name} ${alumni.middle_name || ''} ${alumni.last_name}`.toLowerCase()
+      return fullName.includes(query) || 
+             alumni.student_id?.toLowerCase().includes(query) ||
+             alumni.program_name?.toLowerCase().includes(query)
+    })
+  }
+
+  // Program filter
+  if (selectedProgram.value) {
+    filtered = filtered.filter(alumni => alumni.program_id == selectedProgram.value)
+  }
+
+  // Year graduated filter
+  if (selectedYear.value) {
+    filtered = filtered.filter(alumni => alumni.year_graduated == selectedYear.value)
+  }
+
+  return filtered
+})
+
+const hasActiveFilters = computed(() => {
+  return searchQuery.value.trim() !== '' || selectedProgram.value !== '' || selectedYear.value !== ''
+})
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  selectedProgram.value = ''
+  selectedYear.value = ''
+}
 
 // Fetch alumni records from the database
 const fetchAlumni = async () => {

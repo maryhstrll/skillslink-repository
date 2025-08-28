@@ -89,6 +89,28 @@ try {
             updated_at = CURRENT_TIMESTAMP
     ");
     
+    // Transform job relevance values to match database enum
+    $job_relevance = null;
+    if (isset($employment_data['job_relevance_to_course'])) {
+        switch ($employment_data['job_relevance_to_course']) {
+            case 'Highly Relevant':
+                $job_relevance = 'highly_relevant';
+                break;
+            case 'Somewhat Relevant':
+                $job_relevance = 'somewhat_relevant';
+                break;
+            case 'Not Relevant':
+                $job_relevance = 'not_relevant';
+                break;
+            default:
+                // If it's already in the correct format, keep it
+                if (in_array($employment_data['job_relevance_to_course'], ['highly_relevant', 'somewhat_relevant', 'not_relevant'])) {
+                    $job_relevance = $employment_data['job_relevance_to_course'];
+                }
+                break;
+        }
+    }
+    
     $result = $stmt->execute([
         $alumni_id,
         $form_year,
@@ -106,7 +128,7 @@ try {
         $employment_data['is_abroad'] ?? null,
         $employment_data['employment_type'] ?? null, // Maps to nature_of_employment
         $employment_data['date_employed'] ?? null,
-        $employment_data['job_relevance_to_course'] ?? null,
+        $job_relevance, // Use transformed value
         $employment_data['skills_used'] ?? null,
         $employment_data['months_to_find_job'] ?? null,
         $employment_data['job_search_method'] ?? null,

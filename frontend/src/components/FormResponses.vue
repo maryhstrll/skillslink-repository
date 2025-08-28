@@ -34,18 +34,40 @@
                 <span class="badge badge-primary">
                   {{ r.completion_percentage || 0 }}% Complete
                 </span>
-                <span v-if="r.response_type === 'employment_record'" class="badge badge-info text-xs">
-                  Employment Data
-                </span>
-                <span v-else class="badge badge-secondary text-xs">
-                  Form Response
-                </span>
+                <!-- Show combined response indicators -->
+                <div class="flex flex-col gap-1">
+                  <span v-if="r.has_form_data && r.has_employment_data" class="badge badge-success text-xs">
+                    Complete Response
+                  </span>
+                  <span v-else-if="r.has_form_data" class="badge badge-warning text-xs">
+                    Form Only
+                  </span>
+                  <span v-else-if="r.has_employment_data" class="badge badge-info text-xs">
+                    Employment Only
+                  </span>
+                  <span v-else class="badge badge-secondary text-xs">
+                    Response Data
+                  </span>
+                </div>
               </div>
             </div>
 
             <!-- Response Data -->
             <div class="mt-3">
-              <h4 class="font-medium text-sm mb-2">Responses:</h4>
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="font-medium text-sm">Response Data:</h4>
+                <div class="text-xs text-gray-500">
+                  <span v-if="r.has_form_data && r.has_employment_data" class="text-green-600">
+                    ✓ Form + Employment Data
+                  </span>
+                  <span v-else-if="r.has_form_data" class="text-yellow-600">
+                    ✓ Form Data Only
+                  </span>
+                  <span v-else-if="r.has_employment_data" class="text-blue-600">
+                    ✓ Employment Data Only
+                  </span>
+                </div>
+              </div>
               <div
                 v-if="r.responses && Object.keys(r.responses).length"
                 class="space-y-2"
