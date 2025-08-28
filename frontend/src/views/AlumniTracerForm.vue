@@ -102,7 +102,9 @@
                              class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" 
                                :name="question.id"
-                               :value="option.toLowerCase().replace(/ /g, '_')"
+                               :value="question.id === 'employment_status' ? option.toLowerCase().replace(/ /g, '_') : 
+                                      (question.id === 'work_classification' || question.id === 'employment_type') ? option : 
+                                      option.toLowerCase().replace(/ /g, '_')"
                                v-model="employmentData[question.maps_to]"
                                class="radio radio-primary" />
                         <span>{{ option }}</span>
@@ -137,7 +139,7 @@
                             class="select select-bordered w-full">
                       <option disabled value="">Select an option</option>
                       <option v-for="option in question.options" :key="option" 
-                              :value="option.toLowerCase().replace(/[^a-z0-9]/g, '_')">
+                              :value="question.id === 'salary_range' ? option : option.toLowerCase().replace(/[^a-z0-9]/g, '_')">
                         {{ option }}
                       </option>
                     </select>

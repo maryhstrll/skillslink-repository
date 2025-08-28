@@ -57,6 +57,12 @@ try {
     // 1. Save CORE employment data to employment_records
     $employment_data = $data['employment_data'] ?? [];
     error_log("Employment data: " . json_encode($employment_data));
+    error_log("Salary range specifically: " . json_encode($employment_data['salary_range'] ?? 'NOT_SET'));
+    
+    // Log all individual employment data fields
+    error_log("Employment status: " . json_encode($employment_data['employment_status'] ?? 'NOT_SET'));
+    error_log("Job title: " . json_encode($employment_data['job_title'] ?? 'NOT_SET'));
+    error_log("Company name: " . json_encode($employment_data['company_name'] ?? 'NOT_SET'));
     
     $stmt = $pdo->prepare("
         INSERT INTO employment_records (
