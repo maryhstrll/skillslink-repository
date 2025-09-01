@@ -1,4 +1,4 @@
-# Academic Excellence Dashboard ✅ IMPLEMENTED
+# Employment Dashboard ✅ IMPLEMENTED
 
 ## Currently Available Features:
 - ✅ Employment Rate by Academic Program (Bar Chart)

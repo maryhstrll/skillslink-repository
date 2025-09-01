@@ -31,6 +31,8 @@
       <!-- User Statistics -->
       <UserStatistics :user-stats="userStats" />
 
+      <RecentActivity/>
+
       <!-- User Approval Management (Admin Only) -->
       <UserApprovalManager />
 
@@ -279,6 +281,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import Layout from '@/components/Layout.vue'
 import UserApprovalManager from '@/components/UserApprovalManager.vue'
 import UserStatistics from '@/components/UserStatistics.vue'
+import RecentActivity from '@/components/RecentActivity.vue'
 import { useRouter } from 'vue-router'
 import usersService from '@/services/users-test.js'
 import authService from '@/services/auth.js'

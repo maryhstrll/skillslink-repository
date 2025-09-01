@@ -125,7 +125,7 @@ const allMenuItems = [
   },
   {
     path: "/tracer_forms_admin",
-    label: "Tracer Form",
+    label: "Tracing",
     icon: "IconFileText",
     roles: ["admin"] // Admin and staff only
   },

@@ -1,7 +1,7 @@
 <template>
   <Layout @logout="handleLogout">
     <div class="p-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-bold mb-6 text-primary">Alumni Employment Tracer Form</h1>
+      <h1 class="text-3xl font-bold mb-6 text-primary">Employment Tracer Form</h1>
 
       <div v-if="loading" class="flex justify-center items-center h-64">
         <div class="loading loading-spinner loading-lg"></div>
