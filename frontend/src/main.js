@@ -8,7 +8,8 @@ import {
   Menu, Bell, Home, Users, FileText, BarChart3, UserCog, Settings, 
   Save, Shield, Mail, Send, Database, Download, Upload, PieChart, 
   TrendingUp, Plus, Edit, Trash2, Eye, EyeOff, ChevronUp, User, 
-  LogOut, RefreshCw, Check, X, UserCheck, FileSpreadsheet, Zap, FileInput, EllipsisVertical, UserRound
+  LogOut, RefreshCw, Check, X, UserCheck, FileSpreadsheet, Zap, 
+  FileInput, EllipsisVertical, UserRound, SquareLibrary, Radar
 } from 'lucide-vue-next'
 
 const app = createApp(App);
@@ -47,5 +48,7 @@ app.component('IconZap', Zap);
 app.component('IconFileInput', FileInput);
 app.component('IconEllipsisV', EllipsisVertical);
 app.component('IconUserRound', UserRound);
+app.component('IconSquareLibrary', SquareLibrary);
+app.component('IconRadar', Radar);
 app.use(router);
 app.mount('#app');

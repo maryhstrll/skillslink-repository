@@ -18,981 +18,53 @@
       </div>
 
       <div class="space-y-4 sm:space-y-6">
-        <!-- Form Builder / Editor (collapses when not editing) -->
-        <div>
-          <transition name="fade">
-            <div v-if="state.editing" class="card app-surface shadow p-3 sm:p-4">
-              <h3 class="font-semibold text-lg sm:text-xl mb-3 flex items-center gap-2">
-                <IconFileText :size="20" />
-                {{
-                  state.isNew
-                    ? "Create New Employment Tracer Form"
-                    : "Edit Employment Tracer Form"
-                }}
-              </h3>
-
-              <div class="space-y-4">
-                <!-- Form Details -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div>
-                    <label class="label">
-                      <span class="label-text flex items-center gap-2">
-                        <IconEdit :size="16" />
-                        Form Title
-                      </span>
-                    </label>
-                    <input
-                      v-model="form.title"
-                      class="input input-bordered w-full"
-                      placeholder="e.g. Alumni Employment Tracer 2025"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="label">
-                      <span class="label-text flex items-center gap-2">
-                        <IconBarChart3 :size="16" />
-                        Form Year
-                      </span>
-                    </label>
-                    <input
-                      v-model.number="form.year"
-                      type="number"
-                      class="input input-bordered w-full"
-                      :min="2020"
-                      :max="2030"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="label">
-                      <span class="label-text flex items-center gap-2">
-                        <IconBarChart3 :size="16" />
-                        Deadline
-                      </span>
-                    </label>
-                    <input
-                      v-model="form.deadline"
-                      type="date"
-                      class="input input-bordered w-full"
-                    />
-                  </div>
-
-                  <div class="flex items-center gap-2 pt-8">
-                    <input
-                      type="checkbox"
-                      class="checkbox checkbox-primary"
-                      v-model="form.is_active"
-                    />
-                    <label class="label-text flex items-center gap-2">
-                      <IconCheck :size="16" />
-                      <span class="text-sm">{{
-                        form.is_active ? "Active" : "Inactive"
-                      }}</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="label">
-                    <span class="label-text flex items-center gap-2">
-                      <IconFileText :size="16" />
-                      Form Description
-                    </span>
-                  </label>
-                  <textarea
-                    v-model="form.description"
-                    class="textarea textarea-bordered w-full"
-                    rows="3"
-                    placeholder="Describe the purpose of this employment tracer form..."
-                  ></textarea>
-                </div>
-
-                <!-- Core Employment Questions Selector -->
-                <div class="card app-surface p-3 sm:p-4 app-border border">
-                  <h4
-                    class="font-medium mb-3 flex items-center text-medium-blue"
-                  >
-                    <IconUsers class="w-5 h-5 mr-2" />
-                    Employment Questions Configuration
-                  </h4>
-                  <div class="text-sm text-text opacity-80 mb-4">
-                    Select which employment questions to include in this tracer form. 
-                    <strong>Required questions</strong> are always included automatically.
-                  </div>
-                  
-                  <!-- Always Included Employment Questions (Required) -->
-                  <div class="mb-4">
-                    <h5 class="font-medium text-text mb-3">Required Employment Questions (Always Included)</h5>
-                    <div class="space-y-2">
-                      <div
-                        v-for="question in coreEmploymentQuestions.filter(q => q.always_include)"
-                        :key="question.id"
-                        class="p-3 app-secondary-bg rounded border-l-4 border-medium-blue"
-                      >
-                        <div class="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            class="checkbox checkbox-primary checkbox-sm"
-                            checked
-                            disabled
-                          />
-                          <span class="font-medium text-text">{{ question.label }}</span>
-                          <span class="badge badge-primary badge-xs">Required</span>
-                        </div>
-                        <div class="text-xs text-text opacity-70 mt-1">
-                          <span v-if="question.conditional">📋 Only shown when: {{ question.conditional }}</span>
-                          <span v-if="question.options">Options: {{ question.options.slice(0, 3).join(', ') }}{{ question.options.length > 3 ? '...' : '' }}</span>
-                          <span v-if="question.type === 'text'">Text input</span>
-                          <span v-if="question.type === 'date'">Date picker</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Optional Employment Questions -->
-                  <div class="space-y-2">
-                    <h5 class="font-medium text-text mb-3">Optional Employment Questions</h5>
-                    <div
-                      v-for="question in coreEmploymentQuestions.filter(q => q.optional)"
-                      :key="question.id"
-                      class="p-3 app-surface-alt rounded border"
-                    >
-                      <div class="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          class="checkbox checkbox-primary checkbox-sm mt-1"
-                          :value="question.id"
-                          v-model="form.selectedEmploymentQuestions"
-                        />
-                        <div class="flex-1">
-                          <div class="flex items-center gap-2">
-                            <span class="font-medium text-text">{{ question.label }}</span>
-                            <span class="text-text opacity-60 text-xs">({{ question.type }})</span>
-                          </div>
-                          <div v-if="question.conditional" class="text-xs text-orange-600 mt-1">
-                            📋 Only shown when: {{ question.conditional }}
-                          </div>
-                          <div v-if="question.options" class="text-xs text-text opacity-60 mt-1">
-                            Options: {{ question.options.slice(0, 3).join(', ') }}{{ question.options.length > 3 ? '...' : '' }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="mt-3 text-sm text-text opacity-70">
-                    Selected: {{ enabledEmploymentQuestions.length }} employment questions will be included
-                  </div>
-                </div>
-
-                <!-- Additional Questions Builder -->
-                <div
-                  class="card app-surface border-2 border-dashed app-border p-4"
-                >
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-medium flex items-center text-medium-blue">
-                      <svg
-                        class="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        ></path>
-                      </svg>
-                      Additional Survey Questions
-                    </h4>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                      <button
-                        class="btn btn-sm btn-success flex items-center gap-2"
-                        @click="addQuestion"
-                      >
-                        <IconPlus :size="16" />
-                        Add Question
-                      </button>
-                      <button
-                        class="btn btn-sm btn-ghost flex items-center gap-2"
-                        @click="togglePreview"
-                      >
-                        <IconEye :size="16" v-if="!state.preview" />
-                        <IconEyeOff :size="16" v-else />
-                        {{ state.preview ? "Hide Preview" : "Show Preview" }}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="text-sm text-text opacity-80 mb-4">
-                    Add custom questions specific to this year's employment
-                    tracer. These will be stored as flexible survey data.
-                  </div>
-
-                  <draggable
-                    v-model="form.questions"
-                    item-key="id"
-                    class="space-y-3"
-                    :disabled="form.questions.length === 0"
-                  >
-                    <template #item="{ element: q, index }">
-                      <div
-                        class="card card-compact app-surface-alt p-4 app-border border"
-                      >
-                        <div class="flex justify-between items-start gap-3">
-                          <div class="w-full space-y-3">
-                            <div class="flex gap-3 items-center">
-                              <span
-                                class="badge badge-outline font-semibold text-medium-blue border-medium-blue"
-                                >Q{{ index + 1 }}</span
-                              >
-                              <input
-                                v-model="q.label"
-                                class="input input-sm input-bordered app-surface app-border flex-1 text-text"
-                                placeholder="Enter your question here..."
-                              />
-                            </div>
-
-                            <div
-                              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-                            >
-                              <select
-                                v-model="q.type"
-                                class="select select-sm select-bordered app-surface app-border text-text"
-                                @change="handleQuestionTypeChange(q)"
-                              >
-                                <option value="text">Text Input</option>
-                                <option value="textarea">
-                                  Long Text (Textarea)
-                                </option>
-                                <option value="number">Number Input</option>
-                                <option value="radio">
-                                  Single Choice (Radio)
-                                </option>
-                                <option value="checkbox">
-                                  Multiple Choice (Checkbox)
-                                </option>
-                                <option value="select">Dropdown Menu</option>
-                              </select>
-
-                              <input
-                                v-if="
-                                  ['text', 'textarea', 'number'].includes(
-                                    q.type
-                                  )
-                                "
-                                v-model="q.placeholder"
-                                class="input input-sm input-bordered app-surface app-border text-text"
-                                placeholder="Placeholder text (optional)"
-                              />
-
-                              <div
-                                v-if="
-                                  ['radio', 'checkbox', 'select'].includes(
-                                    q.type
-                                  )
-                                "
-                                class="flex gap-2"
-                              >
-                                <input
-                                  v-model="q.optionInput"
-                                  @keyup.enter.prevent="addOption(q)"
-                                  class="input input-sm input-bordered app-surface app-border text-text flex-1"
-                                  placeholder="Add option then press Enter"
-                                />
-                                <button
-                                  @click="addOption(q)"
-                                  class="btn btn-sm btn-outline border-medium-blue text-medium-blue hover:bg-medium-blue hover:text-white"
-                                  :disabled="!q.optionInput"
-                                >
-                                  Add
-                                </button>
-                              </div>
-                            </div>
-
-                            <!-- Options Display -->
-                            <div
-                              v-if="q.options && q.options.length"
-                              class="mt-2"
-                            >
-                              <div class="text-sm text-text-muted mb-2">
-                                Options:
-                              </div>
-                              <div class="flex flex-wrap gap-2">
-                                <span
-                                  v-for="(opt, oi) in q.options"
-                                  :key="oi"
-                                  class="badge app-secondary text-white gap-2"
-                                >
-                                  {{ opt }}
-                                  <button
-                                    class="btn btn-xs btn-ghost text-white hover:bg-red-500"
-                                    @click="removeOption(q, oi)"
-                                  >
-                                    ×
-                                  </button>
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="flex flex-col gap-1">
-                            <button
-                              class="btn btn-xs btn-warning"
-                              @click="duplicateQuestion(index)"
-                              title="Duplicate"
-                            >
-                              📋
-                            </button>
-                            <button
-                              class="btn btn-xs btn-error"
-                              @click="removeQuestion(index)"
-                              title="Delete"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-                    <template #fallback>
-                      <div class="text-center p-8 text-text-muted">
-                        <div class="text-4xl mb-2">📝</div>
-                        <div>No additional questions yet</div>
-                        <div class="text-sm">
-                          Click "Add Question" to get started
-                        </div>
-                      </div>
-                    </template>
-                  </draggable>
-
-                  <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                    <button
-                      class="btn btn-primary flex items-center gap-2 justify-center"
-                      @click="saveForm"
-                      :disabled="!isFormValid"
-                    >
-                      <IconSave :size="16" />
-                      {{
-                        state.isNew
-                          ? "Create Employment Tracer"
-                          : "Update Employment Tracer"
-                      }}
-                    </button>
-                    <button class="btn btn-outline flex items-center gap-2 justify-center" @click="cancelEdit">
-                      <IconX :size="16" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </transition>
-
-          <!-- Preview (rendered form) -->
-          <transition name="fade">
-            <div
-              v-if="state.preview && state.editing"
-              class="card app-surface shadow p-4 mt-4"
-            >
-              <h3 class="font-semibold text-lg mb-4 flex items-center">
-                <svg
-                  class="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  ></path>
-                </svg>
-                Form Preview: {{ form.title || "Untitled Form" }}
-              </h3>
-
-              <div class="space-y-6">
-                <!-- Core Employment Section Preview -->
-                <div
-                  class="card app-secondary-bg border border-medium-blue p-4"
-                >
-                  <h4 class="font-semibold text-medium-blue mb-3">
-                    Employment Information (Required)
-                  </h4>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div
-                      v-for="q in coreEmploymentQuestions.slice(0, 4)"
-                      :key="q.id"
-                      class="form-control"
-                    >
-                      <label class="label text-text">{{ q.label }}</label>
-                      <input
-                        class="input input-sm input-bordered app-input text-text"
-                        :placeholder="q.placeholder || 'Preview only'"
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Additional Questions Preview -->
-                <div
-                  v-if="form.questions.length"
-                  class="card app-surface-hover border border-gray-300 p-4"
-                >
-                  <h4 class="font-semibold text-text mb-3">
-                    Additional Survey Questions
-                  </h4>
-                  <div class="space-y-4">
-                    <div
-                      v-for="(q, i) in form.questions"
-                      :key="q.id"
-                      class="form-control"
-                    >
-                      <label class="label">
-                        <span class="label-text"
-                          >{{ i + 1 }}.
-                          {{ q.label || "Untitled Question" }}</span
-                        >
-                      </label>
-                      <div>
-                        <input
-                          v-if="q.type === 'text'"
-                          class="input input-sm input-bordered w-full"
-                          :placeholder="q.placeholder || 'Text input preview'"
-                          disabled
-                        />
-                        <textarea
-                          v-else-if="q.type === 'textarea'"
-                          class="textarea textarea-sm textarea-bordered w-full"
-                          :placeholder="q.placeholder || 'Textarea preview'"
-                          rows="2"
-                          disabled
-                        ></textarea>
-                        <input
-                          v-else-if="q.type === 'number'"
-                          type="number"
-                          class="input input-sm input-bordered w-full"
-                          :placeholder="q.placeholder || 'Number input'"
-                          disabled
-                        />
-                        <div v-else-if="q.type === 'radio'" class="space-y-2">
-                          <label
-                            v-for="opt in q.options"
-                            :key="opt"
-                            class="flex items-center gap-2"
-                          >
-                            <input
-                              type="radio"
-                              disabled
-                              class="radio radio-sm radio-primary"
-                            />
-                            <span>{{ opt }}</span>
-                          </label>
-                        </div>
-                        <div
-                          v-else-if="q.type === 'checkbox'"
-                          class="space-y-2"
-                        >
-                          <label
-                            v-for="opt in q.options"
-                            :key="opt"
-                            class="flex items-center gap-2"
-                          >
-                            <input
-                              type="checkbox"
-                              disabled
-                              class="checkbox checkbox-sm checkbox-primary"
-                            />
-                            <span>{{ opt }}</span>
-                          </label>
-                        </div>
-                        <select
-                          v-else-if="q.type === 'select'"
-                          class="select select-sm select-bordered w-full"
-                          disabled
-                        >
-                          <option selected>
-                            {{ q.options?.[0] || "Select an option" }}
-                          </option>
-                          <option v-for="opt in q.options?.slice(1)" :key="opt">
-                            {{ opt }}
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </transition>
-        </div>
+        <!-- Form Builder / Editor Component -->
+        <FormEditor
+          v-if="state.editing"
+          :form="form"
+          :is-new="state.isNew"
+          :editing="state.editing"
+          :core-employment-questions="coreEmploymentQuestions"
+          @update:form="updateForm"
+          @save="saveForm"
+          @cancel="cancelEdit"
+          @toggle-preview="togglePreview"
+        />
+        
+        <!-- Form Preview Component -->
+        <FormPreview
+          v-if="state.preview && state.editing"
+          :form="form"
+          :enabled-employment-questions="enabledEmploymentQuestions"
+        />
 
         <!-- Employment Tracer Forms Table -->
-        <div>
-          <div class="card app-surface shadow p-3 sm:p-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-              <h3 class="font-semibold text-lg flex items-center gap-2">
-                <IconFileText :size="20" />
-                Employment Tracer Forms
-              </h3>
-              <div class="text-sm text-gray-500 flex items-center gap-2">
-                <IconBarChart3 :size="16" />
-                Total: {{ state.forms.length }} forms
-              </div>
-            </div>
-
-            <!-- Responsive Table with Horizontal Scroll -->
-            <div class="overflow-x-auto">
-              <table class="table table-zebra w-full min-w-[800px]">
-                <thead>
-                  <tr>
-                    <th class="w-20">Year</th>
-                    <th class="min-w-[200px]">Form Title</th>
-                    <th class="w-24">Status</th>
-                    <th class="w-32">Questions</th>
-                    <th class="w-24">Responses</th>
-                    <th class="w-20">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in state.forms" :key="item.form_id" class="hover">
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <span class="font-semibold">{{ item.form_year }}</span>
-                        <span
-                          v-if="item.is_active"
-                          class="badge badge-primary badge-xs"
-                          >Active</span
-                        >
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex flex-col">
-                        <span class="font-medium text-text">{{
-                          item.form_title
-                        }}</span>
-                        <span
-                          v-if="item.form_description"
-                          class="text-xs text-text-muted truncate max-w-xs"
-                        >
-                          {{ item.form_description }}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        v-if="item.is_active"
-                        class="badge badge-success gap-2"
-                      >
-                        <IconCheck :size="12" />
-                        Active
-                      </span>
-                      <span v-else class="badge badge-ghost text-text"
-                        >Inactive</span
-                      >
-                    </td>
-                    <td>
-                      <div class="flex flex-col text-sm">
-                        <div class="flex items-center gap-1 mb-1">
-                          <IconUsers :size="12" />
-                          <span class="badge badge-outline badge-xs">
-                            {{ getAdditionalQuestionsCount(item) }}
-                          </span>
-                          <span class="text-xs opacity-60">custom</span>
-                        </div>
-                        <div class="text-xs opacity-60">
-                          + {{ getEmploymentQuestionsCount(item) }} employment
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <IconBarChart3 :size="14" />
-                        <span class="badge badge-info badge-sm">
-                          {{ state.responseCounts[item.form_id] || 0 }}
-                        </span>
-                        <button
-                          v-if="state.responseCounts[item.form_id] > 0"
-                          @click="viewResponses(item)"
-                          class="btn btn-xs btn-ghost text-blue-500 hover:bg-blue-500 hover:text-white"
-                        >
-                          View
-                        </button>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="dropdown dropdown-end dropdown-hover">
-                        <div
-                          tabindex="0"
-                          role="button"
-                          class="btn btn-ghost btn-sm btn-circle"
-                        >
-                          <IconEllipsisV :size="16" />
-                        </div>
-                        <ul
-                          tabindex="0"
-                          class="dropdown-content menu p-1 shadow-lg bg-base-100 rounded-box w-36 border border-base-300 z-50"
-                        >
-                          <li>
-                            <a
-                              @click="viewForm(item)"
-                              class="flex items-center gap-2 text-xs py-1"
-                            >
-                              <IconEye :size="14" />
-                              Preview
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              @click="loadForm(item)"
-                              class="flex items-center gap-2 text-xs py-1"
-                            >
-                              <IconEdit :size="14" />
-                              Edit
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              @click="viewResponses(item)"
-                              class="flex items-center gap-2 text-xs py-1"
-                            >
-                              <IconBarChart3 :size="14" />
-                              Responses
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              @click="duplicateForm(item)"
-                              class="flex items-center gap-2 text-xs py-1"
-                            >
-                              <IconFileText :size="14" />
-                              Duplicate
-                            </a>
-                          </li>
-                          <li v-if="!item.is_active">
-                            <a
-                              @click="activateForm(item)"
-                              class="flex items-center gap-2 text-success text-xs py-1"
-                            >
-                              <IconCheck :size="14" />
-                              Activate
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              @click="deleteForm(item)"
-                              class="flex items-center gap-2 text-error text-xs py-1"
-                            >
-                              <IconTrash2 :size="14" />
-                              Delete
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div v-if="state.forms.length === 0" class="text-center py-12">
-                <IconFileText :size="48" class="mx-auto text-gray-400 mb-4" />
-                <div class="text-lg font-medium text-text mb-2">
-                  No Employment Tracer Forms Yet
-                </div>
-                <div class="text-sm text-text-muted mb-4">
-                  Create your first employment tracer form to start collecting
-                  alumni employment data.
-                </div>
-                <button
-                  class="btn app-primary text-white flex items-center gap-2 mx-auto"
-                  @click="openCreate()"
-                >
-                  <IconPlus :size="16" />
-                  Create Your First Employment Tracer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TracerFormTable 
+          v-if="!state.editing"
+          :forms="state.forms"
+          :loading-forms="loadingForms"
+          :response-counts="state.responseCounts"
+          :open-dropdown-id="openDropdownId"
+          :dropdown-pos="dropdownPos"
+          @view-form="viewForm"
+          @load-form="loadForm"
+          @view-responses="viewResponses"
+          @duplicate-form="duplicateForm"
+          @activate-form="activateForm"
+          @delete-form="deleteForm"
+          @toggle-dropdown="toggleDropdown"
+          @create-form="openCreate"
+        />
 
         <!-- Form Preview Modal -->
-        <dialog ref="viewFormModal" class="modal">
-          <form method="dialog" class="modal-box w-11/12 max-w-5xl max-h-[90vh] overflow-y-auto">
-            <h3 class="font-bold text-lg sm:text-xl mb-4 flex items-center gap-2">
-              <IconFileText :size="24" class="text-primary" />
-              <span class="truncate">{{ state.viewFormData.title }}</span>
-            </h3>
-
-            <!-- Form Details -->
-            <div class="mb-6 p-3 sm:p-4 app-surface-hover rounded-lg">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                <div class="flex items-center gap-2">
-                  <IconBarChart3 :size="16" class="text-text-muted" />
-                  <span class="font-semibold text-text">Year:</span>
-                  <span class="text-text">{{ state.viewFormData.year }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <IconCheck :size="16" class="text-text-muted" />
-                  <span class="font-semibold">Status:</span>
-                  <span
-                    v-if="state.viewFormData.is_active"
-                    class="badge badge-success badge-sm ml-1"
-                    >Active</span
-                  >
-                  <span v-else class="badge badge-ghost badge-sm ml-1 text-text"
-                    >Inactive</span
-                  >
-                </div>
-                <div
-                  v-if="state.viewFormData.deadline"
-                  class="flex items-center gap-2"
-                >
-                  <IconBarChart3 :size="16" class="text-text-muted" />
-                  <span class="font-semibold text-text">Deadline:</span>
-                  <span class="text-text text-xs sm:text-sm">{{
-                    new Date(state.viewFormData.deadline).toLocaleDateString()
-                  }}</span>
-                </div>
-              </div>
-              <div v-if="state.viewFormData.description" class="mt-4">
-                <span class="font-semibold text-text">Description:</span>
-                <p class="mt-1 text-text">{{ state.viewFormData.description }}</p>
-              </div>
-            </div>
-
-            <!-- Form Preview -->
-            <div class="space-y-6">
-              <!-- Core Employment Questions -->
-              <div class="card app-secondary-bg border border-medium-blue p-4">
-                <h4
-                  class="font-semibold text-medium-blue mb-3 flex items-center"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
-                    ></path>
-                  </svg>
-                  Core Employment Questions ({{
-                    selectedEmploymentQuestionsForView.length
-                  }})
-                </h4>
-                <div class="text-sm text-text mb-3">
-                  These employment questions are included in this form:
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div
-                    v-for="(q, i) in selectedEmploymentQuestionsForView.slice(0, 6)"
-                    :key="q.id"
-                    class="p-3 app-surface rounded border-l-4 border-medium-blue"
-                  >
-                    <label
-                      class="label label-text font-medium text-sm text-text"
-                    >
-                      {{ i + 1 }}. {{ q.label }}
-                      <span v-if="q.required" class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="mt-1">
-                      <input
-                        v-if="q.type === 'text'"
-                        class="input input-xs input-bordered w-full"
-                        :placeholder="q.placeholder || 'Preview disabled'"
-                        disabled
-                      />
-                      <textarea
-                        v-else-if="q.type === 'textarea'"
-                        class="textarea textarea-xs textarea-bordered w-full"
-                        rows="2"
-                        :placeholder="q.placeholder || 'Preview disabled'"
-                        disabled
-                      ></textarea>
-                      <select
-                        v-else-if="q.type === 'select'"
-                        class="select select-xs select-bordered w-full"
-                        disabled
-                      >
-                        <option>{{ q.options?.[0] || "Select option" }}</option>
-                      </select>
-                      <div v-else-if="q.type === 'radio'" class="space-y-1">
-                        <label
-                          v-for="opt in q.options?.slice(0, 3)"
-                          :key="opt"
-                          class="flex items-center gap-2 text-xs"
-                        >
-                          <input
-                            type="radio"
-                            disabled
-                            class="radio radio-xs radio-primary"
-                          />
-                          <span>{{ opt }}</span>
-                        </label>
-                        <div
-                          v-if="q.options?.length > 3"
-                          class="text-xs text-gray-400"
-                        >
-                          ... and {{ q.options.length - 3 }} more
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  v-if="selectedEmploymentQuestionsForView.length > 6"
-                  class="mt-3 text-sm text-gray-500"
-                >
-                  ... and {{ selectedEmploymentQuestionsForView.length - 6 }} more employment questions
-                </div>
-              </div>
-
-              <!-- Additional Custom Questions -->
-              <div
-                v-if="state.viewFormData.questions?.length"
-                class="card bg-base-200/50 border border-gray-200 p-4"
-              >
-                <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    ></path>
-                  </svg>
-                  Additional Custom Questions ({{
-                    state.viewFormData.questions.length
-                  }})
-                </h4>
-                <div class="space-y-3">
-                  <div
-                    v-for="(q, i) in state.viewFormData.questions"
-                    :key="q.id"
-                    class="p-3 bg-white rounded"
-                  >
-                    <label class="label label-text font-medium text-sm">
-                      {{ selectedEmploymentQuestionsForView.length + i + 1 }}.
-                      {{ q.label || "Untitled Question" }}
-                    </label>
-                    <div class="mt-1">
-                      <input
-                        v-if="q.type === 'text'"
-                        class="input input-xs input-bordered w-full"
-                        :placeholder="q.placeholder || 'Preview disabled'"
-                        disabled
-                      />
-                      <textarea
-                        v-else-if="q.type === 'textarea'"
-                        class="textarea textarea-xs textarea-bordered w-full"
-                        :placeholder="q.placeholder || 'Preview disabled'"
-                        rows="2"
-                        disabled
-                      ></textarea>
-                      <input
-                        v-else-if="q.type === 'number'"
-                        type="number"
-                        class="input input-xs input-bordered w-full"
-                        :placeholder="q.placeholder || 'Number input'"
-                        disabled
-                      />
-                      <div v-else-if="q.type === 'radio'" class="space-y-1">
-                        <label
-                          v-for="opt in q.options"
-                          :key="opt"
-                          class="flex items-center gap-2 text-xs"
-                        >
-                          <input
-                            type="radio"
-                            disabled
-                            class="radio radio-xs radio-primary"
-                          />
-                          <span>{{ opt }}</span>
-                        </label>
-                      </div>
-                      <div v-else-if="q.type === 'checkbox'" class="space-y-1">
-                        <label
-                          v-for="opt in q.options"
-                          :key="opt"
-                          class="flex items-center gap-2 text-xs"
-                        >
-                          <input
-                            type="checkbox"
-                            disabled
-                            class="checkbox checkbox-xs checkbox-primary"
-                          />
-                          <span>{{ opt }}</span>
-                        </label>
-                      </div>
-                      <select
-                        v-else-if="q.type === 'select'"
-                        class="select select-xs select-bordered w-full"
-                        disabled
-                      >
-                        <option disabled selected>Select an option</option>
-                        <option v-for="opt in q.options" :key="opt">
-                          {{ opt }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-else class="text-center py-8 text-gray-500">
-                <svg
-                  class="w-12 h-12 mx-auto mb-3 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  ></path>
-                </svg>
-                <div class="text-sm">
-                  No additional custom questions defined
-                </div>
-                <div class="text-xs text-gray-400">
-                  This form only includes the core employment questions
-                </div>
-              </div>
-            </div>
-
-            <div class="modal-action flex flex-col sm:flex-row gap-2">
-              <button class="btn btn-outline flex items-center gap-2" @click="loadForm(state.viewFormData)">
-                <IconEdit :size="16" />
-                Edit Form
-              </button>
-              <button class="btn flex items-center gap-2">
-                <IconX :size="16" />
-                Close Preview
-              </button>
-            </div>
-          </form>
-        </dialog>
+        <FormViewModal
+          ref="viewFormModal"
+          :view-form-data="state.viewFormData"
+          :selected-employment-questions-for-view="selectedEmploymentQuestionsForView"
+          :core-employment-questions="coreEmploymentQuestions"
+          :form-data="state.viewFormData"
+          @edit-form="loadForm"
+        />
       </div>
     </div>
 
@@ -1000,6 +72,7 @@
     <FormResponses ref="formResponsesComponent" />
   </Layout>
 </template>
+
 
 <script setup>
 /**
@@ -1020,15 +93,26 @@
  * - Utility Functions: Helper functions for form parsing and rendering
  * - Form Management: CRUD operations for forms
  * - API Functions: Backend communication
+ * 
+ * Component Structure:
+ * - TracerFormTable: Table display of all tracer forms with actions
+ * - FormEditor: Form creation and editing interface
+ * - FormPreview: Real-time preview of form being edited
+ * - FormViewModal: Modal for viewing form details
  */
 
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "@/components/Layout.vue";
 import FormResponses from "@/components/FormResponses.vue";
 import axios from "axios";
-import draggable from "vuedraggable";
 import { messageService } from "@/services/messageService.js";
+
+// Import the modular components
+import TracerFormTable from "@/components/tracer/TracerFormTable.vue";
+import FormEditor from "@/components/tracer/FormEditor.vue";
+import FormPreview from "@/components/tracer/FormPreview.vue";
+import FormViewModal from "@/components/tracer/FormViewModal.vue";
 
 // Note: Icons are globally registered in main.js as Lucide icons
 // Available as: IconPlus, IconRefreshCw, IconFileText, IconEdit, IconBarChart3,
@@ -1050,6 +134,9 @@ const state = reactive({
   responseCounts: {},
   viewFormData: {}
 });
+
+// Add loading state
+const loadingForms = ref(false);
 
 const form = reactive({
   form_id: null,
@@ -1330,6 +417,12 @@ const getEmploymentQuestionsCount = (item) => {
   return selectedIds.length;
 };
 
+// Handler for form updates from the FormEditor component
+const updateForm = (updatedForm) => {
+  // Update our local form object with values from the child component
+  Object.assign(form, updatedForm);
+};
+
 // =============================================================================
 // FORM MANAGEMENT FUNCTIONS  
 // =============================================================================
@@ -1367,52 +460,8 @@ const resetForm = () => {
   ];
 };
 
-const addQuestion = () => {
-  form.questions.push({
-    id: Date.now() + Math.random(),
-    label: "",
-    type: "text",
-    placeholder: "",
-    options: [],
-    optionInput: "",
-  });
-};
-
-const removeQuestion = (index) => {
-  form.questions.splice(index, 1);
-};
-
-const duplicateQuestion = (index) => {
-  const q = JSON.parse(JSON.stringify(form.questions[index]));
-  q.id = Date.now() + Math.random();
-  form.questions.splice(index + 1, 0, q);
-};
-
-const handleQuestionTypeChange = (question) => {
-  // Reset options when changing question type
-  if (!["radio", "checkbox", "select"].includes(question.type)) {
-    question.options = [];
-    question.optionInput = "";
-  } else if (!question.options) {
-    question.options = [];
-  }
-
-  // Reset placeholder for option-based questions
-  if (["radio", "checkbox", "select"].includes(question.type)) {
-    question.placeholder = "";
-  }
-};
-
-const addOption = (q) => {
-  if (!q.optionInput || !q.optionInput.trim()) return;
-  q.options = q.options || [];
-  q.options.push(q.optionInput.trim());
-  q.optionInput = "";
-};
-
-const removeOption = (q, oi) => {
-  q.options.splice(oi, 1);
-};
+// These functions have been moved to the FormEditor component
+// Only keeping togglePreview as it's used to communicate between components
 
 const togglePreview = () => {
   state.preview = !state.preview;
@@ -1445,6 +494,7 @@ const fetchResponseCounts = async () => {
 
 const fetchForms = async () => {
   try {
+    loadingForms.value = true;
     console.log("Fetching employment tracer forms...");
     const res = await axios.get("/admin/tracer_forms.php?action=list");
     console.log("Forms list response:", res.data);
@@ -1468,6 +518,8 @@ const fetchForms = async () => {
       "error"
     );
     state.forms = [];
+  } finally {
+    loadingForms.value = false;
   }
 };
 
@@ -1625,8 +677,7 @@ const deleteForm = async (item) => {
     !confirm(
       `Delete "${item.form_title}" and all responses? This cannot be undone.`
     )
-  )
-    return;
+  )    return;
 
   try {
     const res = await axios.post("/admin/tracer_forms.php?action=delete", {
@@ -1718,13 +769,28 @@ const viewForm = async (item) => {
       description: d.form_description || "",
       deadline: d.deadline_date || null,
       is_active: !!d.is_active,
-      coreQuestions: coreEmploymentQuestions.value,
+      // Add formData property for modal compatibility
+      formData: d,
+      coreEmploymentQuestions: coreEmploymentQuestions.value,
       questions: parsedQuestions.additional_questions,
       selectedEmploymentQuestions: parsedQuestions.selected_employment_questions,
     };
 
     console.log("View form data set:", state.viewFormData);
-    viewFormModal.value.showModal();
+    
+    // Make sure the modal exists before trying to show it
+    if (viewFormModal.value && typeof viewFormModal.value.showModal === 'function') {
+      viewFormModal.value.showModal();
+    } else {
+      console.error("Modal reference not found or showModal is not a function", viewFormModal.value);
+      // Use native document querySelector as fallback
+      const modalElement = document.querySelector('dialog[ref="viewFormModal"]');
+      if (modalElement && typeof modalElement.showModal === 'function') {
+        modalElement.showModal();
+      } else {
+        messageService.showMessage("Could not open form preview", "error");
+      }
+    }
   } catch (err) {
     console.error("Error loading form for view:", err);
 
@@ -1744,6 +810,56 @@ const viewForm = async (item) => {
 // =============================================================================
 // LIFECYCLE & EVENT HANDLERS
 // =============================================================================
+
+// For the Dropdown Menu
+const openDropdownId = ref(null)
+const dropdownPos = ref({ top: 0, left: 0 })
+const triggerRefs = new Map()
+
+function setTriggerRef(id) {
+  return (el) => {
+    if (el) triggerRefs.set(id, el)
+    else triggerRefs.delete(id)
+  }
+}
+
+function toggleDropdown(item, event) {
+  if (openDropdownId.value === item.form_id) {
+    closeDropdown()
+    return
+  }
+  openDropdownId.value = item.form_id
+  // position relative to trigger button
+  const btn = triggerRefs.get(item.form_id) || event.currentTarget
+  const rect = btn.getBoundingClientRect()
+  // adjust left so menu aligns to right edge like dropdown-end
+  const menuWidth = 144 // approximate menu width (w-36 = 9rem = 144px)
+  dropdownPos.value.top = rect.bottom + window.scrollY
+  dropdownPos.value.left = rect.right + window.scrollX - menuWidth
+}
+
+function closeDropdown() {
+  openDropdownId.value = null
+}
+
+function onDocClick(e) {
+  // close when clicking outside
+  if (!e.target.closest('.menu')) closeDropdown()
+}
+
+function onEsc(e) {
+  if (e.key === 'Escape') closeDropdown()
+}
+
+onMounted(() => {
+  document.addEventListener('click', onDocClick)
+  document.addEventListener('keydown', onEsc)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocClick)
+  document.removeEventListener('keydown', onEsc)
+})
 
 onMounted(() => {
   console.log("TracerFormsAdmin mounted, fetching forms...");
