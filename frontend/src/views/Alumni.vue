@@ -148,8 +148,8 @@
             <table class="table w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="text-[#081F37] font-bold">Name</th>
                   <th class="text-[#081F37] font-bold">Student ID</th>
+                  <th class="text-[#081F37] font-bold">Name</th>
                   <th class="text-[#081F37] font-bold">Program</th>
                   <th class="text-[#081F37] font-bold">Year Graduated</th>
                   <th class="text-[#081F37] font-bold">Phone</th>
@@ -176,11 +176,11 @@
                 </tr>
                 <tr v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
                     class="hover:bg-gradient-to-r hover:from-[#5FC9F3]/10 hover:to-[#2E79BA]/10 transition-all duration-300">
+                  <td class="text-[#2E79BA]">{{ alumni.student_id }}</td>
                   <td class="font-semibold text-[#081F37]">
                     {{ alumni.first_name }} {{ alumni.last_name }}
                     <span v-if="alumni.middle_name" class="font-normal text-gray-600">{{ alumni.middle_name }}</span>
                   </td>
-                  <td class="text-[#2E79BA]">{{ alumni.student_id }}</td>
                   <td class="text-[#1E549F]">{{ alumni.program_name || getProgramName(alumni.program_id) }}</td>
                   <td>
                     <div class="badge bg-[#5FC9F3] text-white border-none">{{ alumni.year_graduated }}</div>

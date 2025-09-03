@@ -126,7 +126,7 @@ const allMenuItems = [
   {
     path: "/tracer_forms_admin",
     label: "Tracing",
-    icon: "IconFileText",
+    icon: "IconRadar",
     roles: ["admin"] // Admin and staff only
   },
     {
@@ -140,6 +140,12 @@ const allMenuItems = [
     label: "Reports",
     icon: "IconBarChart3",
     roles: ["admin", "staff"] // Admin and staff only
+  },
+  {
+    path: "/manageprograms",
+    label: "Manage Programs",
+    icon: "IconSquareLibrary",
+    roles: ["admin"]
   },
   {
     path: "/alumni_document_requests",
@@ -159,6 +165,7 @@ const allMenuItems = [
     icon: "IconUserCog",
     roles: ["admin"] // Admin only
   },
+
   {
     path: "/settings",
     label: "Settings",

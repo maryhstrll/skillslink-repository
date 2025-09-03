@@ -8,6 +8,7 @@ import AlumniProfile from "@/views/AlumniProfile.vue";
 import AdminSettings from "@/views/AdminSettings.vue";
 import AlumniSettings from "@/views/AlumniSettings.vue";
 import Users from "@/views/Users.vue";
+import ManagePrograms from "@/views/ManagePrograms.vue";
 import ApiTest from "@/views/ApiTest.vue";
 
 // Helper function to get user role
@@ -82,7 +83,12 @@ const routes = [
     component: Reports,
     meta: { requiresAuth: true, roles: ["admin", "staff"] },
   },
-    {
+  {
+    path: "/manageprograms",
+    component: ManagePrograms,
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
     path: "/alumni_profile",
     component: AlumniProfile,
     meta: { requiresAuth: true, roles: ["alumni"] },
