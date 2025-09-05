@@ -83,7 +83,7 @@ try {
             'label' => 'Current Employment Status',
             'type' => 'radio',
             'required' => true,
-            'options' => ['Employed', 'Unemployed', 'Further Studies', 'Not Looking'],
+            'options' => ['Employed', 'Unemployed', 'Further Studies'],
             'maps_to' => 'employment_status'
         ],
         [

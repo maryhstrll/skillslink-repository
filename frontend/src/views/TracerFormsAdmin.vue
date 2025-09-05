@@ -43,7 +43,6 @@
           v-if="!state.editing"
           :forms="state.forms"
           :loading-forms="loadingForms"
-          :response-counts="state.responseCounts"
           :open-dropdown-id="openDropdownId"
           :dropdown-pos="dropdownPos"
           @view-form="viewForm"
@@ -131,7 +130,6 @@ const state = reactive({
   editing: false,
   isNew: true,
   preview: false,
-  responseCounts: {},
   viewFormData: {}
 });
 
@@ -472,26 +470,6 @@ const togglePreview = () => {
 // =============================================================================
 
 // API calls
-const fetchResponseCounts = async () => {
-  try {
-    const counts = {};
-    for (const form of state.forms) {
-      try {
-        const res = await axios.get(
-          `/admin/tracer_forms.php?action=count&form_id=${form.form_id}`
-        );
-        counts[form.form_id] = res.data.count || 0;
-      } catch (err) {
-        console.error(`Error fetching count for form ${form.form_id}:`, err);
-        counts[form.form_id] = 0;
-      }
-    }
-    state.responseCounts = counts;
-  } catch (err) {
-    console.error("Error fetching response counts:", err);
-  }
-};
-
 const fetchForms = async () => {
   try {
     loadingForms.value = true;
@@ -504,9 +482,6 @@ const fetchForms = async () => {
       // Filter out empty/invalid forms
       state.forms = data.filter((f) => f && f.form_id && f.form_title);
       console.log("Filtered forms:", state.forms);
-
-      // Fetch response counts after loading forms
-      await fetchResponseCounts();
     } else {
       console.error("Expected array but got:", data);
       state.forms = [];

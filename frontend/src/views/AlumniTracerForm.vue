@@ -16,7 +16,7 @@
         </div>
 
         <!-- Already Responded Message -->
-        <div v-if="alreadyResponded && !editMode" class="space-y-4 mb-6">
+        <div v-if="alreadyResponded" class="space-y-4 mb-6">
           <div class="alert alert-success">
             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -31,18 +31,11 @@
             >
               {{ showExistingResponses ? 'Hide' : 'View' }} My Responses
             </button>
-            
-            <button 
-              @click="enableEditing"
-              class="btn btn-primary"
-            >
-              Edit My Responses
-            </button>
           </div>
         </div>
 
         <!-- Show existing responses (view mode) -->
-        <div v-if="showExistingResponses && !editMode" class="space-y-6 mb-6">
+        <div v-if="showExistingResponses" class="space-y-6 mb-6">
           <!-- Employment Data -->
           <div class="card bg-base-100 shadow-md">
             <div class="card-body">
@@ -72,8 +65,8 @@
           </div>
         </div>
 
-        <!-- Form to fill out or edit -->
-        <div v-if="!alreadyResponded || editMode">
+        <!-- Form to fill out -->
+        <div v-if="!alreadyResponded">
           <form @submit.prevent="submitForm" class="space-y-6">
             <!-- Core Employment Section -->
             <div class="card bg-base-100 shadow-md">
@@ -92,7 +85,7 @@
                     <label class="label">
                       <span class="label-text font-medium">
                         {{ question.label }}
-                        <span v-if="question.required" class="text-red-500">*</span>
+                        <span class="text-red-500">*</span>
                       </span>
                     </label>
 
@@ -161,7 +154,10 @@
                 <div class="space-y-6">
                   <div v-for="question in additionalQuestions" :key="question.id" class="form-control">
                     <label class="label">
-                      <span class="label-text font-medium">{{ question.label }}</span>
+                      <span class="label-text font-medium">
+                        {{ question.label }}
+                        <span v-if="question.required" class="text-red-500">*</span>
+                      </span>
                     </label>
 
                     <input v-if="question.type === 'text'"
@@ -222,12 +218,9 @@
 
             <!-- Submit Buttons -->
             <div class="flex justify-end gap-4">
-              <button v-if="editMode" type="button" @click="cancelEditing" class="btn btn-outline">
-                Cancel Editing
-              </button>
               <button type="submit" class="btn btn-primary btn-lg" :disabled="!isFormValid() || submitting">
                 <span v-if="submitting" class="loading loading-spinner loading-sm"></span>
-                {{ submitting ? 'Submitting...' : (editMode ? 'Update Employment Tracer' : 'Submit Employment Tracer') }}
+                {{ submitting ? 'Submitting...' : 'Submit Employment Tracer' }}
               </button>
             </div>
           </form>
@@ -256,7 +249,6 @@ const additionalQuestions = ref([]);
 const alreadyResponded = ref(false);
 const alreadyMessage = ref("");
 const showExistingResponses = ref(false);
-const editMode = ref(false);
 
 // Separate data objects
 const employmentData = reactive({
@@ -291,8 +283,27 @@ const shouldShowQuestion = (question) => {
 };
 
 const isFormValid = () => {
-  // Check required core questions
-  return employmentData.employment_status !== '';
+  // Check all enabled core employment questions are filled
+  for (const question of coreQuestions.value) {
+    if (shouldShowQuestion(question)) {
+      const value = employmentData[question.maps_to];
+      if (!value || value === '') {
+        return false;
+      }
+    }
+  }
+  
+  // Check required additional questions
+  for (const question of additionalQuestions.value) {
+    if (question.required) {
+      const value = additionalData[question.id];
+      if (!value || (Array.isArray(value) && value.length === 0) || value === '') {
+        return false;
+      }
+    }
+  }
+  
+  return true;
 };
 
 const formatValue = (value) => {
@@ -341,42 +352,6 @@ const loadForm = async () => {
   }
 };
 
-const enableEditing = () => {
-  editMode.value = true;
-  
-  // Populate form data with existing data
-  Object.assign(employmentData, existingEmploymentData.value);
-  Object.assign(additionalData, existingAdditionalData.value);
-  
-  // Ensure checkbox answers are arrays
-  if (Array.isArray(additionalQuestions.value)) {
-    additionalQuestions.value.forEach(q => {
-      if (q.type === 'checkbox' && !Array.isArray(additionalData[q.id])) {
-        additionalData[q.id] = additionalData[q.id] ? [additionalData[q.id]] : [];
-      }
-    });
-  }
-};
-
-const cancelEditing = () => {
-  editMode.value = false;
-  
-  // Reset form data
-  Object.keys(employmentData).forEach(key => {
-    employmentData[key] = '';
-  });
-  Object.keys(additionalData).forEach(key => {
-    delete additionalData[key];
-  });
-  
-  // Reinitialize additional data
-  if (Array.isArray(additionalQuestions.value)) {
-    additionalQuestions.value.forEach(q => {
-      additionalData[q.id] = q.type === 'checkbox' ? [] : '';
-    });
-  }
-};
-
 const handleCheckboxChange = (questionId, option, event) => {
   if (!additionalData[questionId]) {
     additionalData[questionId] = [];
@@ -396,7 +371,7 @@ const handleCheckboxChange = (questionId, option, event) => {
 
 const submitForm = async () => {
   if (!isFormValid()) {
-    alert("Please fill in all required fields");
+    alert("Please fill in all required employment information fields");
     return;
   }
   
@@ -413,15 +388,13 @@ const submitForm = async () => {
     const response = await axios.post("/alumni/submit_employment_tracer.php", payload);
     
     if (response.data.success) {
-      const message = editMode.value ? "Employment tracer updated successfully!" : "Employment tracer submitted successfully!";
-      alert(message);
+      alert("Employment tracer submitted successfully!");
       
       // Update state after successful submission
       alreadyResponded.value = true;
       alreadyMessage.value = `You have successfully submitted your employment tracer form for ${form_year.value}.`;
       existingEmploymentData.value = { ...employmentData };
       existingAdditionalData.value = { ...additionalData };
-      editMode.value = false;
       showExistingResponses.value = false;
     } else {
       alert(response.data.message || "Failed to submit employment tracer");

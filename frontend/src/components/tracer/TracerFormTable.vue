@@ -21,7 +21,6 @@
               <th class="min-w-[200px]">Form Title</th>
               <th class="w-24">Status</th>
               <th class="w-32">Questions</th>
-              <th class="w-24">Responses</th>
               <th class="w-20">Actions</th>
             </tr>
           </thead>
@@ -70,21 +69,6 @@
                   <div class="text-xs opacity-60">
                     + {{ getEmploymentQuestionsCount(item) }} employment
                   </div>
-                </div>
-              </td>
-              <td>
-                <div class="flex items-center gap-2">
-                  <IconBarChart3 :size="14" />
-                  <span class="badge badge-info badge-sm">
-                    {{ responseCounts[item.form_id] || 0 }}
-                  </span>
-                  <button
-                    v-if="responseCounts[item.form_id] > 0"
-                    @click="$emit('viewResponses', item)"
-                    class="btn btn-xs btn-ghost text-blue-500 hover:bg-blue-500 hover:text-white"
-                  >
-                    View
-                  </button>
                 </div>
               </td>
               <td class="relative overflow-visible">
@@ -181,7 +165,8 @@ const props = defineProps({
   },
   responseCounts: {
     type: Object,
-    required: true
+    required: false,
+    default: () => ({})
   }
 })
 

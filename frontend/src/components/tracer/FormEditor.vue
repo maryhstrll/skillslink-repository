@@ -283,6 +283,16 @@
                           </span>
                         </div>
                       </div>
+
+                      <!-- Add required field toggle in the question builder -->
+                      <div class="flex items-center gap-2 mt-2">
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-primary checkbox-sm"
+                          v-model="q.required"
+                        />
+                        <label class="label-text text-sm">Required field</label>
+                      </div>
                     </div>
 
                     <div class="flex flex-col gap-1">
