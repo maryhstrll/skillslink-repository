@@ -74,6 +74,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ["admin"] },
   },
   {
+    path: "/form_responses",
+    name: "FormResponses",
+    component: () => import("@/views/FormResponsesView.vue"),
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
     path: "/alumni_tracer_form",
     component: AlumniTracerForm,
     meta: { requiresAuth: true, roles: ["alumni"] },

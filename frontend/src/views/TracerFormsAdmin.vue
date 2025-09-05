@@ -729,10 +729,11 @@ const activateForm = async (item) => {
 };
 
 const viewResponses = async (item) => {
-  // Use the FormResponses component method
-  if (formResponsesComponent.value) {
-    formResponsesComponent.value.viewResponses(item);
-  }
+  // Navigate to the Form Responses view with the form ID
+  router.push({
+    path: '/form_responses',
+    query: { form_id: item.form_id }
+  });
 };
 
 const viewForm = async (item) => {

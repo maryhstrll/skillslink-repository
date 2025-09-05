@@ -124,10 +124,22 @@ const allMenuItems = [
     roles: ["admin", "staff"] // Admin and staff only
   },
   {
-    path: "/tracer_forms_admin",
     label: "Tracing",
     icon: "IconRadar",
-    roles: ["admin"] // Admin and staff only
+    hasSubmenu: true,
+    roles: ["admin"], // Admin only
+    submenu: [
+      {
+        path: "/tracer_forms_admin",
+        label: "Manage Forms",
+        roles: ["admin"]
+      },
+      {
+        path: "/form_responses",
+        label: "Form Responses",
+        roles: ["admin"]
+      }
+    ]
   },
     {
     path: "/alumni_tracer_form",

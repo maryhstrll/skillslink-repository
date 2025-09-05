@@ -240,7 +240,125 @@ try {
         echo json_encode(['count' => (int)$unique_count]);
         exit;
     }
+    
+    // Get counts of responses for all forms
+    if ($action === 'counts') {
+        if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
+        
+        // Get counts per form from form_responses
+        $sql = "SELECT form_id, COUNT(DISTINCT alumni_id) as response_count 
+                FROM form_responses 
+                GROUP BY form_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $form_counts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        // Get counts per form from employment_records
+        $sql = "SELECT tracer_form_id as form_id, COUNT(DISTINCT alumni_id) as response_count 
+                FROM employment_records 
+                GROUP BY tracer_form_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $emp_counts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        // Merge both counts
+        $counts = [];
+        foreach ($form_counts as $form_id => $count) {
+            $counts[$form_id] = (int)$count;
+        }
+        
+        foreach ($emp_counts as $form_id => $count) {
+            if (isset($counts[$form_id])) {
+                // Get the union count of unique alumni
+                $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
+                            SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                            UNION
+                            SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                        ) AS combined_responses";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([':form_id' => $form_id]);
+                $counts[$form_id] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+            } else {
+                $counts[$form_id] = (int)$count;
+            }
+        }
+        
+        echo json_encode($counts);
+        exit;
+    }
+    
+    // Get statistics for a specific form
+    if ($action === 'stats' && isset($_GET['form_id'])) {
+        if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
+        $form_id = (int)$_GET['form_id'];
+        
+        // Get total alumni count
+        $sql = "SELECT COUNT(*) as total FROM users WHERE role = 'alumni'";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $alumni_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        
+        // Get total responses for this form (unique alumni)
+        $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
+                    SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                    UNION
+                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                ) AS combined_responses";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':form_id' => $form_id]);
+        $total_responses = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        // Get complete responses (both form and employment data)
+        $sql = "SELECT COUNT(DISTINCT fr.alumni_id) as complete_count
+                FROM form_responses fr
+                JOIN employment_records er ON fr.alumni_id = er.alumni_id AND fr.form_id = er.tracer_form_id
+                WHERE fr.form_id = :form_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':form_id' => $form_id]);
+        $complete_responses = $stmt->fetch(PDO::FETCH_ASSOC)['complete_count'];
+        
+        // Calculate incomplete responses
+        $incomplete_responses = $total_responses - $complete_responses;
+        
+        // Calculate response rate
+        $response_rate = $alumni_count > 0 ? ($total_responses / $alumni_count) * 100 : 0;
+        
+        $stats = [
+            'total_alumni' => (int) $alumni_count,
+            'total_responses' => (int) $total_responses,
+            'complete' => (int) $complete_responses,
+            'incomplete' => (int) $incomplete_responses,
+            'response_rate' => round($response_rate, 2)
+        ];
+        
+        echo json_encode($stats);
+        exit;
+    }
 
+    // Get count of responses for a form
+    if ($action === 'count' && isset($_GET['form_id'])) {
+        if ($role !== 'admin') { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
+        $form_id = (int)$_GET['form_id'];
+        
+        try {
+            // Get unique alumni respondents count
+            $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
+                        SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                        UNION
+                        SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                    ) AS combined_responses";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':form_id' => $form_id]);
+            $count = (int) $stmt->fetchColumn();
+            
+            echo json_encode(['success' => true, 'count' => $count]);
+        } catch (Exception $countEx) {
+            // If an error occurs, return a safe fallback value
+            echo json_encode(['success' => false, 'count' => 0, 'error' => 'Count error', 'debug' => $countEx->getMessage()]);
+        }
+        exit;
+    }
+    
     http_response_code(400);
     echo json_encode(['success'=>false,'message'=>'Invalid request']);
 } catch (Exception $e) {

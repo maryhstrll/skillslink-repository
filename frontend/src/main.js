@@ -7,9 +7,11 @@ import MessageContainer from './components/MessageContainer.vue'
 import { 
   Menu, Bell, Home, Users, FileText, BarChart3, UserCog, Settings, 
   Save, Shield, Mail, Send, Database, Download, Upload, PieChart, 
-  TrendingUp, Plus, Edit, Trash2, Eye, EyeOff, ChevronUp, User, 
+  TrendingUp, Plus, Edit, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, User, 
   LogOut, RefreshCw, Check, X, UserCheck, FileSpreadsheet, Zap, 
-  FileInput, EllipsisVertical, UserRound, SquareLibrary, Radar
+  FileInput, EllipsisVertical, UserRound, SquareLibrary, Radar,
+  ClipboardList, ClipboardCheck, Filter, CheckCircle, AlertCircle, Percent,
+  Calendar, FileCheck, Inbox
 } from 'lucide-vue-next'
 
 const app = createApp(App);
@@ -50,5 +52,15 @@ app.component('IconEllipsisV', EllipsisVertical);
 app.component('IconUserRound', UserRound);
 app.component('IconSquareLibrary', SquareLibrary);
 app.component('IconRadar', Radar);
+app.component('IconClipboardList', ClipboardList);
+app.component('IconClipboardCheck', ClipboardCheck);
+app.component('IconFilter', Filter);
+app.component('IconCheckCircle', CheckCircle);
+app.component('IconAlertCircle', AlertCircle);
+app.component('IconPercentCircle', Percent);
+app.component('IconChevronDown', ChevronDown);
+app.component('IconCalendar', Calendar);
+app.component('IconFileCheck', FileCheck);
+app.component('IconInbox', Inbox);
 app.use(router);
 app.mount('#app');
