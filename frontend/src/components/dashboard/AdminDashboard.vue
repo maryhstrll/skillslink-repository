@@ -11,11 +11,11 @@
         </p>
       </div>
       <div class="flex gap-2">
-        <button class="btn btn-outline" @click="refreshData">
+        <button class="btn-primary-custom btn" @click="refreshData">
           <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
           Refresh
         </button>
-        <button class="btn btn-secondary" @click="exportReport">
+        <button class="btn-secondary-custom btn" @click="exportReport">
           <IconDownload class="w-4 h-4" />
           Export Report
         </button>
@@ -35,53 +35,53 @@
         <h3 class="font-bold">Error Loading Reports</h3>
         <div class="text-sm">{{ error }}</div>
       </div>
-      <button class="btn btn-sm" @click="refreshData">Retry</button>
+      <button class="btn btn-sm btn-danger-custom" @click="refreshData">Retry</button>
     </div>
 
     <!-- Reports Content -->
     <div v-else class="space-y-6">
       <!-- Academic Excellence Summary -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat bg-base-100 shadow-xl rounded-lg">
-          <div class="stat-figure text-primary">
+        <div class="stat-card stat-card-primary">
+          <div class="stat-figure text-white">
             <IconUsers class="w-8 h-8" />
           </div>
-          <div class="stat-title">Programs Analyzed</div>
-          <div class="stat-value text-primary">{{ academicData?.employment_by_program?.programs?.length || 0 }}</div>
-          <div class="stat-desc">Active academic programs</div>
+          <div class="stat-title text-white/80">Programs Analyzed</div>
+          <div class="stat-value text-white">{{ academicData?.employment_by_program?.programs?.length || 0 }}</div>
+          <div class="stat-desc text-white/70">Active academic programs</div>
         </div>
         
-        <div class="stat bg-base-100 shadow-xl rounded-lg">
-          <div class="stat-figure text-success">
+        <div class="stat-card stat-card-accent">
+          <div class="stat-figure text-white">
             <IconUserCheck class="w-8 h-8" />
           </div>
-          <div class="stat-title">Best Employment Rate</div>
-          <div class="stat-value text-success">
+          <div class="stat-title text-white/80">Best Employment Rate</div>
+          <div class="stat-value text-white">
             {{ academicData?.employment_by_program?.employment_rates ? Math.max(...academicData.employment_by_program.employment_rates).toFixed(1) : 0 }}%
           </div>
-          <div class="stat-desc">Top performing program</div>
+          <div class="stat-desc text-white/70">Top performing program</div>
         </div>
         
-        <div class="stat bg-base-100 shadow-xl rounded-lg">
-          <div class="stat-figure text-info">
+        <div class="stat-card stat-card-ghost">
+          <div class="stat-figure">
             <IconBarChart3 class="w-8 h-8" />
           </div>
           <div class="stat-title">Job-Course Alignment</div>
-          <div class="stat-value text-info">{{ academicData?.job_alignment_rate?.overall_rate || 0 }}%</div>
+          <div class="stat-value">{{ academicData?.job_alignment_rate?.overall_rate || 0 }}%</div>
           <div class="stat-desc">Overall alignment rate</div>
         </div>
         
-        <div class="stat bg-base-100 shadow-xl rounded-lg">
-          <div class="stat-figure text-warning">
+        <div class="stat-card stat-card-secondary">
+          <div class="stat-figure text-white">
             <IconTrendingUp class="w-8 h-8" />
           </div>
-          <div class="stat-title">Avg. Time to Employment</div>
-          <div class="stat-value text-warning">
+          <div class="stat-title text-white/80">Avg. Time to Employment</div>
+          <div class="stat-value text-white">
             {{ academicData?.time_to_employment_by_program?.average_months && academicData.time_to_employment_by_program.average_months.length > 0 ? 
                 (academicData.time_to_employment_by_program.average_months.reduce((a, b) => a + b, 0) / 
                  academicData.time_to_employment_by_program.average_months.length).toFixed(1) : 0 }}
           </div>
-          <div class="stat-desc">months across programs</div>
+          <div class="stat-desc text-white/70">months across programs</div>
         </div>
       </div>
 

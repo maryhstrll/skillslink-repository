@@ -41,7 +41,7 @@
           <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
               <h2 class="card-title flex items-center">
-                <IconBarChart3 class="w-6 h-6 text-primary" />
+                <IconBarChart3 class="w-6 h-6" style="color: var(--color-primary);" />
                 Employment Dashboard
               </h2>
               <p class="text-base-content/70">
@@ -49,7 +49,7 @@
               </p>
               <div class="card-actions justify-end">
                 <button 
-                  class="btn btn-primary"
+                  class="btn-primary-custom btn"
                   @click="router.push('/admin_dashboard')"
                 >
                   View Dashboard
@@ -62,7 +62,7 @@
           <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
               <h2 class="card-title flex items-center">
-                <IconUsers class="w-6 h-6 text-success" />
+                <IconUsers class="w-6 h-6" style="color: var(--color-accent);" />
                 Alumni Reports
               </h2>
               <p class="text-base-content/70">
@@ -70,7 +70,7 @@
               </p>
               <div class="card-actions justify-end">
                 <button 
-                  class="btn btn-success"
+                  class="btn-accent-custom btn"
                   @click="router.push('/admin_alumni')"
                 >
                   View Reports
@@ -83,7 +83,7 @@
           <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
               <h2 class="card-title flex items-center">
-                <IconFileText class="w-6 h-6 text-info" />
+                <IconFileText class="w-6 h-6" style="color: var(--color-ghost);" />
                 Form Responses
               </h2>
               <p class="text-base-content/70">
@@ -91,7 +91,7 @@
               </p>
               <div class="card-actions justify-end">
                 <button 
-                  class="btn btn-info"
+                  class="btn-ghost-custom btn"
                   @click="router.push('/admin_form_responses')"
                 >
                   View Forms
@@ -104,7 +104,7 @@
           <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
               <h2 class="card-title flex items-center">
-                <IconFileText class="w-6 h-6 text-warning" />
+                <IconFileText class="w-6 h-6" style="color: var(--color-ghost);" />
                 Document Requests
               </h2>
               <p class="text-base-content/70">
@@ -112,7 +112,7 @@
               </p>
               <div class="card-actions justify-end">
                 <button 
-                  class="btn btn-warning"
+                  class="btn-ghost-custom btn"
                   @click="router.push('/admin_document_requests')"
                 >
                   Manage Requests
@@ -125,7 +125,7 @@
           <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
               <h2 class="card-title flex items-center">
-                <IconUserCheck class="w-6 h-6 text-secondary" />
+                <IconUserCheck class="w-6 h-6" style="color: var(--color-secondary);" />
                 User Approvals
               </h2>
               <p class="text-base-content/70">
@@ -133,7 +133,7 @@
               </p>
               <div class="card-actions justify-end">
                 <button 
-                  class="btn btn-secondary"
+                  class="btn-secondary-custom btn"
                   @click="router.push('/admin_user_approvals')"
                 >
                   Review Approvals
@@ -197,7 +197,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import Layout from '@/components/Layout.vue'
+import Layout from '@/components/layout/Layout.vue'
 import { useRouter } from 'vue-router'
 // Icons are globally registered in main.js - no need to import
 

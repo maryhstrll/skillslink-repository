@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-base-200">
+  <div class="min-h-screen" style="background: var(--color-bg);">
     <!-- Drawer -->
     <div class="drawer lg:drawer-open">
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
@@ -7,23 +7,22 @@
       <!-- Main Content -->
       <div class="drawer-content flex flex-col">
         <!-- Navbar - now inside main content area -->
-        <nav class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+        <nav class="navbar shadow-m sticky top-0 z-50 p-3 navbar-custom">
           <div class="flex-none lg:hidden">
-            <label for="my-drawer" class="btn btn-square btn-ghost">
+            <label for="my-drawer" class="btn btn-square btn-ghost border-0 text-white hover:bg-white/10">
               <IconMenu class="text-lg" />
             </label>
           </div>
-          <div class="flex-1">
-            <button class="btn btn-circle">
+          <div class="flex-1 flex items-center">
               <img
-                src="../assets/logo1.png"
+                src="../../assets/logo1.png"
                 alt="Logo 1"
-                class="w-[3em] h-[3em] object-contain"
+                class="w-[3.2em] h-[3.2em] object-contain mr-2"
               />
-            </button>
             <router-link
               to="/dashboard"
-              class="btn btn-ghost text-xl font-bold text-primary"
+              class="btn btn-ghost border-0 text-[25px] font-bold p-2 text-white hover:bg-white/10"
+              style="color: white;"
             >
               SSVTC - SkillsLink
             </router-link>
@@ -35,7 +34,7 @@
         </nav>
         
         <!-- Page content -->
-        <main class="flex-1 p-4 lg:p-6">
+        <main class="flex-1 p-4 lg:p-6" style="color: var(--color-text-primary);">
           <slot />
         </main>
       </div>
@@ -44,6 +43,7 @@
       <Sidebar
         :menu-items="menuItems"
         :user-name="displayUserName"
+        :user-role="currentUser?.role || 'alumni'"
         @profile="handleProfile"
         @logout="handleLogout"
       />
@@ -53,7 +53,7 @@
 
 <script setup>
 import Sidebar from "./Sidebar.vue";
-import NotificationBell from "./NotificationBell.vue";
+import NotificationBell from "../ui/NotificationBell.vue";
 import authService from "@/services/auth.js";
 import { messageService } from "@/services/messageService.js";
 import { useRouter } from "vue-router";
@@ -182,7 +182,7 @@ const allMenuItems = [
     path: "/settings",
     label: "Settings",
     icon: "IconSettings",
-    roles: ["admin", "alumni", "staff"] // Available to all roles
+    roles: ["alumni", "staff"] // Available to alumni and staff only (not admin)
   },
 ];
 

@@ -25,8 +25,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import Layout from '@/components/Layout.vue'
-import ThemeToggle from '@/components/ThemeToggle.vue'
+import Layout from '@/components/layout/Layout.vue'
+import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

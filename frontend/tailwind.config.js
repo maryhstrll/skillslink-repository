@@ -8,19 +8,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        navy: 'rgb(var(--color-navy-rgb) / <alpha-value>)',
-        'light-blue': 'rgb(var(--color-light-blue-rgb) / <alpha-value>)',
-        'medium-blue': 'rgb(var(--color-medium-blue-rgb) / <alpha-value>)',
-        'dark-blue': 'rgb(var(--color-dark-blue-rgb) / <alpha-value>)',
+        // New color system
+        'brand-primary': 'rgb(var(--color-primary-rgb) / <alpha-value>)',
+        'brand-secondary': 'rgb(var(--color-secondary-rgb) / <alpha-value>)',
+        'brand-ghost': 'rgb(var(--color-ghost-rgb) / <alpha-value>)',
+        'brand-accent': 'rgb(var(--color-accent-rgb) / <alpha-value>)',
+        'brand-danger': 'rgb(var(--color-danger-rgb) / <alpha-value>)',
+        'brand-neutral': 'rgb(var(--color-neutral-rgb) / <alpha-value>)',
+        'brand-surface': 'rgb(var(--color-surface-rgb) / <alpha-value>)',
+
+        // Legacy support (keeping old colors temporarily)
+        navy: 'var(--color-primary)',
+        'light-blue': 'var(--color-ghost)',
+        'medium-blue': 'var(--color-primary)',
+        'dark-blue': 'var(--color-primary-dark)',
 
         // Semantic shortcuts
         bg: 'var(--color-bg)',
-        surface: 'var(--color-surface)',
+        surface: 'var(--color-surface-main)',
         'surface-alt': 'var(--color-surface-alt)',
         border: 'var(--color-border)',
-        text: 'var(--color-text)',
+        text: 'var(--color-text-primary)',
         'text-invert': 'var(--color-text-invert)',
-        accent: 'rgb(var(--color-accent-rgb) / <alpha-value>)'
+        accent: 'var(--color-accent)'
       }
     }
   },
@@ -28,23 +38,20 @@ export default {
     themes: [
       {
         skillslink: {
-          primary: 'var(--color-medium-blue)',
-            'primary-focus': 'var(--color-dark-blue)',
-            secondary: 'var(--color-light-blue)',
-            accent: 'var(--color-accent)',
-            neutral: 'var(--color-navy)',
-            'base-100': 'var(--color-surface)',
-            info: 'var(--color-light-blue)',
-            success: '#16a34a',
-            warning: '#f59e0b',
-            error: '#dc2626'
+          primary: 'var(--color-primary)',
+          'primary-focus': 'var(--color-primary-dark)',
+          secondary: 'var(--color-secondary)',
+          accent: 'var(--color-accent)',
+          neutral: 'var(--color-neutral)',
+          'base-100': 'var(--color-surface-main)',
+          info: 'var(--color-ghost)',
+          success: 'var(--color-accent)',
+          warning: 'var(--color-ghost)',
+          error: 'var(--color-danger)'
         }
       },
       'light'
     ]
-  }
+  },
+  plugins: [require('daisyui')]
 };
-
-// Examples:
-// <div class="bg-navy/20 text-navy dark:bg-bg">...</div>
-// <button class="btn btn-primary">Primary</button>

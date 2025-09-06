@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './css/app.css'
-import MessageContainer from './components/MessageContainer.vue'
+import MessageContainer from './components/ui/MessageContainer.vue'
 // Import Lucide icons
 import { 
   Menu, Bell, Home, Users, FileText, BarChart3, UserCog, Settings, 

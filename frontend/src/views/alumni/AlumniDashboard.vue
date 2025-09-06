@@ -7,6 +7,6 @@
 </template>
 
 <script setup>
-import Layout from '@/components/Layout.vue'
-import AlumniDashboardComponent from '@/components/AlumniDashboard.vue'
+import Layout from '@/components/layout/Layout.vue'
+import AlumniDashboardComponent from '@/components/dashboard/AlumniDashboard.vue'
 </script>

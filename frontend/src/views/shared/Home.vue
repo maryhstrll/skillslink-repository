@@ -15,10 +15,10 @@
       <div class="text-center text-white p-15 bg-[#2E79BA]/30 backdrop-blur-none">
         <div class="flex justify-center items-center space-x-15 mb-6">
           <a href="https://ssvtctesda.com/" target="_blank">
-            <img src="../assets/logo1.png" alt="Logo 1" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
+            <img src="../../assets/logo1.png" alt="Logo 1" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
           </a>
           <a href="https://www.tesda.gov.ph/" target="_blank">
-            <img src="../assets/logo2.png" alt="Logo 2" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
+            <img src="../../assets/logo2.png" alt="Logo 2" class="h-40 w-auto transition-transform duration-400 hover:scale-105 hover:brightness-110">
           </a>
         </div>
         <h1 class="text-6xl font-bold mb-4">Welcome to SkillsLink</h1>
@@ -73,8 +73,8 @@
 <script>
 import authService from '@/services/auth.js';
 import backgroundImage from '@/assets/background.jpg';
-import LoginModal from '@/components/LoginModal.vue';
-import RegisterModal from '@/components/RegisterModal.vue';
+import LoginModal from '@/components/modals/LoginModal.vue';
+import RegisterModal from '@/components/modals/RegisterModal.vue';
 
 export default {
   name: 'Home',

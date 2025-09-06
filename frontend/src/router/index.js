@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Home.vue";
-import Alumni from "@/views/Alumni.vue";
-import TracerFormsAdmin from "@/views/TracerFormsAdmin.vue";
-import AlumniTracerForm from "@/views/AlumniTracerForm.vue";
-import Reports from "@/views/Reports.vue";
-import AlumniProfile from "@/views/AlumniProfile.vue";
-import AdminSettings from "@/views/AdminSettings.vue";
-import AlumniSettings from "@/views/AlumniSettings.vue";
-import Users from "@/views/Users.vue";
-import ManagePrograms from "@/views/ManagePrograms.vue";
-import ApiTest from "@/views/ApiTest.vue";
+import Home from "../views/shared/Home.vue";
+import Alumni from "@/views/admin/Alumni.vue";
+import TracerFormsAdmin from "@/views/admin/TracerFormsAdmin.vue";
+import AlumniTracerForm from "@/views/alumni/AlumniTracerForm.vue";
+import Reports from "@/views/shared/Reports.vue";
+import AlumniProfile from "@/views/alumni/AlumniProfile.vue";
+import AdminSettings from "@/views/admin/AdminSettings.vue";
+import AlumniSettings from "@/views/alumni/AlumniSettings.vue";
+import Users from "@/views/admin/Users.vue";
+import ManagePrograms from "@/views/admin/ManagePrograms.vue";
+import ApiTest from "@/views/shared/ApiTest.vue";
 
 // Helper function to get user role
 const getUserRole = () => {
@@ -48,19 +48,19 @@ const routes = [
   {
     path: "/admin/dashboard",
     name: "AdminDashboard",
-    component: () => import("@/views/AdminDashboard.vue"),
+    component: () => import("@/views/admin/AdminDashboard.vue"),
     meta: { requiresAuth: true, roles: ["admin"] },
   },
   {
     path: "/alumni/dashboard", 
     name: "AlumniDashboard",
-    component: () => import("@/views/AlumniDashboard.vue"),
+    component: () => import("@/views/alumni/AlumniDashboard.vue"),
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
     path: "/staff/dashboard",
     name: "StaffDashboard", 
-    component: () => import("@/views/StaffDashboard.vue"),
+    component: () => import("@/views/staff/StaffDashboard.vue"),
     meta: { requiresAuth: true, roles: ["staff"] },
   },
   {
@@ -76,7 +76,7 @@ const routes = [
   {
     path: "/form_responses",
     name: "FormResponses",
-    component: () => import("@/views/FormResponsesView.vue"),
+    component: () => import("@/views/admin/FormResponsesView.vue"),
     meta: { requiresAuth: true, roles: ["admin"] },
   },
   {
@@ -102,7 +102,7 @@ const routes = [
   {
     path: "/alumni/notifications",
     name: "AlumniNotifications",
-    component: () => import("@/views/AlumniNotifications.vue"),
+    component: () => import("@/views/alumni/AlumniNotifications.vue"),
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
@@ -136,13 +136,13 @@ const routes = [
   {
     path: "/alumni_document_requests",
     name: "AlumniDocumentRequests",
-    component: () => import("@/views/AlumniDocumentRequests.vue"),
+    component: () => import("@/views/alumni/AlumniDocumentRequests.vue"),
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
     path: "/admin_document_requests", 
     name: "AdminDocumentRequests",
-    component: () => import("@/views/AdminDocumentRequests.vue"),
+    component: () => import("@/views/admin/AdminDocumentRequests.vue"),
     meta: { requiresAuth: true, roles: ["admin", "staff"] },
   },
   // Redirect any unknown routes to home

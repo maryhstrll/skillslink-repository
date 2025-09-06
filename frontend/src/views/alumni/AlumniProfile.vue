@@ -178,9 +178,9 @@
 </template>
 
 <script setup>
-import Layout from "@/components/Layout.vue";
-import AlumniProfileEdit from "@/components/AlumniProfileEdit.vue";
-import SocialLinksEdit from "@/components/SocialLinksEdit.vue";
+import Layout from "@/components/layout/Layout.vue";
+import AlumniProfileEdit from "@/components/forms/AlumniProfileEdit.vue";
+import SocialLinksEdit from "@/components/forms/SocialLinksEdit.vue";
 import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import alumniService from "@/services/alumni.js";

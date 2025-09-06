@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Welcome Section -->
-    <div class="hero bg-primary text-primary-content rounded-lg">
+    <div class="hero rounded-lg" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: white;">
       <div class="hero-content text-center">
         <div class="max-w-md">
           <h1 class="mb-5 text-3xl font-bold">
@@ -17,26 +17,27 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
       <!-- Tracer Form Status -->
-      <div class="stat bg-base-100 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow duration-300" 
-            @click="navigateToTracerForm">
-        <div class="stat-figure" :class="tracerSubmitted ? 'text-success' : tracerStatus === 'Error' ? 'text-error' : 'text-primary'">
+      <div class="stat-card cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1" 
+           :class="tracerSubmitted ? 'stat-card-accent' : tracerStatus === 'Error' ? 'stat-card-danger' : 'stat-card-primary'"
+           @click="navigateToTracerForm">
+        <div class="stat-figure" :class="tracerSubmitted || tracerStatus === 'Error' ? 'text-white' : 'text-white'">
           <i class="text-3xl fas" :class="tracerSubmitted ? 'fa-check-circle' : tracerStatus === 'Error' ? 'fa-exclamation-triangle' : 'fa-file-alt'"></i>
         </div>
-        <div class="stat-title">Tracer Form</div>
-        <div class="stat-value" :class="tracerSubmitted ? 'text-success' : tracerStatus === 'Error' ? 'text-error' : 'text-primary'">
+        <div class="stat-title" :class="tracerSubmitted || tracerStatus === 'Error' ? 'text-white/80' : 'text-white/80'">Tracer Form</div>
+        <div class="stat-value" :class="tracerSubmitted || tracerStatus === 'Error' ? 'text-white' : 'text-white'">
           {{ tracerStatus }}
         </div>
-        <div class="stat-desc">{{ tracerDesc }}</div>
+        <div class="stat-desc" :class="tracerSubmitted || tracerStatus === 'Error' ? 'text-white/70' : 'text-white/70'">{{ tracerDesc }}</div>
       </div>
 
       <!-- Profile Completion -->
-      <div class="stat bg-base-100 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow duration-300" 
+      <div class="stat-card stat-card-ghost cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1" 
            @click="navigateToProfile">
-        <div class="stat-figure text-secondary">
+        <div class="stat-figure">
           <i class="fas fa-user-check text-3xl"></i>
         </div>
         <div class="stat-title">Profile Completion</div>
-        <div class="stat-value text-secondary">
+        <div class="stat-value">
           {{ loading ? '...' : profileCompletion }}%
         </div>
         <div class="stat-desc">
@@ -83,7 +84,7 @@
           </div>
         </div>
         <div class="card-actions justify-end" v-if="notifications.length > 3">
-          <router-link to="/alumni/notifications" class="btn btn-sm btn-primary">View All</router-link>
+          <router-link to="/alumni/notifications" class="btn-primary-custom btn btn-sm">View All</router-link>
         </div>
       </div>
     </div>
@@ -136,7 +137,7 @@
         </p>
         <div class="card-actions justify-end">
           <button 
-            class="btn btn-primary"
+            class="btn-accent-custom btn"
             @click="router.push('/alumni_document_requests')"
           >
             <i class="fas fa-plus mr-2"></i>

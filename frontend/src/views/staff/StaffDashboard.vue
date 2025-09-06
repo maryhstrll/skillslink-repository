@@ -14,6 +14,6 @@
 </template>
 
 <script setup>
-import Layout from '@/components/Layout.vue'
-import StaffDashboardComponent from '@/components/StaffDashboard.vue'
+import Layout from '@/components/layout/Layout.vue'
+import StaffDashboardComponent from '@/components/dashboard/StaffDashboard.vue'
 </script>

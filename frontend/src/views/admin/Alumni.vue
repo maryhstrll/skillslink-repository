@@ -405,8 +405,8 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import Layout from '@/components/Layout.vue'
-import AdminAlumniProfileModal from '@/components/AdminAlumniProfileModal.vue'
+import Layout from '@/components/layout/Layout.vue'
+import AdminAlumniProfileModal from '@/components/modals/AdminAlumniProfileModal.vue'
 import { useRouter } from 'vue-router'
 import alumniService from '@/services/alumni.js'
 import programsService from '@/services/programs.js'

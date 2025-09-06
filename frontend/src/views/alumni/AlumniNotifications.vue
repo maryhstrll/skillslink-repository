@@ -178,7 +178,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import Layout from '@/components/Layout.vue';
+import Layout from '@/components/layout/Layout.vue';
 import notificationService from '@/services/notificationService.js';
 import { messageService } from '@/services/messageService.js';
 

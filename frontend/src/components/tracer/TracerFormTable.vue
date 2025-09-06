@@ -1,93 +1,101 @@
 <template>
-  <div class="card app-surface shadow p-3 sm:p-4">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-      <h3 class="font-semibold text-lg flex items-center gap-2">
-        <IconFileText :size="20" />
+  <div class="card app-surface shadow-lg p-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+      <h3 class="font-semibold text-xl flex items-center gap-2" style="color: var(--color-text-primary);">
+        <IconFileText class="w-6 h-6" />
         Employment Tracer Forms
       </h3>
-      <div class="text-sm text-gray-500 flex items-center gap-2">
-        <IconBarChart3 :size="16" />
+      <div class="text-sm flex items-center gap-2" style="color: var(--color-text-secondary);">
+        <IconBarChart3 class="w-4 h-4" />
         Total: {{ forms.length }} forms
       </div>
     </div>
 
     <!-- Responsive Table with Horizontal Scroll -->
-    <div class="overflow-x-auto" style="overflow-y: visible;">
+    <div class="overflow-x-auto rounded-lg border app-border" style="overflow-y: visible;">
       <div style="position: relative; z-index: 1;">
-        <table class="table table-zebra w-full min-w-[800px]">
-          <thead>
+        <table class="table w-full min-w-[800px]">
+          <thead style="background: var(--color-neutral);">
             <tr>
-              <th class="w-20">Year</th>
-              <th class="min-w-[200px]">Form Title</th>
-              <th class="w-24">Status</th>
-              <th class="w-32">Questions</th>
-              <th class="w-20">Actions</th>
+              <th class="w-20 font-semibold" style="color: var(--color-text-primary);">Year</th>
+              <th class="min-w-[200px] font-semibold" style="color: var(--color-text-primary);">Form Title</th>
+              <th class="w-24 font-semibold" style="color: var(--color-text-primary);">Status</th>
+              <th class="w-32 font-semibold" style="color: var(--color-text-primary);">Questions</th>
+              <th class="w-20 font-semibold" style="color: var(--color-text-primary);">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in forms" :key="item.form_id" class="hover">
-              <td>
+            <tr v-for="item in forms" :key="item.form_id" class="hover:bg-base-200/50 transition-colors">
+              <td class="py-4">
                 <div class="flex items-center gap-2">
-                  <span class="font-semibold">{{ item.form_year }}</span>
+                  <span class="font-semibold" style="color: var(--color-text-primary);">{{ item.form_year }}</span>
                   <span
                     v-if="item.is_active"
-                    class="badge badge-primary badge-xs"
+                    class="badge badge-sm"
+                    style="background: var(--color-accent); color: white; border: none;"
                     >Active</span
                   >
                 </div>
               </td>
-              <td>
+              <td class="py-4">
                 <div class="flex flex-col">
-                  <span class="font-medium text-text">{{ item.form_title }}</span>
+                  <span class="font-medium" style="color: var(--color-text-primary);">{{ item.form_title }}</span>
                   <span
                     v-if="item.form_description"
-                    class="text-xs text-text-muted truncate max-w-xs"
+                    class="text-sm truncate max-w-xs mt-1"
+                    style="color: var(--color-text-secondary);"
                   >
                     {{ item.form_description }}
                   </span>
                 </div>
               </td>
-              <td>
+              <td class="py-4">
                 <span
                   v-if="item.is_active"
-                  class="badge badge-success gap-2"
+                  class="badge gap-2"
+                  style="background: var(--color-accent); color: white; border: none;"
                 >
-                  <IconCheck :size="12" />
+                  <IconCheck class="w-3 h-3" />
                   Active
                 </span>
-                <span v-else class="badge badge-ghost text-text">Inactive</span>
+                <span 
+                  v-else 
+                  class="badge badge-ghost"
+                  style="color: var(--color-text-secondary);"
+                >Inactive</span>
               </td>
-              <td>
-                <div class="flex flex-col text-sm">
-                  <div class="flex items-center gap-1 mb-1">
-                    <IconUsers :size="12" />
-                    <span class="badge badge-outline badge-xs">
+              <td class="py-4">
+                <div class="flex flex-col text-sm gap-1">
+                  <div class="flex items-center gap-2">
+                    <IconUsers class="w-3 h-3" style="color: var(--color-primary);" />
+                    <span class="badge badge-outline badge-sm" style="border-color: var(--color-primary); color: var(--color-primary);">
                       {{ getAdditionalQuestionsCount(item) }}
                     </span>
-                    <span class="text-xs opacity-60">custom</span>
+                    <span class="text-xs" style="color: var(--color-text-light);">custom</span>
                   </div>
-                  <div class="text-xs opacity-60">
+                  <div class="text-xs" style="color: var(--color-text-light);">
                     + {{ getEmploymentQuestionsCount(item) }} employment
                   </div>
                 </div>
               </td>
-              <td class="relative overflow-visible">
+              <td class="relative overflow-visible py-4">
                 <!-- replaced inline dropdown with teleport-based dropdown -->
                 <div
                   tabindex="0"
                   role="button"
-                  class="btn btn-ghost btn-sm btn-circle"
+                  class="btn btn-ghost btn-sm btn-circle hover:bg-base-200"
                   @click.stop="toggleDropdown(item, $event)"
                   :ref="el => setTriggerRef(item.form_id, el)"
                 >
-                  <IconEllipsisV :size="16" />
+                  <IconEllipsisV class="w-4 h-4" />
                 </div>
 
                 <!-- Teleport dropdown into body so it's not clipped by overflow parent -->
                 <teleport to="body">
                   <ul
                     v-if="openDropdownId === item.form_id"
-                    class="menu p-1 shadow-lg bg-base-100 rounded-box w-36 border border-base-300"
+                    class="menu p-2 shadow-lg rounded-box w-40 border"
+                    style="background: var(--color-surface); border-color: var(--color-border);"
                     :style="{
                       position: 'fixed',
                       top: dropdownPos.top + 'px',
@@ -97,33 +105,33 @@
                     @click.stop
                   >
                     <li>
-                      <a @click="$emit('viewForm', item)" class="flex items-center gap-2 text-xs py-1">
-                        <IconEye :size="14" /> Preview
+                      <a @click="$emit('viewForm', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-text-primary);">
+                        <IconEye class="w-4 h-4" /> Preview
                       </a>
                     </li>
                     <li>
-                      <a @click="$emit('loadForm', item)" class="flex items-center gap-2 text-xs py-1">
-                        <IconEdit :size="14" /> Edit
+                      <a @click="$emit('loadForm', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-text-primary);">
+                        <IconEdit class="w-4 h-4" /> Edit
                       </a>
                     </li>
                     <li>
-                      <a @click="$emit('viewResponses', item)" class="flex items-center gap-2 text-xs py-1">
-                        <IconBarChart3 :size="14" /> Responses
+                      <a @click="$emit('viewResponses', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-text-primary);">
+                        <IconBarChart3 class="w-4 h-4" /> Responses
                       </a>
                     </li>
                     <li>
-                      <a @click="$emit('duplicateForm', item)" class="flex items-center gap-2 text-xs py-1">
-                        <IconFileText :size="14" /> Duplicate
+                      <a @click="$emit('duplicateForm', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-text-primary);">
+                        <IconFileText class="w-4 h-4" /> Duplicate
                       </a>
                     </li>
                     <li v-if="!item.is_active">
-                      <a @click="$emit('activateForm', item)" class="flex items-center gap-2 text-success text-xs py-1">
-                        <IconCheck :size="14" /> Activate
+                      <a @click="$emit('activateForm', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-accent);">
+                        <IconCheck class="w-4 h-4" /> Activate
                       </a>
                     </li>
                     <li>
-                      <a @click="$emit('deleteForm', item)" class="flex items-center gap-2 text-error text-xs py-1">
-                        <IconTrash2 :size="14" /> Delete
+                      <a @click="$emit('deleteForm', item)" class="flex items-center gap-2 text-sm py-2" style="color: var(--color-danger);">
+                        <IconTrash2 class="w-4 h-4" /> Delete
                       </a>
                     </li>
                   </ul>
@@ -134,20 +142,20 @@
         </table>
       </div>
 
-      <div v-if="forms.length === 0" class="text-center py-12">
-        <IconFileText :size="48" class="mx-auto text-gray-400 mb-4" />
-        <div class="text-lg font-medium text-text mb-2">
+      <div v-if="forms.length === 0" class="text-center py-16">
+        <IconFileText class="w-16 h-16 mx-auto mb-4" style="color: var(--color-text-light);" />
+        <div class="text-xl font-medium mb-2" style="color: var(--color-text-primary);">
           No Employment Tracer Forms Yet
         </div>
-        <div class="text-sm text-text-muted mb-4">
+        <div class="text-sm mb-6 max-w-md mx-auto" style="color: var(--color-text-secondary);">
           Create your first employment tracer form to start collecting
           alumni employment data.
         </div>
         <button
-          class="btn app-primary text-white flex items-center gap-2 mx-auto"
+          class="btn btn-primary-custom flex items-center gap-2 mx-auto"
           @click="$emit('createForm')"
         >
-          <IconPlus :size="16" />
+          <IconPlus class="w-4 h-4" />
           Create Your First Employment Tracer
         </button>
       </div>
@@ -257,3 +265,49 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onEsc)
 })
 </script>
+
+<style scoped>
+/* Custom table styling */
+.table th {
+  background: var(--color-neutral);
+  border-bottom: 2px solid var(--color-border);
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+}
+
+.table td {
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 1rem 0.75rem;
+}
+
+.table tr:hover {
+  background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Enhance dropdown menu styling */
+.menu li > a:hover {
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+
+/* Badge styling improvements */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+/* Button hover effects */
+.btn-circle:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Card shadow enhancement */
+.card {
+  border: 1px solid var(--color-border-light);
+}
+</style>

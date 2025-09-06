@@ -18,7 +18,7 @@
 
 <script>
 import MessageComponent from './MessageComponent.vue';
-import { messageService } from '../services/messageService.js';
+import { messageService } from '../../services/messageService.js';
 
 export default {
   name: 'MessageContainer',

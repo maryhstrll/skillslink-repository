@@ -102,8 +102,8 @@
 
 import { ref, reactive, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRouter } from "vue-router";
-import Layout from "@/components/Layout.vue";
-import FormResponses from "@/components/FormResponses.vue";
+import Layout from "@/components/layout/Layout.vue";
+import FormResponses from "@/components/forms/FormResponses.vue";
 import axios from "axios";
 import { messageService } from "@/services/messageService.js";
 

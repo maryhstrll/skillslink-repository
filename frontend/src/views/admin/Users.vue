@@ -278,10 +278,10 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import Layout from '@/components/Layout.vue'
-import UserApprovalManager from '@/components/UserApprovalManager.vue'
-import UserStatistics from '@/components/UserStatistics.vue'
-import RecentActivity from '@/components/RecentActivity.vue'
+import Layout from '@/components/layout/Layout.vue'
+import UserApprovalManager from '@/components/forms/UserApprovalManager.vue'
+import UserStatistics from '@/components/dashboard/UserStatistics.vue'
+import RecentActivity from '@/components/dashboard/RecentActivity.vue'
 import { useRouter } from 'vue-router'
 import usersService from '@/services/users-test.js'
 import authService from '@/services/auth.js'

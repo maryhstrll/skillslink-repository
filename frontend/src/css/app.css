@@ -2,76 +2,87 @@
 @plugin "daisyui";
 
 /*
-  Color System Improvements
-  1. Raw brand colors (hex + rgb tokens for opacity utilities)
-  2. Semantic tokens (bg / surface / text / border / accent)
-  3. Light + dark theme (class-based + prefers-color-scheme fallback)
+  New Color System
+  Using new color palette:
+  - #3D74B6 - Primary (buttons, navbar, main actions)
+  - #F93827 - Secondary (alerts, warnings, secondary actions)
+  - #FF9D23 - Ghost (highlights, badges, info states)
+  - #16C47F - Accent (success, positive actions)
+  - #DC3C22 - Error/Danger states
+  - #EAC8A6 - Light/Neutral background
+  - #FBF5DE - Cream/Off-white surface
+
+  link:
+    https://colorhunt.co/palette/16c47fffd65aff9d23f93827
+    https://colorhunt.co/palette/3d74b6fbf5deeac8a6dc3c22
 */
 
 :root {
-  /* Brand (hex) */
-  --color-navy: #081F37;
-  --color-light-blue: #5FC9F3;
-  --color-medium-blue: #2E79BA;
-  --color-dark-blue: #1E549F;
+  /* Primary color palette */
+  --color-primary: #3770b5;      /* Primary - main actions, navbar */
+  --color-secondary: #F93827;     /* Secondary - alerts, warnings */
+  --color-ghost: #FF9D23;        /* Ghost - highlights, badges */
+  --color-accent: #16C47F;       /* Accent - success, positive */
+  --color-danger: #DC3C22;       /* Danger/Error states */
+  --color-neutral: #EAC8A6;      /* Light neutral background */
+  --color-surface: #FBF5DE;      /* Cream surface color */
+  
+  /* Color variants for better UX */
+  --color-primary-light: #5a8bc9;   /* Lighter primary */
+  --color-primary-dark: #2a5284;    /* Darker primary */
+  --color-secondary-light: #fa5d4a;  /* Lighter secondary */
+  --color-secondary-dark: #d12b1a;   /* Darker secondary */
+  --color-ghost-light: #ffb150;      /* Lighter ghost */
+  --color-ghost-dark: #e68a0f;       /* Darker ghost */
+  --color-accent-light: #3dd899;     /* Lighter accent */
+  --color-accent-dark: #0ea365;      /* Darker accent */
+  --color-danger-light: #e55c4a;     /* Lighter danger */
+  --color-danger-dark: #b22f1a;      /* Darker danger */
 
-  /* Brand (space-separated RGB for Tailwind alpha support: rgb(var(--color-navy-rgb) / <alpha-value>)) */
-  --color-navy-rgb: 8 31 55;
-  --color-light-blue-rgb: 95 201 243;
-  --color-medium-blue-rgb: 46 121 186;
-  --color-dark-blue-rgb: 30 84 159;
+  /* RGB versions for Tailwind alpha support */
+  --color-primary-rgb: 61 116 182;
+  --color-secondary-rgb: 249 56 39;
+  --color-ghost-rgb: 255 157 35;
+  --color-accent-rgb: 22 196 127;
+  --color-danger-rgb: 220 60 34;
+  --color-neutral-rgb: 234 200 166;
+  --color-surface-rgb: 251 245 222;
 
-  /* Semantic tokens (Light) */
-  --color-bg: var(--color-navy); /* page background or can be #f9fafb if pref */
-  --color-surface: #ffffff;
-  --color-surface-alt: #b5cce2;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-invert: #ffffff;
-  --color-accent: var(--color-medium-blue);
-  --color-accent-hover: var(--color-dark-blue);
-  --color-accent-rgb: var(--color-medium-blue-rgb);
-  --color-focus: var(--color-light-blue);
+  /* Text colors */
+  --color-text-primary: #2a2a2a;        /* Dark gray for primary text */
+  --color-text-secondary: #6b6b6b;      /* Medium gray for secondary text */
+  --color-text-light: #9a9a9a;          /* Light gray for muted text */
+  --color-text-invert: #ffffff;         /* White text on dark backgrounds */
+
+  /* Semantic tokens */
+  --color-bg: var(--color-surface);           /* Page background */
+  --color-surface-main: var(--color-surface); /* Main surface */
+  --color-surface-alt: var(--color-neutral);  /* Alternative surface */
+  --color-border: #d1d5db;                    /* Border color */
+  --color-border-light: #e5e7eb;              /* Light border */
+  --color-focus: var(--color-primary-light);  /* Focus rings */
+  
+  /* Button semantic colors */
+  --btn-primary: var(--color-primary);
+  --btn-primary-hover: var(--color-primary-dark);
+  --btn-secondary: var(--color-secondary);
+  --btn-secondary-hover: var(--color-secondary-dark);
+  --btn-ghost: var(--color-ghost);
+  --btn-ghost-hover: var(--color-ghost-dark);
+  --btn-accent: var(--color-accent);
+  --btn-accent-hover: var(--color-accent-dark);
+  --btn-danger: var(--color-danger);
+  --btn-danger-hover: var(--color-danger-dark);
 }
 
-/* Dark theme (activate with <html class="dark"> OR add .theme-dark to any wrapper) */
-html.dark, .theme-dark {
-  --color-bg: #0b1524;
-  --color-surface: #152132;
-  --color-surface-alt: #1d2b40;
-  --color-border: #2a3b52;
-  --color-text: #e2e8f0;
-  --color-text-invert: #0b1524;
-  --color-accent: var(--color-light-blue);
-  --color-accent-hover: var(--color-medium-blue);
-  --color-accent-rgb: var(--color-light-blue-rgb);
-  --color-focus: var(--color-medium-blue);
-}
-
-/* Optional automatic dark preference (removed if you prefer manual only) */
-@media (prefers-color-scheme: dark) {
-  :root:not(.force-light) {
-    --color-bg: #0b1524;
-    --color-surface: #152132;
-    --color-surface-alt: #1d2b40;
-    --color-border: #2a3b52;
-    --color-text: #e2e8f0;
-    --color-text-invert: #0b1524;
-    --color-accent: var(--color-light-blue);
-    --color-accent-hover: var(--color-medium-blue);
-    --color-accent-rgb: var(--color-light-blue-rgb);
-    --color-focus: var(--color-medium-blue);
-  }
-}
-
-/* Utility helpers (example) */
+/* Utility helpers */
 .app-surface {
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--color-surface-main);
+  color: var(--color-text-primary);
 }
 .app-surface-alt {
   background: var(--color-surface-alt);
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 .app-border {
   border-color: var(--color-border);
@@ -81,16 +92,134 @@ html.dark, .theme-dark {
   outline-offset: 2px;
 }
 
+/* Custom navbar styling */
+.navbar-custom {
+  background: var(--color-primary) !important;
+  color: var(--color-text-invert) !important;
+}
+
+/* Custom button styling */
+.btn-primary-custom {
+  background: var(--btn-primary);
+  color: var(--color-text-invert);
+  border-color: var(--btn-primary);
+  transition: all 0.2s ease;
+}
+.btn-primary-custom:hover {
+  background: var(--btn-primary-hover);
+  border-color: var(--btn-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-custom {
+  background: var(--btn-secondary);
+  color: var(--color-text-invert);
+  border-color: var(--btn-secondary);
+  transition: all 0.2s ease;
+}
+.btn-secondary-custom:hover {
+  background: var(--btn-secondary-hover);
+  border-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-ghost-custom {
+  background: var(--btn-ghost);
+  color: var(--color-text-primary);
+  border-color: var(--btn-ghost);
+  transition: all 0.2s ease;
+}
+.btn-ghost-custom:hover {
+  background: var(--btn-ghost-hover);
+  border-color: var(--btn-ghost-hover);
+  color: var(--color-text-invert);
+  transform: translateY(-1px);
+}
+
+.btn-accent-custom {
+  background: var(--btn-accent);
+  color: var(--color-text-invert);
+  border-color: var(--btn-accent);
+  transition: all 0.2s ease;
+}
+.btn-accent-custom:hover {
+  background: var(--btn-accent-hover);
+  border-color: var(--btn-accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-danger-custom {
+  background: var(--btn-danger);
+  color: var(--color-text-invert);
+  border-color: var(--btn-danger);
+  transition: all 0.2s ease;
+}
+.btn-danger-custom:hover {
+  background: var(--btn-danger-hover);
+  border-color: var(--btn-danger-hover);
+  transform: translateY(-1px);
+}
+
+/* Stat card styling */
+.stat-card {
+  background: var(--color-surface-main);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-invert);
+  border: none;
+}
+
+.stat-card-secondary {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+  color: var(--color-text-invert);
+  border: none;
+}
+
+.stat-card-ghost {
+  background: linear-gradient(135deg, var(--color-ghost), var(--color-ghost-light));
+  color: var(--color-text-primary);
+  border: none;
+}
+
+.stat-card-accent {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
+  color: var(--color-text-invert);
+  border: none;
+}
+
+.stat-card-danger {
+  background: linear-gradient(135deg, var(--color-danger), var(--color-danger-light));
+  color: var(--color-text-invert);
+  border: none;
+}
+
+.stat-card-neutral {
+  background: var(--color-neutral);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
 /* Scrollbar theming (WebKit) */
 *::-webkit-scrollbar { width: 10px; }
 *::-webkit-scrollbar-track { background: var(--color-surface-alt); }
-*::-webkit-scrollbar-thumb { background: rgb(var(--color-accent-rgb) / 0.6); border-radius: 6px; }
-*::-webkit-scrollbar-thumb:hover { background: rgb(var(--color-accent-rgb) / 0.8); }
+*::-webkit-scrollbar-thumb { background: rgb(var(--color-primary-rgb) / 0.6); border-radius: 6px; }
+*::-webkit-scrollbar-thumb:hover { background: rgb(var(--color-primary-rgb) / 0.8); }
 
-/* DaisyUI root-level adjustments (optional) */
+/* DaisyUI root-level adjustments */
 body {
   background: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
 

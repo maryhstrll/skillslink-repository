@@ -252,8 +252,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import FormResponses from '@/components/FormResponses.vue';
-import Layout from '@/components/Layout.vue';
+import FormResponses from '@/components/forms/FormResponses.vue';
+import Layout from '@/components/layout/Layout.vue';
 import { Cpu } from 'lucide-vue-next';
 
 // Configure axios

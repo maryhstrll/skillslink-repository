@@ -277,7 +277,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import Layout from '@/components/Layout.vue'
+import Layout from '@/components/layout/Layout.vue'
 import { useRouter } from 'vue-router'
 import documentRequestService from '@/services/documentRequest.js'
 import { messageService } from '@/services/messageService.js'

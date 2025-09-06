@@ -56,7 +56,7 @@
 
 <script setup>
 import { ref } from "vue";
-import Layout from "@/components/Layout.vue";
+import Layout from "@/components/layout/Layout.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

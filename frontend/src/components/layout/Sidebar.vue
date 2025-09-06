@@ -1,7 +1,10 @@
 <template>
   <div class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <aside class="flex flex-col h-screen w-70 bg-base-100 text-base-content">
+    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay z-30"></label>
+    <aside
+      class="fixed lg:relative left-0 z-40 lg:z-auto flex flex-col w-70 text-base-content mobile-sidebar"
+      aria-label="main sidebar"
+    >
       <!-- Menu Items -->
       <div class="flex-1 p-4">
         <ul class="space-y-2">
@@ -44,30 +47,34 @@
         </ul>
       </div>
       
-      <!-- Divider -->
-      <div class="divider mx-4"></div>
+      <!-- Divider (styled) -->
+      <div class="sidebar-divider"></div>
       
-      <!-- User Section -->
-      <div class="p-4">
+      <!-- User Section pinned to bottom -->
+      <div class="p-4 user-footer">
         <div class="dropdown dropdown-top dropdown-end w-full">
-          <div tabindex="0" role="button" class="btn btn-ghost w-full justify-start gap-3">
+          <div tabindex="0" role="button" class="btn btn-ghost w-full justify-start gap-3 px-2 py-2">
             <div class="avatar placeholder">
-              <div class="bg-neutral text-neutral-content rounded-full w-8">
-                <span class="text-xs">{{ userInitials }}</span>
+              <div class="bg-[color:var(--color-surface-alt)] text-[color:var(--color-text-primary)] rounded-full w-9 h-9 flex items-center justify-center">
+                <span class="text-sm font-medium">{{ userInitials }}</span>
               </div>
             </div>
-            <span class="flex-1 text-left">{{ userName }}</span>
+            <div class="flex-1 text-left">
+              <div class="text-sm font-semibold">{{ userName }}</div>
+              <div class="text-xs text-[color:var(--color-text-secondary)]">System Administrator</div>
+            </div>
             <IconChevronUp class="text-xs" />
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
             <li>
-              <router-link to="/alumni_profile"  >
-              <IconUser class="w-4 h-4" /> Profile                
+              <router-link to="/alumni_profile">
+                <IconUser class="w-4 h-4 mr-2" /> Profile
               </router-link>
             </li>
             <li>
               <a @click="$emit('logout')" class="text-error">
-                <IconLogOut class="w-4 h-4" /> Logout</a>
+                <IconLogOut class="w-4 h-4 mr-2" /> Logout
+              </a>
             </li>
           </ul>
         </div>
@@ -79,12 +86,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { 
-  ChevronUp as IconChevronUp, 
-  ChevronDown as IconChevronDown,
-  User as IconUser, 
-  LogOut as IconLogOut 
-} from 'lucide-vue-next'
 
 const props = defineProps({
   menuItems: {
@@ -136,5 +137,49 @@ const isActive = (path) => {
 <style scoped>
 ul {
   transition: all 0.3s ease;
+}
+
+/* apply the top offset only on small screens so desktop layout isn't affected */
+.mobile-sidebar {
+  background: var(--color-primary-dark);
+  top: 4rem;
+  height: calc(100vh - 3.5rem);
+  /* mobile uses fixed positioning (class already includes 'fixed') */
+}
+
+/* remove mobile rules on large screens (lg and up) */
+@media (min-width: 1024px) {
+  .mobile-sidebar {
+    top: auto;
+    height: auto;
+    background: var(--color-primary-dark); /* keep same bg on desktop */
+    /* position is controlled by utility classes (lg:relative), so no override needed */
+  }
+}
+
+/* nicer divider and footer spacing */
+.sidebar-divider {
+  height: 1px;
+  margin: 0.75rem 1rem;
+  background: rgba(255,255,255,0.06);
+  border-radius: 1px;
+}
+
+/* user footer tweaks so it sits compactly */
+.user-footer .btn {
+  background: transparent;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.user-footer .avatar > div {
+  border-radius: 9999px;
+}
+
+/* ensure sidebar fills full height on desktop */
+@media (min-width: 1024px) {
+  aside.mobile-sidebar {
+    min-height: 100vh;
+  }
 }
 </style>

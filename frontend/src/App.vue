@@ -1,5 +1,5 @@
 <script setup>
-import MessageContainer from './components/MessageContainer.vue';
+import MessageContainer from './components/ui/MessageContainer.vue';
 
 // Remove the direct Dashboard import - let the router handle it
 </script>

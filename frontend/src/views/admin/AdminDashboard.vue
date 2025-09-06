@@ -7,6 +7,6 @@
 </template>
 
 <script setup>
-import Layout from '@/components/Layout.vue'
-import AdminDashboardComponent from '@/components/AdminDashboard.vue'
+import Layout from '@/components/layout/Layout.vue'
+import AdminDashboardComponent from '@/components/dashboard/AdminDashboard.vue'
 </script>
