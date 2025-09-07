@@ -31,7 +31,7 @@
         </h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div
-            v-for="q in coreEmploymentQuestions.slice(0, 4)"
+            v-for="q in (coreEmploymentQuestions || []).slice(0, 4)"
             :key="q.id"
             class="form-control"
           >
@@ -47,7 +47,7 @@
 
       <!-- Additional Questions Preview -->
       <div
-        v-if="form.questions.length"
+        v-if="(form.questions || []).length"
         class="card app-surface-hover border border-gray-300 p-4"
       >
         <h4 class="font-semibold text-text mb-3">
@@ -55,7 +55,7 @@
         </h4>
         <div class="space-y-4">
           <div
-            v-for="(q, i) in form.questions"
+            v-for="(q, i) in (form.questions || [])"
             :key="q.id"
             class="form-control"
           >
@@ -138,11 +138,13 @@
 defineProps({
   form: {
     type: Object,
-    required: true
+    required: true,
+    default: () => ({ title: '', questions: [] })
   },
   coreEmploymentQuestions: {
     type: Array,
-    required: true
+    required: false,
+    default: () => []
   }
 })
 </script>

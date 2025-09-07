@@ -15,7 +15,7 @@
     <div class="overflow-x-auto rounded-lg border app-border" style="overflow-y: visible;">
       <div style="position: relative; z-index: 1;">
         <table class="table w-full min-w-[800px]">
-          <thead style="background: var(--color-neutral);">
+          <thead>
             <tr>
               <th class="w-20 font-semibold" style="color: var(--color-text-primary);">Year</th>
               <th class="min-w-[200px] font-semibold" style="color: var(--color-text-primary);">Form Title</th>
@@ -60,8 +60,8 @@
                 </span>
                 <span 
                   v-else 
-                  class="badge badge-ghost"
-                  style="color: var(--color-text-secondary);"
+                  class="badge border-0"
+                  style="background: var(--color-danger-light); color: var(--color-text-primary);"
                 >Inactive</span>
               </td>
               <td class="py-4">
@@ -83,7 +83,7 @@
                 <div
                   tabindex="0"
                   role="button"
-                  class="btn btn-ghost btn-sm btn-circle hover:bg-base-200"
+                  class="btn btn-ghost border-0 btn-sm btn-circle"
                   @click.stop="toggleDropdown(item, $event)"
                   :ref="el => setTriggerRef(item.form_id, el)"
                 >
@@ -302,6 +302,7 @@ onBeforeUnmount(() => {
 
 /* Button hover effects */
 .btn-circle:hover {
+  background: var(--color-primary);
   transform: scale(1.05);
   transition: transform 0.2s ease;
 }

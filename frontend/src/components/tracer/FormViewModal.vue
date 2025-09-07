@@ -1,28 +1,34 @@
 <template>
   <dialog ref="viewFormModal" class="modal">
-    <form method="dialog" class="modal-box w-11/12 max-w-5xl max-h-[90vh] overflow-y-auto">
-      <h3 class="font-bold text-lg sm:text-xl mb-4 flex items-center gap-2">
-        <IconFileText :size="24" class="text-primary" />
-        <span class="truncate">{{ displayData.title }}</span>
-      </h3>
+    <div class="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col">
+      <!-- Fixed Header -->
+      <div class="flex-shrink-0 pb-4 border-b border-opacity-20 mb-4">
+        <h3 class="font-bold text-lg sm:text-xl flex items-center gap-2">
+          <IconFileText :size="24" class="text-primary" />
+          <span class="truncate">{{ displayData.title }}</span>
+        </h3>
+      </div>
+      
+      <!-- Scrollable Content -->
+      <div class="flex-1 overflow-y-auto pr-2 -mr-2">
 
       <!-- Form Details -->
-      <div class="mb-6 p-3 sm:p-4 app-surface-hover rounded-lg">
+      <div class="mb-6 p-3 sm:p-4 app-surface-alt rounded-lg app-border border">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
           <div class="flex items-center gap-2">
-            <IconBarChart3 :size="16" class="text-text-muted" />
-            <span class="font-semibold text-text">Year:</span>
-            <span class="text-text">{{ displayData.year }}</span>
+            <IconBarChart3 :size="16" class="text-primary" />
+            <span class="font-semibold">Year:</span>
+            <span>{{ displayData.year }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <IconCheck :size="16" class="text-text-muted" />
+            <IconCheck :size="16" class="text-primary" />
             <span class="font-semibold">Status:</span>
             <span
               v-if="displayData.is_active"
-              class="badge badge-success badge-sm ml-1"
+              class="badge badge-accent badge-sm ml-1"
               >Active</span
             >
-            <span v-else class="badge badge-ghost badge-sm ml-1 text-text"
+            <span v-else class="badge badge-ghost badge-sm ml-1"
               >Inactive</span
             >
           </div>
@@ -30,69 +36,57 @@
             v-if="displayData.deadline"
             class="flex items-center gap-2"
           >
-            <IconBarChart3 :size="16" class="text-text-muted" />
-            <span class="font-semibold text-text">Deadline:</span>
-            <span class="text-text text-xs sm:text-sm">{{
+            <IconBarChart3 :size="16" class="text-primary" />
+            <span class="font-semibold">Deadline:</span>
+            <span class="text-xs sm:text-sm">{{
               new Date(displayData.deadline).toLocaleDateString()
             }}</span>
           </div>
         </div>
         <div v-if="displayData.description" class="mt-4">
-          <span class="font-semibold text-text">Description:</span>
-          <p class="mt-1 text-text">{{ displayData.description }}</p>
+          <span class="font-semibold">Description:</span>
+          <p class="mt-1">{{ displayData.description }}</p>
         </div>
       </div>
 
       <!-- Form Preview -->
       <div class="space-y-6">
         <!-- Core Employment Questions -->
-        <div class="card app-secondary-bg border border-medium-blue p-4">
-          <h4 class="font-semibold text-medium-blue mb-3 flex items-center">
-            <svg
-              class="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 002 2h4a2 2 0 002-2V4"
-              ></path>
-            </svg>
+        <div class="card app-surface p-3 sm:p-4 app-border border">
+          <h4 class="font-semibold mb-3 flex items-center" style="color: var(--color-primary);">
+            <IconUsers class="w-5 h-5 mr-2" />
             Core Employment Questions ({{ selectedEmploymentQuestions.length }})
           </h4>
-          <div class="text-sm text-text mb-3">
+          <div class="text-sm opacity-80 mb-3">
             These employment questions are included in this form:
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div
               v-for="(q, i) in selectedEmploymentQuestions.slice(0, 6)"
               :key="q.id"
-              class="p-3 app-surface rounded border-l-4 border-medium-blue"
+              class="p-3 app-surface-alt rounded app-border border"
             >
-              <label class="label label-text font-medium text-sm text-text">
+              <label class="label label-text font-medium text-sm">
                 {{ i + 1 }}. {{ q.label }}
                 <span v-if="q.required" class="text-red-500 ml-1">*</span>
               </label>
               <div class="mt-1">
                 <input
                   v-if="q.type === 'text'"
-                  class="input input-xs input-bordered w-full"
+                  class="input input-xs input-bordered w-full app-surface app-border"
                   :placeholder="q.placeholder || 'Preview disabled'"
                   disabled
                 />
                 <textarea
                   v-else-if="q.type === 'textarea'"
-                  class="textarea textarea-xs textarea-bordered w-full"
+                  class="textarea textarea-xs textarea-bordered w-full app-surface app-border"
                   rows="2"
                   :placeholder="q.placeholder || 'Preview disabled'"
                   disabled
                 ></textarea>
                 <select
                   v-else-if="q.type === 'select'"
-                  class="select select-xs select-bordered w-full"
+                  class="select select-xs select-bordered w-full app-surface app-border"
                   disabled
                 >
                   <option>{{ q.options?.[0] || "Select option" }}</option>
@@ -106,7 +100,7 @@
                     <input type="radio" disabled class="radio radio-xs radio-primary" />
                     <span>{{ opt }}</span>
                   </label>
-                  <div v-if="q.options?.length > 3" class="text-xs text-gray-400">
+                  <div v-if="q.options?.length > 3" class="text-xs opacity-60">
                     ... and {{ q.options.length - 3 }} more
                   </div>
                 </div>
@@ -115,7 +109,7 @@
           </div>
           <div
             v-if="selectedEmploymentQuestions.length > 6"
-            class="mt-3 text-sm text-gray-500"
+            class="mt-3 text-sm opacity-60"
           >
             ... and {{ selectedEmploymentQuestions.length - 6 }} more employment questions
           </div>
@@ -124,9 +118,9 @@
         <!-- Additional Custom Questions -->
         <div
           v-if="displayData.questions?.length"
-          class="card bg-base-200/50 border border-gray-200 p-4"
+          class="card app-surface p-3 sm:p-4 app-border border"
         >
-          <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
+          <h4 class="font-semibold mb-3 flex items-center" style="color: var(--color-primary);">
             <svg
               class="w-5 h-5 mr-2"
               fill="none"
@@ -146,7 +140,7 @@
             <div
               v-for="(q, i) in displayData.questions"
               :key="q.id"
-              class="p-3 bg-white rounded"
+              class="p-3 app-surface-alt rounded app-border border"
             >
               <label class="label label-text font-medium text-sm">
                 {{ selectedEmploymentQuestions.length + i + 1 }}.
@@ -155,13 +149,13 @@
               <div class="mt-1">
                 <input
                   v-if="q.type === 'text'"
-                  class="input input-xs input-bordered w-full"
+                  class="input input-xs input-bordered w-full app-surface app-border"
                   :placeholder="q.placeholder || 'Preview disabled'"
                   disabled
                 />
                 <textarea
                   v-else-if="q.type === 'textarea'"
-                  class="textarea textarea-xs textarea-bordered w-full"
+                  class="textarea textarea-xs textarea-bordered w-full app-surface app-border"
                   :placeholder="q.placeholder || 'Preview disabled'"
                   rows="2"
                   disabled
@@ -169,7 +163,7 @@
                 <input
                   v-else-if="q.type === 'number'"
                   type="number"
-                  class="input input-xs input-bordered w-full"
+                  class="input input-xs input-bordered w-full app-surface app-border"
                   :placeholder="q.placeholder || 'Number input'"
                   disabled
                 />
@@ -195,7 +189,7 @@
                 </div>
                 <select
                   v-else-if="q.type === 'select'"
-                  class="select select-xs select-bordered w-full"
+                  class="select select-xs select-bordered w-full app-surface app-border"
                   disabled
                 >
                   <option disabled selected>Select an option</option>
@@ -206,8 +200,8 @@
           </div>
         </div>
 
-        <div v-else class="text-center py-8 text-gray-500">
-          <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div v-else class="text-center py-8 opacity-60">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -216,26 +210,39 @@
             ></path>
           </svg>
           <div class="text-sm">No additional custom questions defined</div>
-          <div class="text-xs text-gray-400">This form only includes the core employment questions</div>
+          <div class="text-xs opacity-60">This form only includes the core employment questions</div>
         </div>
       </div>
-
-      <div class="modal-action flex flex-col sm:flex-row gap-2">
-        <button class="btn btn-outline flex items-center gap-2" @click="$emit('editForm', displayData)">
-          <IconEdit :size="16" />
-          Edit Form
-        </button>
-        <button class="btn flex items-center gap-2">
-          <IconX :size="16" />
-          Close Preview
-        </button>
       </div>
-    </form>
+      
+      <!-- Fixed Footer -->
+      <div class="flex-shrink-0 pt-4 border-t border-opacity-20 mt-4">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button class="btn btn-primary-custom flex items-center gap-2" @click="$emit('editForm', displayData)">
+            <IconEdit :size="16" />
+            Edit Form
+          </button>
+          <button class="btn btn-outline flex items-center gap-2" onclick="this.closest('dialog').close()">
+            <IconX :size="16" />
+            Close Preview
+          </button>
+        </div>
+      </div>
+    </div>
   </dialog>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+// Import icons
+import { 
+  FileText as IconFileText,
+  Edit as IconEdit,
+  BarChart3 as IconBarChart3,
+  Check as IconCheck,
+  Users as IconUsers,
+  X as IconX
+} from 'lucide-vue-next'
 
 const props = defineProps({
   viewFormData: {
@@ -327,3 +334,59 @@ const selectedEmploymentQuestions = computed(() => {
   return props.coreEmploymentQuestions.filter(q => allIds.includes(q.id))
 })
 </script>
+
+<style scoped>
+.modal-box {
+  background: var(--color-surface-main);
+  color: var(--color-text-primary);
+  padding: 1.5rem;
+}
+
+.input, .textarea, .select {
+  background: var(--color-text-invert);
+  border-color: var(--color-border);
+}
+
+.input:disabled, .textarea:disabled, .select:disabled {
+  background: var(--color-surface-alt);
+  opacity: 0.7;
+}
+
+.radio:disabled, .checkbox:disabled {
+  opacity: 0.5;
+}
+
+/* Ensure consistent styling with the rest of the app */
+.card {
+  border-radius: 0.75rem;
+}
+
+.badge-accent {
+  background: var(--color-accent);
+  color: var(--color-text-invert);
+}
+
+/* Custom scrollbar for the content area */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-primary-rgb) / 0.4);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primary-rgb) / 0.6);
+}
+
+/* Fixed footer styling */
+.border-t {
+  border-color: var(--color-border);
+}
+</style>

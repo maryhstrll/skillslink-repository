@@ -301,14 +301,14 @@
                         @click="duplicateQuestion(index)"
                         title="Duplicate"
                       >
-                        📋
+                      <IconCopyPlus class="w-4 h-4"/>
                       </button>
                       <button
                         class="btn btn-xs btn-error"
                         @click="removeQuestion(index)"
                         title="Delete"
                       >
-                        🗑️
+                      <IconTrash2 class="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -325,7 +325,7 @@
 
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
               <button
-                class="btn btn-primary flex items-center gap-2 justify-center"
+                class="btn btn-primary-custom flex items-center gap-2 justify-center"
                 @click="saveForm"
                 :disabled="!isFormValid"
               >
@@ -358,6 +358,22 @@ import draggable from 'vuedraggable'
 // Fix for UUID import issue
 import * as uuid from 'uuid'
 const uuidv4 = uuid.v4
+
+// Import icons
+import { 
+  FileText as IconFileText,
+  Edit as IconEdit,
+  BarChart3 as IconBarChart3,
+  Check as IconCheck,
+  Users as IconUsers,
+  Plus as IconPlus,
+  Eye as IconEye,
+  EyeOff as IconEyeOff,
+  CopyPlus as IconCopyPlus,
+  Trash2 as IconTrash2,
+  Save as IconSave,
+  X as IconX
+} from 'lucide-vue-next'
 
 const props = defineProps({
   form: {
@@ -464,3 +480,9 @@ function cancelEdit() {
   emit('cancel')
 }
 </script>
+
+<style scoped>
+input.input, .textarea{
+  background: var(--color-text-invert);
+}
+</style>

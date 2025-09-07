@@ -8,7 +8,7 @@ let messageId = 0;
 
 export const messageService = {
   // Generic showMessage method (used by components)
-  showMessage(message, variant = 'info', duration = 3000) {
+  showMessage(message, variant = 'info', duration = 5000) {
     if (variant === 'error') {
       return this.showError(message, duration);
     } else if (variant === 'success') {
@@ -21,7 +21,7 @@ export const messageService = {
   },
 
   // Show toast notification
-  toast(message, variant = 'info', duration = 3000) {
+  toast(message, variant = 'info', duration = 5000) {
     const id = messageId++;
     const messageObj = {
       id,

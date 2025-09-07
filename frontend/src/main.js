@@ -11,7 +11,7 @@ import {
   LogOut, RefreshCw, Check, X, UserCheck, FileSpreadsheet, Zap, 
   FileInput, EllipsisVertical, UserRound, SquareLibrary, Radar,
   ClipboardList, ClipboardCheck, Filter, CheckCircle, AlertCircle, Percent,
-  Calendar, FileCheck, Inbox
+  Calendar, FileCheck, Inbox, CopyPlus
 } from 'lucide-vue-next'
 
 const app = createApp(App);
@@ -62,5 +62,6 @@ app.component('IconChevronDown', ChevronDown);
 app.component('IconCalendar', Calendar);
 app.component('IconFileCheck', FileCheck);
 app.component('IconInbox', Inbox);
+app.component('IconCopyPlus', CopyPlus)
 app.use(router);
 app.mount('#app');

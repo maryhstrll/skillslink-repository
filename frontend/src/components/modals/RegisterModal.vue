@@ -452,15 +452,19 @@ select.select {
 .text-gray-400,
 .label-text,
 .text1 {
-  color: var(--color-navy);
+  color: var(--color-text-primary);
 }
 
-input.input {
-  color: var(--color-surface-alt);
+.input {
+  color: var(--color-text-primary);
   margin-top: 5px;
 }
 .cursor-pointer {
   cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary);
 }
 
 button[type="button"] {

@@ -181,11 +181,15 @@ export default {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-.label, .text1  {
- color: var(--color-navy);
+.btn-primary:hover{
+  background: var(--color-primary);
 }
-input.input {
-  color: var(--color-surface-alt);
+
+.label, .text1  {
+ color: var(--color-text-primary);
+}
+.input {
+  color: var(--color-text-primary);
   margin-top: 5px;
 }
 /* to ensure that the eye icon is properly positioned and clickable */
@@ -195,7 +199,7 @@ input.input {
 
 .relative button {
   z-index: 10;
-  color: var(--color-navy);
+  color: var(--color-text-primary);
 }
 
 .relative button:focus {

@@ -24,12 +24,13 @@
   --color-ghost: #FF9D23;        /* Ghost - highlights, badges */
   --color-accent: #16C47F;       /* Accent - success, positive */
   --color-danger: #DC3C22;       /* Danger/Error states */
-  --color-neutral: #EAC8A6;      /* Light neutral background */
+  --color-neutral: #fecd6c;      /* Light neutral background */
   --color-surface: #FBF5DE;      /* Cream surface color */
   
   /* Color variants for better UX */
   --color-primary-light: #5a8bc9;   /* Lighter primary */
   --color-primary-dark: #2a5284;    /* Darker primary */
+  --color-primary-darker: #223b5f;  /* NEW: even darker than primary-dark for hover states */
   --color-secondary-light: #fa5d4a;  /* Lighter secondary */
   --color-secondary-dark: #d12b1a;   /* Darker secondary */
   --color-ghost-light: #ffb150;      /* Lighter ghost */

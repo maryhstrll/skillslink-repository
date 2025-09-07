@@ -53,7 +53,7 @@
       <!-- User Section pinned to bottom -->
       <div class="p-4 user-footer">
         <div class="dropdown dropdown-top dropdown-end w-full">
-          <div tabindex="0" role="button" class="btn btn-ghost w-full justify-start gap-3 px-2 py-2">
+          <div tabindex="0" role="button" class="btn btn-ghost border-0 w-full justify-start gap-3 px-2 py-2">
             <div class="avatar placeholder">
               <div class="bg-[color:var(--color-surface-alt)] text-[color:var(--color-text-primary)] rounded-full w-9 h-9 flex items-center justify-center">
                 <span class="text-sm font-medium">{{ userInitials }}</span>
@@ -181,5 +181,14 @@ ul {
   aside.mobile-sidebar {
     min-height: 100vh;
   }
+}
+
+/* MENU HOVER: use a color darker than primary-dark for hover/selection */
+aside.mobile-sidebar .flex.items-center:hover,
+aside.mobile-sidebar a:hover,
+aside.mobile-sidebar .btn-ghost:hover,
+aside.mobile-sidebar .router-link-active:hover {
+  background: var(--color-primary-darker) !important;
+  color: var(--color-text-invert) !important;
 }
 </style>

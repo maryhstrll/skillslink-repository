@@ -681,3 +681,17 @@ onMounted(() => {
   loadAllData()
 })
 </script>
+
+<style scoped>
+h1, p {
+  color: var(--color-text-primary);
+}
+
+h2, h3 {
+  color: var(--color-text-invert);
+}
+
+.font-medium {
+  color: var(--color-text-light);
+}
+</style>

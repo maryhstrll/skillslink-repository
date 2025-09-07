@@ -1,28 +1,21 @@
 
 <template>
   <Layout @logout="handleLogout">
-    <div class="min-h-screen bg-gradient-to-br from-[#081F37] to-[#1E549F] p-4 md:p-6 lg:p-8">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/10 backdrop-blur-sm rounded p-6 shadow-xl border border-white/20">
-          <div class="text-white">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] bg-clip-text text-transparent">
-              Alumni Management
-            </h1>
-            <p class="text-white/80 text-sm md:text-base">Manage and track alumni information</p>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-3xl font-bold text-base-content">Alumni Management</h1>
+            <p class="text-base-content/70 mt-1">
+              Manage and track alumni information across all programs and graduation years
+            </p>
           </div>
-            <div class="text-right">
-              <div class="stat-title text-[15px] text-white">Total Alumni</div>
-              <div class="stat-value text-5xl text-[#5FC9F3]">
-                {{ loading ? '...' : (hasActiveFilters ? `${filteredAlumni.length} / ${alumniList.length}` : alumniList.length) }}
-              </div>
-            </div>
         </div>
 
         <!-- Filters Section -->
-        <div class="bg-white/95 backdrop-blur-sm rounded shadow-xl border border-white/30 overflow-hidden">
-          <div class="p-4 bg-gradient-to-r from-[#2E79BA]/10 to-[#1E549F]/10">
-            <h3 class="text-lg font-semibold text-[#081F37] mb-4">Filter Alumni</h3>
+        <div class="card app-surface shadow-lg">
+          <div class="p-4 app-surface-alt">
+            <h3 class="text-lg font-semibold mb-4" style="color: var(--color-text-primary);">Filter Alumni</h3>
             <div class="flex flex-col sm:flex-row gap-4">
               <!-- Search Filter -->
               <div class="form-control flex-1">
@@ -31,10 +24,12 @@
                     v-model="searchQuery" 
                     type="text" 
                     placeholder="Search by name, student ID..." 
-                    class="input input-bordered flex-1 focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20"
+                    class="input input-bordered flex-1 app-surface app-border"
                   />
-                  <button class="btn btn-square bg-[#2E79BA] text-white border-none hover:bg-[#1E549F]">
-                    <i class="fas fa-search"></i>
+                  <button class="btn btn-primary-custom">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -42,7 +37,7 @@
               <!-- Program Filter -->
               <select 
                 v-model="selectedProgram" 
-                class="select select-bordered focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20 min-w-[200px]"
+                class="select select-bordered app-surface app-border min-w-[200px]"
               >
                 <option value="">All Programs</option>
                 <option v-for="program in programs" 
@@ -55,7 +50,7 @@
               <!-- Year Graduated Filter -->
               <select 
                 v-model="selectedYear" 
-                class="select select-bordered focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20 min-w-[160px]"
+                class="select select-bordered app-surface app-border min-w-[160px]"
               >
                 <option value="">All Years</option>
                 <option v-for="year in availableYears" 
@@ -67,76 +62,94 @@
               
               <!-- Clear Filters Button -->
               <button 
-                class="btn bg-gray-200 text-gray-700 border-none hover:bg-gray-300"
+                class="btn btn-ghost-custom"
                 @click="clearFilters"
                 :disabled="!hasActiveFilters"
               >
-                <i class="fas fa-times mr-2"></i>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
                 Clear
               </button>
             </div>
             
             <!-- Filter Results Summary -->
-            <div class="mt-3 text-sm text-gray-600">
+            <div class="mt-3 text-sm" style="color: var(--color-text-secondary);">
               Showing {{ filteredAlumni.length }} of {{ alumniList.length }} alumni
             </div>
           </div>
         </div>
 
         <!-- Alumni Table/Cards -->
-        <div class="bg-white/95 backdrop-blur-sm rounded shadow-2xl border border-white/30 overflow-hidden">
-          <div class="p-6 bg-gradient-to-r from-[#2E79BA] to-[#1E549F]">
-            <h2 class="text-xl md:text-2xl font-bold text-white mb-2">Alumni Directory</h2>
-            <p class="text-white/80">Complete list of registered alumni</p>
+        <div class="card app-surface shadow-lg">
+          <div class="p-6 app-surface-alt">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+              <div>
+                <h2 class="text-xl md:text-2xl font-bold mb-2" style="color: var(--color-primary);">Alumni Directory</h2>
+                <p style="color: var(--color-text-secondary);">Complete list of registered alumni</p>
+              </div>
+              <div class="text-right">
+                <div class="text-sm" style="color: var(--color-text-secondary);">Total Alumni</div>
+                <div class="text-3xl font-bold" style="color: var(--color-primary);">
+                  {{ loading ? '...' : (hasActiveFilters ? `${filteredAlumni.length} / ${alumniList.length}` : alumniList.length) }}
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Mobile Card View (hidden on desktop) -->
           <div class="block lg:hidden p-4 space-y-4 max-h-96 overflow-y-auto">
             <div v-if="loading" class="text-center py-8">
-              <div class="loading loading-spinner loading-lg text-[#2E79BA]"></div>
-              <p class="text-gray-500 mt-4">Loading alumni data...</p>
+              <div class="loading loading-spinner loading-lg" style="color: var(--color-primary);"></div>
+              <p class="mt-4" style="color: var(--color-text-secondary);">Loading alumni data...</p>
             </div>
-            <div v-else-if="filteredAlumni.length === 0" class="text-center py-8 text-gray-500">
-              <IconUsers class="w-16 h-16 mb-4 text-gray-300 mx-auto" />
+            <div v-else-if="filteredAlumni.length === 0" class="text-center py-8" style="color: var(--color-text-secondary);">
+              <svg class="w-16 h-16 mb-4 mx-auto" style="color: var(--color-text-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
               <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
             </div>
             <div v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
-                 class="card bg-gradient-to-r from-white to-gray-50 shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                 class="card app-surface-alt shadow-md border app-border">
               <div class="card-body p-4">
                 <div class="flex justify-between items-start mb-3">
                   <div>
-                    <h3 class="font-bold text-[#081F37] text-lg">{{ alumni.first_name }} {{ alumni.last_name }}</h3>
+                    <h3 class="font-bold text-lg" style="color: var(--color-text-primary);">{{ alumni.first_name }} {{ alumni.last_name }}</h3>
                   </div>
-                  <div class="badge bg-[#5FC9F3] text-white border-none">{{ alumni.year_graduated }}</div>
+                  <div class="badge" style="background: var(--color-accent); color: white; border: none;">{{ alumni.year_graduated }}</div>
                 </div>
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Student ID:</span>
-                    <span class="font-medium text-[#2E79BA]">{{ alumni.student_id }}</span>
+                    <span style="color: var(--color-text-secondary);">Student ID:</span>
+                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.student_id }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Program:</span>
-                    <span class="font-medium text-[#1E549F]">{{ alumni.program_name || getProgramName(alumni.program_id) }}</span>
+                    <span style="color: var(--color-text-secondary);">Program:</span>
+                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.program_name || getProgramName(alumni.program_id) }}</span>
                   </div>
                   <div v-if="alumni.phone_number" class="flex justify-between">
-                    <span class="text-gray-600">Phone:</span>
-                    <span class="font-medium text-[#2E79BA]">{{ alumni.phone_number }}</span>
+                    <span style="color: var(--color-text-secondary);">Phone:</span>
+                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.phone_number }}</span>
                   </div>
                   <div v-if="alumni.city" class="flex justify-between">
-                    <span class="text-gray-600">City:</span>
-                    <span class="font-medium text-[#1E549F]">{{ alumni.city }}</span>
+                    <span style="color: var(--color-text-secondary);">City:</span>
+                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.city }}</span>
                   </div>
                 </div>
                 <div class="flex gap-2 mt-4">
-                  <button class="btn btn-sm bg-[#2E79BA] text-white border-none hover:bg-[#1E549F] flex-1" 
+                  <button class="btn btn-sm btn-primary-custom flex-1" 
                           @click="openEditModal(alumni)"
                           :disabled="loading">
-                    <IconEdit class="w-3 h-3 mr-1" />Edit
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>Edit
                   </button>
-                  <button class="btn btn-sm bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA] flex-1" 
+                  <button class="btn btn-sm btn-accent-custom flex-1" 
                           @click="viewProfile(alumni)"
                           :disabled="loading">
-                    <IconUserRound class="w-3 h-3 mr-1"/>View Profile
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>View Profile
                   </button>
                 </div>
               </div>
@@ -146,58 +159,63 @@
           <!-- Desktop Table View (hidden on mobile) -->
           <div class="hidden lg:block overflow-x-auto">
             <table class="table w-full">
-              <thead class="bg-gray-50">
+              <thead>
                 <tr>
-                  <th class="text-[#081F37] font-bold">Student ID</th>
-                  <th class="text-[#081F37] font-bold">Name</th>
-                  <th class="text-[#081F37] font-bold">Program</th>
-                  <th class="text-[#081F37] font-bold">Year Graduated</th>
-                  <th class="text-[#081F37] font-bold">Phone</th>
-                  <th class="text-[#081F37] font-bold">City</th>
-                  <th class="text-[#081F37] font-bold">Actions</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Student ID</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Name</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Program</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Year Graduated</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Phone</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">City</th>
+                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loading">
                   <td colspan="7" class="text-center py-8">
                     <div class="flex flex-col items-center">
-                      <div class="loading loading-spinner loading-lg text-[#2E79BA]"></div>
-                      <p class="text-gray-500 mt-4">Loading alumni data...</p>
+                      <div class="loading loading-spinner loading-lg" style="color: var(--color-primary);"></div>
+                      <p class="mt-4" style="color: var(--color-text-secondary);">Loading alumni data...</p>
                     </div>
                   </td>
                 </tr>
                 <tr v-else-if="filteredAlumni.length === 0">
-                  <td colspan="7" class="text-center py-8 text-gray-500">
+                  <td colspan="7" class="text-center py-8" style="color: var(--color-text-secondary);">
                     <div class="flex flex-col items-center">
-                      <IconUsers class="w-16 h-16 mb-4 text-gray-300" />
+                      <svg class="w-16 h-16 mb-4" style="color: var(--color-text-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      </svg>
                       <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
                     </div>
                   </td>
                 </tr>
-                <tr v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
-                    class="hover:bg-gradient-to-r hover:from-[#5FC9F3]/10 hover:to-[#2E79BA]/10 transition-all duration-300">
-                  <td class="text-[#2E79BA]">{{ alumni.student_id }}</td>
-                  <td class="font-semibold text-[#081F37]">
+                <tr v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id">
+                  <td style="color: var(--color-primary);">{{ alumni.student_id }}</td>
+                  <td class="font-semibold" style="color: var(--color-text-primary);">
                     {{ alumni.first_name }} {{ alumni.last_name }}
-                    <span v-if="alumni.middle_name" class="font-normal text-gray-600">{{ alumni.middle_name }}</span>
+                    <span v-if="alumni.middle_name" class="font-normal" style="color: var(--color-text-secondary);">{{ alumni.middle_name }}</span>
                   </td>
-                  <td class="text-[#1E549F]">{{ alumni.program_name || getProgramName(alumni.program_id) }}</td>
+                  <td style="color: var(--color-primary);">{{ alumni.program_name || getProgramName(alumni.program_id) }}</td>
                   <td>
-                    <div class="badge bg-[#5FC9F3] text-white border-none">{{ alumni.year_graduated }}</div>
+                    <div class="badge" style="background: var(--color-accent); color: white; border: none;">{{ alumni.year_graduated }}</div>
                   </td>
-                  <td class="text-[#2E79BA]">{{ alumni.phone_number || '-' }}</td>
-                  <td class="text-[#1E549F]">{{ alumni.city || '-' }}</td>
+                  <td style="color: var(--color-text-primary);">{{ alumni.phone_number || '-' }}</td>
+                  <td style="color: var(--color-text-primary);">{{ alumni.city || '-' }}</td>
                   <td>
                     <div class="flex gap-2">
-                      <button class="btn btn-m bg-[#2E79BA] text-white border-none hover:bg-[#1E549F] hover:scale-105 transition-all duration-300" 
+                      <button class="btn btn-sm btn-primary-custom" 
                               @click="openEditModal(alumni)"
                               :disabled="loading">
-                        <IconEdit class="w-4 h-4" />
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
                       </button>
-                      <button class="btn btn-m bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA] hover:scale-105 transition-all duration-300" 
+                      <button class="btn btn-sm btn-accent-custom" 
                               @click="viewProfile(alumni)"
                               :disabled="loading">
-                        <IconUserRound class="w-4 h-4" />
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
                       </button>
                     </div>
                   </td>
@@ -209,13 +227,13 @@
 
         <!-- Add/Edit Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative transform transition-all duration-300 scale-100">
+          <div class="card app-surface shadow-2xl w-full max-w-lg relative">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-[#2E79BA] to-[#1E549F] p-6 rounded-t-2xl">
-              <h3 class="text-xl md:text-2xl font-bold text-white">
+            <div class="p-6 app-surface-alt">
+              <h3 class="text-xl md:text-2xl font-bold" style="color: var(--color-primary);">
                 {{ isEditMode ? 'Edit Alumni' : 'Add Alumni' }}
               </h3>
-              <p class="text-white/80 mt-1">
+              <p class="mt-1" style="color: var(--color-text-secondary);">
                 {{ isEditMode ? 'Update alumni information' : 'Add new alumni to the directory' }}
               </p>
             </div>
@@ -223,8 +241,10 @@
             <!-- Modal Body -->
             <div class="p-6">
               <!-- Error message in modal -->
-              <div v-if="error" class="alert alert-error bg-red-500/20 border border-red-500/30 text-red-800 mb-4 rounded-xl">
-                <i class="fas fa-exclamation-triangle"></i>
+              <div v-if="error" class="alert alert-error mb-4 rounded-xl" style="background: rgba(var(--color-danger-rgb), 0.1); border: 1px solid var(--color-danger); color: var(--color-danger);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
                 <span>{{ error }}</span>
               </div>
 
@@ -233,10 +253,10 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text text-[#081F37] font-medium">First Name *</span>
+                      <span class="label-text font-medium" style="color: var(--color-text-primary);">First Name *</span>
                     </label>
                     <input v-model="form.first_name" 
-                           class="input input-bordered w-full focus:border-[#2E79BA] focus:ring-2 focus:ring-[#5FC9F3]/20" 
+                           class="input input-bordered w-full app-surface app-border" 
                            placeholder="Enter first name" 
                            required />
                   </div>
@@ -367,16 +387,18 @@
                 <!-- Modal Actions -->
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
                   <button type="button" 
-                          class="btn bg-gray-200 text-gray-700 border-none hover:bg-gray-300 w-full sm:w-auto" 
+                          class="btn btn-ghost-custom w-full sm:w-auto" 
                           @click="closeModal"
                           :disabled="loading">
                     Cancel
                   </button>
                   <button type="submit" 
-                          class="btn bg-gradient-to-r from-[#2E79BA] to-[#1E549F] text-white border-none hover:from-[#5FC9F3] hover:to-[#2E79BA] transform hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                          class="btn btn-primary-custom w-full sm:w-auto"
                           :disabled="loading">
                     <span v-if="loading" class="loading loading-spinner loading-sm mr-2"></span>
-                    <i v-else class="fas fa-save mr-2"></i>
+                    <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                    </svg>
                     {{ loading ? 'Saving...' : (isEditMode ? 'Update Alumni' : 'Add Alumni') }}
                   </button>
                 </div>
@@ -384,14 +406,15 @@
             </div>
 
             <!-- Close Button -->
-            <button class="absolute top-4 right-4 btn btn-sm btn-circle bg-white/20 border-none text-white hover:bg-white/30 backdrop-blur-sm" 
+            <button class="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost-custom" 
                     @click="closeModal">
-              <i class="fas fa-times"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
             </button>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Admin Alumni Profile Modal -->
     <AdminAlumniProfileModal 
@@ -613,32 +636,7 @@ const updateAlumni = async () => {
   }
 }
 
-const deleteAlumni = async (id) => {
-  const confirmed = await messageService.confirm(
-    'Are you sure you want to delete this alumni? This action cannot be undone.',
-    'Delete Alumni'
-  )
-  
-  if (confirmed) {
-    try {
-      loading.value = true
-      
-      const response = await alumniService.remove(id)
-      
-      if (response.success) {
-        await fetchAlumni() // Refresh the list
-        messageService.toast('Alumni deleted successfully', 'success')
-      } else {
-        messageService.alert(response.message || 'Failed to delete alumni', 'error')
-      }
-    } catch (err) {
-      console.error('Error deleting alumni:', err)
-      messageService.alert('Failed to delete alumni. Please try again.', 'error')
-    } finally {
-      loading.value = false
-    }
-  }
-}
+
 
 const viewProfile = (alumni) => {
   selectedAlumni.value = alumni
@@ -664,75 +662,88 @@ const getProgramName = (programId) => {
 const handleLogout = () => {
   router.push('/home')
 }
+
 </script>
 
 <style scoped>
+/* Custom table styling to match TracerFormTable */
+h1, p {
+  color: var(--color-text-primary);
+}
+.table th {
+  background: var(--color-neutral);
+  border-bottom: 2px solid var(--color-border);
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+}
+
+.table td {
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 1rem 0.75rem;
+}
+
+.table tr:hover {
+  background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Form inputs consistent with app design */
+.input, .select, .textarea {
+  background: var(--color-text-invert);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
 /* Custom scrollbar for mobile card view */
 .max-h-96::-webkit-scrollbar {
   width: 6px;
 }
 
 .max-h-96::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-surface-alt);
   border-radius: 3px;
 }
 
 .max-h-96::-webkit-scrollbar-thumb {
-  background: #2E79BA;
+  background: rgb(var(--color-primary-rgb) / 0.6);
   border-radius: 3px;
 }
 
 .max-h-96::-webkit-scrollbar-thumb:hover {
-  background: #1E549F;
+  background: rgb(var(--color-primary-rgb) / 0.8);
 }
 
-/* Smooth transitions for all interactive elements */
-.btn, .card, .input, .stat {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Glass morphism effect enhancements */
-.bg-white\/10 {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Focus states for better accessibility */
-.input:focus {
+/* Button hover effects */
+.btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(46, 121, 186, 0.1);
+}
+/* Modal styling */
+.modal-box {
+  background: var(--color-surface-main);
+  color: var(--color-text-primary);
 }
 
-/* Hover animations */
-.hover\:scale-105:hover {
-  transform: scale(1.05);
+/* Badge styling */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
 }
 
-/* Mobile-first responsive animations */
-@media (max-width: 640px) {
-  .transform.hover\:scale-105:hover {
-    transform: scale(1.02);
-  }
+/* Loading states */
+.loading {
+  color: var(--color-primary);
 }
 
-/* Enhanced gradient text effect */
-.bg-clip-text {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Loading skeleton animation (if needed) */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Alert styling */
+.alert {
+  border-radius: 0.75rem;
 }
 </style>

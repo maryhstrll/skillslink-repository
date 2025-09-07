@@ -28,7 +28,7 @@
           Together, we build stronger links between the college and its graduates.
         </p>
         <div class="space-x-4">
-          <button v-if="!isAuthenticated" class="btn btn-lg btn-navy text-lg" @click="openLoginModal">
+          <button v-if="!isAuthenticated" class="btn btn-lg text-lg" @click="openLoginModal">
             Get Started
           </button>
           <router-link v-else to="/dashboard" class="btn btn-primary glass">
@@ -191,11 +191,11 @@ export default {
 a .btn {
   background-color: blue;
 }
-.btn-navy {
+.btn {
   transition: background-color 0.3s ease;
 }
-.btn-navy:hover {
-  background-color: var(--color-dark-blue); /* Darker navy on hover */
+.btn:hover {
+  background: var(--color-primary-dark); /* Darker navy on hover */
 }
 </style>
 
