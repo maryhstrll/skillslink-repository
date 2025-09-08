@@ -42,193 +42,83 @@
     <div v-else class="space-y-6">
       <!-- Academic Excellence Summary -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat-card stat-card-primary">
-          <div class="stat-figure text-white">
-            <IconUsers class="w-8 h-8" />
-          </div>
-          <div class="stat-title text-white/80">Programs Analyzed</div>
-          <div class="stat-value text-white">{{ academicData?.employment_by_program?.programs?.length || 0 }}</div>
-          <div class="stat-desc text-white/70">Active academic programs</div>
-        </div>
-        
-        <div class="stat-card stat-card-accent">
-          <div class="stat-figure text-white">
-            <IconUserCheck class="w-8 h-8" />
-          </div>
-          <div class="stat-title text-white/80">Best Employment Rate</div>
-          <div class="stat-value text-white">
-            {{ academicData?.employment_by_program?.employment_rates ? Math.max(...academicData.employment_by_program.employment_rates).toFixed(1) : 0 }}%
-          </div>
-          <div class="stat-desc text-white/70">Top performing program</div>
-        </div>
-        
-        <div class="stat-card stat-card-ghost">
-          <div class="stat-figure">
-            <IconBarChart3 class="w-8 h-8" />
-          </div>
-          <div class="stat-title">Job-Course Alignment</div>
-          <div class="stat-value">{{ academicData?.job_alignment_rate?.overall_rate || 0 }}%</div>
-          <div class="stat-desc">Overall alignment rate</div>
-        </div>
-        
-        <div class="stat-card stat-card-secondary">
-          <div class="stat-figure text-white">
-            <IconTrendingUp class="w-8 h-8" />
-          </div>
-          <div class="stat-title text-white/80">Avg. Time to Employment</div>
-          <div class="stat-value text-white">
-            {{ academicData?.time_to_employment_by_program?.average_months && academicData.time_to_employment_by_program.average_months.length > 0 ? 
-                (academicData.time_to_employment_by_program.average_months.reduce((a, b) => a + b, 0) / 
-                 academicData.time_to_employment_by_program.average_months.length).toFixed(1) : 0 }}
-          </div>
-          <div class="stat-desc text-white/70">months across programs</div>
-        </div>
+        <StatCard 
+          v-for="(card, index) in statCardsData" 
+          :key="index"
+          :title="card.title"
+          :value="card.value"
+          :description="card.description"
+          :icon="card.icon"
+          :variant="card.variant"
+          :format="card.format"
+        />
       </div>
 
       <!-- Academic Excellence Charts -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Employment Rate by Academic Program (Bar Chart) -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title flex items-center">
-              <IconBarChart3 class="w-5 h-5 text-primary" />
-              Employment Rate by Academic Program
-            </h2>
-            <div class="h-80">
-              <canvas ref="employmentByProgramChart"></canvas>
-            </div>
-          </div>
-        </div>
+        <!-- Employment Rate by Academic Program -->
+        <ChartCard
+          title="Employment Rate by Academic Program"
+          :icon="IconBarChart3"
+          chart-type="bar"
+          :chart-data="employmentChartData"
+          :chart-options="employmentChartOptions"
+        />
 
-        <!-- Average Salary by Program (Horizontal Bar) -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title flex items-center">
-              <IconBarChart3 class="w-5 h-5 text-success" />
-              Average Salary by Program
-            </h2>
-            <div class="h-80">
-              <canvas ref="salaryByProgramChart"></canvas>
-            </div>
-          </div>
-        </div>
+        <!-- Average Salary by Program -->
+        <ChartCard
+          title="Average Salary by Program"
+          :icon="IconBarChart3"
+          icon-class="text-success"
+          chart-type="bar"
+          :chart-data="salaryChartData"
+          :chart-options="salaryChartOptions"
+        />
 
-        <!-- Job-Course Alignment Rate (Gauge Chart) -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title flex items-center">
-              <IconPieChart class="w-5 h-5 text-info" />
-              Job-Course Alignment Rate
-            </h2>
-            <div class="h-80">
-              <canvas ref="jobAlignmentChart"></canvas>
-            </div>
-            <div class="mt-4 text-center">
-              <div class="text-2xl font-bold text-info">
-                {{ academicData?.job_alignment_rate?.overall_rate || 0 }}%
-              </div>
-              <div class="text-sm text-base-content/70">Overall Alignment Rate</div>
-            </div>
-          </div>
-        </div>
+        <!-- Job-Course Alignment Rate -->
+        <ChartCard
+          title="Job-Course Alignment Rate"
+          :icon="IconPieChart"
+          icon-class="text-info"
+          chart-type="doughnut"
+          :chart-data="alignmentChartData"
+          :chart-options="alignmentChartOptions"
+          :show-stats="true"
+          :stats-value="`${academicData?.job_alignment_rate?.overall_rate || 0}%`"
+          stats-label="Overall Alignment Rate"
+          stats-value-class="text-info"
+        />
 
-        <!-- Time to Employment by Program (Line Chart) -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title flex items-center">
-              <IconTrendingUp class="w-5 h-5 text-warning" />
-              Time to Employment by Program
-            </h2>
-            <div class="h-80">
-              <canvas ref="timeToEmploymentChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Program Performance Tables -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Employment Rate by Program Table -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h3 class="card-title">Employment Rates by Program</h3>
-            <div class="overflow-x-auto">
-              <table class="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Program</th>
-                    <th>Employment Rate</th>
-                    <th>Employed</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(program, index) in academicData?.employment_by_program?.programs" :key="program">
-                    <td class="font-medium">{{ program }}</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="badge" :class="getBadgeClass(academicData.employment_by_program.employment_rates[index])">
-                          {{ academicData.employment_by_program.employment_rates[index] }}%
-                        </div>
-                      </div>
-                    </td>
-                    <td>{{ academicData.employment_by_program.employed_counts[index] }}</td>
-                    <td>{{ academicData.employment_by_program.total_responses[index] }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Job-Course Alignment by Program Table -->
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h3 class="card-title">Job-Course Alignment by Program</h3>
-            <div class="overflow-x-auto">
-              <table class="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Program</th>
-                    <th>Alignment Rate</th>
-                    <th>Aligned</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(program, index) in academicData?.job_alignment_rate?.programs" :key="program">
-                    <td class="font-medium">{{ program }}</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="badge" :class="getBadgeClass(academicData.job_alignment_rate.alignment_rates[index])">
-                          {{ academicData.job_alignment_rate.alignment_rates[index] }}%
-                        </div>
-                      </div>
-                    </td>
-                    <td>{{ academicData.job_alignment_rate.aligned_counts[index] }}</td>
-                    <td>{{ academicData.job_alignment_rate.total_employed[index] }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <!-- Time to Employment by Program -->
+        <ChartCard
+          title="Time to Employment by Program"
+          :icon="IconTrendingUp"
+          icon-class="text-warning"
+          chart-type="line"
+          :chart-data="timeToEmploymentChartData"
+          :chart-options="timeToEmploymentChartOptions"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { Chart, registerables } from 'chart.js'
-// Icons are globally registered in main.js - no need to import
-
-// Register Chart.js components
-Chart.register(...registerables)
-
-const router = useRouter()
+import ChartCard from '@/components/charts/ChartCard.vue'
+import DataTable from '@/components/tables/DataTable.vue'
+import StatCard from '@/components/cards/StatCard.vue'
+import { 
+  RefreshCw as IconRefreshCw,
+  Download as IconDownload,
+  X as IconX,
+  Users as IconUsers,
+  UserCheck as IconUserCheck,
+  BarChart3 as IconBarChart3,
+  TrendingUp as IconTrendingUp,
+  PieChart as IconPieChart
+} from 'lucide-vue-next'
 
 // Configure axios
 axios.defaults.baseURL = "http://localhost/skillslink/backend"
@@ -240,15 +130,6 @@ const error = ref(null)
 const dashboardData = ref(null)
 const academicData = ref(null)
 
-// Chart refs
-const employmentByProgramChart = ref(null)
-const salaryByProgramChart = ref(null)
-const jobAlignmentChart = ref(null)
-const timeToEmploymentChart = ref(null)
-
-// Chart instances
-let charts = {}
-
 // Chart colors
 const chartColors = {
   primary: '#3B82F6',
@@ -259,39 +140,44 @@ const chartColors = {
   secondary: '#8B5CF6'
 }
 
-const backgroundColors = [
-  'rgba(59, 130, 246, 0.8)',   // blue
-  'rgba(16, 185, 129, 0.8)',   // green  
-  'rgba(245, 158, 11, 0.8)',   // yellow
-  'rgba(239, 68, 68, 0.8)',    // red
-  'rgba(6, 182, 212, 0.8)',    // cyan
-  'rgba(139, 92, 246, 0.8)',   // purple
-  'rgba(236, 72, 153, 0.8)',   // pink
-  'rgba(34, 197, 94, 0.8)'     // emerald
-]
-
-const borderColors = [
-  'rgb(59, 130, 246)',   // blue
-  'rgb(16, 185, 129)',   // green  
-  'rgb(245, 158, 11)',   // yellow
-  'rgb(239, 68, 68)',    // red
-  'rgb(6, 182, 212)',    // cyan
-  'rgb(139, 92, 246)',   // purple
-  'rgb(236, 72, 153)',   // pink
-  'rgb(34, 197, 94)'     // emerald
-]
-
-// Utility functions
-const getPercentage = (value, total) => {
-  if (!total || total === 0) return 0
-  return Math.round((value / total) * 100)
-}
-
-const getBadgeClass = (rate) => {
-  if (rate >= 80) return 'badge-success'
-  if (rate >= 60) return 'badge-warning'
-  return 'badge-error'
-}
+// Computed properties for stat cards
+const statCardsData = computed(() => [
+  {
+    title: 'Programs Analyzed',
+    value: academicData.value?.employment_by_program?.programs?.length || 0,
+    description: 'Active academic programs',
+    icon: IconUsers,
+    variant: 'primary'
+  },
+  {
+    title: 'Best Employment Rate',
+    value: academicData.value?.employment_by_program?.employment_rates ? 
+      Math.max(...academicData.value.employment_by_program.employment_rates).toFixed(1) : 0,
+    description: 'Top performing program',
+    icon: IconUserCheck,
+    variant: 'accent',
+    format: 'percentage'
+  },
+  {
+    title: 'Job-Course Alignment',
+    value: academicData.value?.job_alignment_rate?.overall_rate || 0,
+    description: 'Overall alignment rate',
+    icon: IconBarChart3,
+    variant: 'ghost',
+    format: 'percentage'
+  },
+  {
+    title: 'Avg. Time to Employment',
+    value: academicData.value?.time_to_employment_by_program?.average_months && 
+      academicData.value.time_to_employment_by_program.average_months.length > 0 ? 
+      (academicData.value.time_to_employment_by_program.average_months.reduce((a, b) => a + b, 0) / 
+       academicData.value.time_to_employment_by_program.average_months.length).toFixed(1) : 0,
+    description: 'months across programs',
+    icon: IconTrendingUp,
+    variant: 'secondary',
+    format: 'decimal'
+  }
+])
 
 // API functions
 const fetchDashboardData = async () => {
@@ -315,335 +201,182 @@ const fetchAcademicExcellenceData = async () => {
   }
 }
 
-// Chart creation functions
-const createEmploymentByProgramChart = () => {
-  console.log('Creating Employment chart - Debug info:', {
-    canvas: !!employmentByProgramChart.value,
-    canvasElement: employmentByProgramChart.value,
-    academicData: !!academicData.value,
-    employmentData: academicData.value?.employment_by_program,
-    fullAcademicData: academicData.value
-  })
-  
-  if (!employmentByProgramChart.value || !academicData.value?.employment_by_program) {
-    console.log('Employment chart: Canvas or data not available')
-    return
-  }
+// Computed chart data
+const employmentChartData = computed(() => {
+  if (!academicData.value?.employment_by_program?.programs) return null
   
   const data = academicData.value.employment_by_program
-  console.log('Employment chart data:', data)
-  
-  if (charts.employmentByProgram) {
-    charts.employmentByProgram.destroy()
+  return {
+    labels: data.programs || [],
+    datasets: [{
+      label: 'Employment Rate (%)',
+      data: data.employment_rates || [],
+      backgroundColor: chartColors.primary + '80',
+      borderColor: chartColors.primary,
+      borderWidth: 2
+    }]
   }
-  
-  charts.employmentByProgram = new Chart(employmentByProgramChart.value, {
-    type: 'bar',
-    data: {
-      labels: data.programs,
-      datasets: [{
-        label: 'Employment Rate (%)',
-        data: data.employment_rates,
-        backgroundColor: chartColors.primary + '80',
-        borderColor: chartColors.primary,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            afterLabel: function(context) {
-              const index = context.dataIndex
-              return `Employed: ${data.employed_counts[index]}/${data.total_responses[index]}`
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: function(value) {
-              return value + '%'
-            }
-          }
-        },
-        x: {
-          ticks: {
-            maxRotation: 45
-          }
+})
+
+const employmentChartOptions = computed(() => ({
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        afterLabel: function(context) {
+          const data = academicData.value?.employment_by_program
+          if (!data) return ''
+          const index = context.dataIndex
+          return `Employed: ${data.employed_counts?.[index] || 0}/${data.total_responses?.[index] || 0}`
         }
       }
     }
-  })
-  console.log('Employment chart created successfully')
-}
-
-const createSalaryByProgramChart = () => {
-  if (!salaryByProgramChart.value || !academicData.value?.salary_by_program) {
-    console.log('Salary chart: Canvas or data not available', {
-      canvas: !!salaryByProgramChart.value,
-      data: !!academicData.value?.salary_by_program,
-      programs: academicData.value?.salary_by_program?.programs?.length || 0
-    })
-    return
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 100,
+      ticks: { callback: function(value) { return value + '%' } }
+    },
+    x: { ticks: { maxRotation: 45 } }
   }
+}))
+
+const salaryChartData = computed(() => {
+  if (!academicData.value?.salary_by_program?.programs?.length) return null
   
   const data = academicData.value.salary_by_program
-  console.log('Salary chart data:', data)
-  
-  // Check if we have salary data
-  if (!data.programs || data.programs.length === 0) {
-    console.log('No salary data available')
-    return
+  return {
+    labels: data.programs || [],
+    datasets: [{
+      label: 'Average Salary (₱)',
+      data: data.average_salaries || [],
+      backgroundColor: chartColors.success + '80',
+      borderColor: chartColors.success,
+      borderWidth: 2
+    }]
   }
-  
-  if (charts.salaryByProgram) {
-    charts.salaryByProgram.destroy()
-  }
-  
-  charts.salaryByProgram = new Chart(salaryByProgramChart.value, {
-    type: 'bar',
-    data: {
-      labels: data.programs,
-      datasets: [{
-        label: 'Average Salary (₱)',
-        data: data.average_salaries,
-        backgroundColor: chartColors.success + '80',
-        borderColor: chartColors.success,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return `₱${context.parsed.x.toLocaleString()}`
-            },
-            afterLabel: function(context) {
-              const index = context.dataIndex
-              return `Based on ${data.total_employed[index]} employed alumni`
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return '₱' + value.toLocaleString()
-            }
-          }
+})
+
+const salaryChartOptions = computed(() => ({
+  indexAxis: 'y',
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: function(context) { return `₱${context.parsed.x.toLocaleString()}` },
+        afterLabel: function(context) {
+          const data = academicData.value?.salary_by_program
+          if (!data) return ''
+          const index = context.dataIndex
+          return `Based on ${data.total_employed?.[index] || 0} employed alumni`
         }
       }
     }
-  })
-  console.log('Salary chart created successfully')
-}
-
-const createJobAlignmentChart = () => {
-  if (!jobAlignmentChart.value || !academicData.value?.job_alignment_rate) {
-    console.log('Job alignment chart: Canvas or data not available', {
-      canvas: !!jobAlignmentChart.value,
-      data: !!academicData.value?.job_alignment_rate
-    })
-    return
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      ticks: { callback: function(value) { return '₱' + value.toLocaleString() } }
+    }
   }
+}))
+
+const alignmentChartData = computed(() => {
+  if (!academicData.value?.job_alignment_rate) return null
   
   const alignmentRate = academicData.value.job_alignment_rate.overall_rate || 0
-  console.log('Job alignment rate:', alignmentRate)
-  
-  if (charts.jobAlignment) {
-    charts.jobAlignment.destroy()
+  return {
+    labels: ['Job-Course Aligned', 'Not Aligned'],
+    datasets: [{
+      data: [alignmentRate, 100 - alignmentRate],
+      backgroundColor: [chartColors.info + '80', '#E5E7EB'],
+      borderColor: [chartColors.info, '#D1D5DB'],
+      borderWidth: 2
+    }]
   }
-  
-  charts.jobAlignment = new Chart(jobAlignmentChart.value, {
-    type: 'doughnut',
-    data: {
-      labels: ['Job-Course Aligned', 'Not Aligned'],
-      datasets: [{
-        data: [alignmentRate, 100 - alignmentRate],
-        backgroundColor: [chartColors.info + '80', '#E5E7EB'],
-        borderColor: [chartColors.info, '#D1D5DB'],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '70%',
-      plugins: {
-        legend: {
-          position: 'bottom'
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return context.label + ': ' + context.parsed + '%'
-            }
-          }
-        }
+})
+
+const alignmentChartOptions = computed(() => ({
+  cutout: '70%',
+  plugins: {
+    legend: { position: 'bottom' },
+    tooltip: {
+      callbacks: {
+        label: function(context) { return context.label + ': ' + context.parsed + '%' }
       }
     }
-  })
-  console.log('Job alignment chart created successfully')
-}
-
-const createTimeToEmploymentChart = () => {
-  if (!timeToEmploymentChart.value || !academicData.value?.time_to_employment_by_program) {
-    console.log('Time to employment chart: Canvas or data not available', {
-      canvas: !!timeToEmploymentChart.value,
-      data: !!academicData.value?.time_to_employment_by_program,
-      programs: academicData.value?.time_to_employment_by_program?.programs?.length || 0
-    })
-    return
   }
+}))
+
+const timeToEmploymentChartData = computed(() => {
+  if (!academicData.value?.time_to_employment_by_program?.programs?.length) return null
   
   const data = academicData.value.time_to_employment_by_program
-  console.log('Time to employment data:', data)
-  
-  // Check if we have time to employment data
-  if (!data.programs || data.programs.length === 0) {
-    console.log('No time to employment data available')
-    return
-  }
-  
-  if (charts.timeToEmployment) {
-    charts.timeToEmployment.destroy()
-  }
-  
-  charts.timeToEmployment = new Chart(timeToEmploymentChart.value, {
-    type: 'line',
-    data: {
-      labels: data.programs,
-      datasets: [
-        {
-          label: 'Average Months',
-          data: data.average_months,
-          borderColor: chartColors.warning,
-          backgroundColor: chartColors.warning + '20',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4
-        },
-        {
-          label: 'Min Months',
-          data: data.min_months,
-          borderColor: chartColors.success,
-          backgroundColor: chartColors.success + '20',
-          borderWidth: 2,
-          borderDash: [5, 5]
-        },
-        {
-          label: 'Max Months',
-          data: data.max_months,
-          borderColor: chartColors.error,
-          backgroundColor: chartColors.error + '20',
-          borderWidth: 2,
-          borderDash: [5, 5]
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top'
-        },
-        tooltip: {
-          callbacks: {
-            afterLabel: function(context) {
-              const index = context.dataIndex
-              return `Based on ${data.total_employed[index]} employed alumni`
-            }
-          }
-        }
+  return {
+    labels: data.programs || [],
+    datasets: [
+      {
+        label: 'Average Months',
+        data: data.average_months || [],
+        borderColor: chartColors.warning,
+        backgroundColor: chartColors.warning + '20',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return value + ' months'
-            }
-          }
-        },
-        x: {
-          ticks: {
-            maxRotation: 45
-          }
+      {
+        label: 'Min Months',
+        data: data.min_months || [],
+        borderColor: chartColors.success,
+        backgroundColor: chartColors.success + '20',
+        borderWidth: 2,
+        borderDash: [5, 5]
+      },
+      {
+        label: 'Max Months',
+        data: data.max_months || [],
+        borderColor: chartColors.error,
+        backgroundColor: chartColors.error + '20',
+        borderWidth: 2,
+        borderDash: [5, 5]
+      }
+    ]
+  }
+})
+
+const timeToEmploymentChartOptions = computed(() => ({
+  plugins: {
+    legend: { position: 'top' },
+    tooltip: {
+      callbacks: {
+        afterLabel: function(context) {
+          const data = academicData.value?.time_to_employment_by_program
+          if (!data) return ''
+          const index = context.dataIndex
+          return `Based on ${data.total_employed?.[index] || 0} employed alumni`
         }
       }
     }
-  })
-  console.log('Time to employment chart created successfully')
-}
-
-// Watch for academicData changes and create charts when data is available
-watch(academicData, (newData) => {
-  if (newData) {
-    console.log('Academic data changed, creating charts in next tick...')
-    nextTick(() => {
-      // Small delay to ensure canvas elements are ready
-      setTimeout(() => {
-        createAllCharts()
-      }, 100)
-    })
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { callback: function(value) { return value + ' months' } }
+    },
+    x: { ticks: { maxRotation: 45 } }
   }
-}, { deep: true })
-
-const createAllCharts = () => {
-  console.log('Creating all charts...')
-  
-  console.log('Canvas refs check:', {
-    employment: !!employmentByProgramChart.value,
-    salary: !!salaryByProgramChart.value,
-    alignment: !!jobAlignmentChart.value,
-    timeToEmployment: !!timeToEmploymentChart.value
-  })
-  
-  createEmploymentByProgramChart()
-  createSalaryByProgramChart()
-  createJobAlignmentChart()
-  createTimeToEmploymentChart()
-  
-  console.log('Chart creation completed')
-}
+}))
 
 const loadAllData = async () => {
   try {
     loading.value = true
     error.value = null
     
-    console.log('Loading academic excellence data...')
-    
     await Promise.all([
       fetchDashboardData(),
       fetchAcademicExcellenceData()
     ])
-    
-    console.log('Data loaded:', {
-      dashboardData: dashboardData.value,
-      academicData: academicData.value
-    })
-    
-    // Charts will be created by the watcher when academicData changes
     
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to load reports data'

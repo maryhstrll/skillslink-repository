@@ -70,72 +70,64 @@
         </div>
 
         <!-- Requests Table -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 overflow-hidden">
-          <div v-if="loading" class="flex justify-center items-center py-12">
-            <span class="loading loading-spinner loading-lg text-white"></span>
-          </div>
-          
-          <div v-else-if="filteredRequests.length === 0" class="text-center py-12 text-white">
-            <i class="fas fa-file-alt text-6xl mb-4 text-white/30"></i>
-            <p class="text-xl mb-2">No document requests found</p>
-            <p class="text-white/70">{{ requests.length === 0 ? 'No requests have been submitted yet' : 'Try adjusting your filters' }}</p>
-          </div>
+        <DataTable
+          title="Document Requests"
+          :title-icon="IconFileText"
+          :data="filteredRequests"
+          :columns="tableColumns"
+          :loading="loading"
+          item-label="requests"
+          empty-title="No document requests found"
+          :empty-description="requests.length === 0 ? 'No requests have been submitted yet' : 'Try adjusting your filters'"
+          :empty-icon="IconFileText"
+          key-field="request_id"
+        >
+          <!-- Custom cell for document type with icon -->
+          <template #cell-document_type="{ value }">
+            <div class="flex items-center gap-2">
+              <IconFileText class="w-4 h-4" style="color: var(--color-primary);" />
+              <span>{{ value }}</span>
+            </div>
+          </template>
 
-          <div v-else class="overflow-x-auto">
-            <table class="table w-full">
-              <thead class="bg-[#2E79BA]/20 text-white">
-                <tr>
-                  <th class="text-white">Alumni</th>
-                  <th class="text-white">Student ID</th>
-                  <th class="text-white">Program</th>
-                  <th class="text-white">Document Type</th>
-                  <th class="text-white">Purpose</th>
-                  <th class="text-white">Status</th>
-                  <th class="text-white">Request Date</th>
-                  <th class="text-white">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="request in filteredRequests" :key="request.request_id" class="hover:bg-white/5 text-white">
-                  <td class="font-medium">{{ request.full_name }}</td>
-                  <td class="text-white/80">{{ request.student_id }}</td>
-                  <td class="text-white/80">{{ request.program_name }}</td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <i :class="getDocumentTypeIcon(request.document_type)" class="text-[#5FC9F3]"></i>
-                      <span>{{ request.document_type }}</span>
-                    </div>
-                  </td>
-                  <td class="text-white/80 max-w-xs truncate">
-                    {{ request.purpose || 'Not specified' }}
-                  </td>
-                  <td>
-                    <div class="flex items-center gap-2">
-                      <i :class="getStatusIcon(request.status)" class="text-sm"></i>
-                      <span class="badge" :class="getStatusClass(request.status)">
-                        {{ request.status }}
-                      </span>
-                    </div>
-                  </td>
-                  <td class="text-white/80">
-                    {{ formatDate(request.request_date) }}
-                  </td>
-                  <td>
-                    <div class="flex gap-2">
-                      <button 
-                        class="btn btn-sm bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA]"
-                        @click="openStatusModal(request)"
-                        :disabled="updating">
-                        <i class="fas fa-edit w-3 h-3"></i>
-                        Update
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <!-- Custom cell for status with badge -->
+          <template #cell-status="{ value }">
+            <div class="flex items-center gap-2">
+              <i :class="getStatusIcon(value)" class="text-sm"></i>
+              <span class="badge" :class="getStatusClass(value)">
+                {{ value }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Custom cell for request date -->
+          <template #cell-request_date="{ value }">
+            <span class="text-sm opacity-80">
+              {{ formatDate(value) }}
+            </span>
+          </template>
+
+          <!-- Custom cell for actions -->
+          <template #cell-actions="{ item }">
+            <div class="flex gap-2">
+              <button 
+                class="btn btn-sm btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200"
+                @click="viewRequestDetails(item)"
+                title="View Details"
+              >
+                <IconEye class="w-4 h-4" />
+              </button>
+              <button 
+                class="btn btn-sm btn-secondary-custom shadow-lg hover:shadow-xl transition-all duration-200"
+                @click="openStatusModal(item)"
+                title="Update Status"
+                :disabled="updating"
+              >
+                <IconEdit class="w-4 h-4" />
+              </button>
+            </div>
+          </template>
+        </DataTable>
       </div>
     </div>
 
@@ -278,9 +270,17 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
+import DataTable from '@/components/tables/DataTable.vue'
 import { useRouter } from 'vue-router'
 import documentRequestService from '@/services/documentRequest.js'
 import { messageService } from '@/services/messageService.js'
+import { 
+  FileText as IconFileText,
+  Users as IconUsers,
+  Filter as IconFilter,
+  Eye as IconEye,
+  Edit as IconEdit
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -321,6 +321,46 @@ const filteredRequests = computed(() => {
   }
 
   return filtered
+})
+
+// Table columns configuration
+const tableColumns = computed(() => [
+  {
+    key: 'full_name',
+    title: 'Alumni',
+    cellClass: 'font-medium'
+  },
+  {
+    key: 'student_id',
+    title: 'Student ID',
+    cellClass: 'opacity-80'
+  },
+  {
+    key: 'program_name',
+    title: 'Program',
+    cellClass: 'opacity-80'
+  },
+  {
+    key: 'document_type',
+    title: 'Document Type'
+  },
+  {
+    key: 'status',
+    title: 'Status'
+  },
+  {
+    key: 'request_date',
+    title: 'Request Date'
+  },
+  {
+    key: 'actions',
+    title: 'Actions',
+    cellClass: 'w-32'
+  }
+])
+
+const hasActiveFilters = computed(() => {
+  return statusFilter.value || documentTypeFilter.value || searchQuery.value
 })
 
 // Methods
@@ -378,16 +418,33 @@ const clearFilters = () => {
   searchQuery.value = ''
 }
 
+const viewRequestDetails = (request) => {
+  // For now, just open the status modal - can be expanded later
+  openStatusModal(request)
+}
+
 const getStatusClass = (status) => {
   return documentRequestService.getStatusClass(status)
 }
 
 const getStatusIcon = (status) => {
-  return documentRequestService.getStatusIcon(status)
+  const iconMap = {
+    'Pending': 'fas fa-clock',
+    'Processing': 'fas fa-cog',
+    'Ready for Pickup': 'fas fa-clipboard-check',
+    'Completed': 'fas fa-check-circle'
+  }
+  return iconMap[status] || 'fas fa-question-circle'
 }
 
 const getDocumentTypeIcon = (documentType) => {
-  return documentRequestService.getDocumentTypeIcon(documentType)
+  const iconMap = {
+    'Transcript of Records': IconFileText,
+    'Transcript of Competency': IconFileText,
+    'Diploma': IconFileText,
+    'Certificate of Training': IconFileText
+  }
+  return iconMap[documentType] || IconFileText
 }
 
 const formatDate = (dateString) => {
@@ -435,21 +492,6 @@ onMounted(() => {
 /* Animation */
 .btn, .card, .modal-box {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Table styling */
-.table th {
-  background-color: rgba(46, 121, 186, 0.2) !important;
-  color: white !important;
-  font-weight: 600;
-}
-
-.table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 .truncate {
