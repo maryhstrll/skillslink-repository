@@ -3,23 +3,49 @@
     <div class="min-h-screen bg-gradient-to-br from-[#081F37] to-[#1E549F] p-4 md:p-6 lg:p-8">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-xl border border-white/20">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="text-white">
-              <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] bg-clip-text text-transparent">
-                Document Request Management
-              </h1>
-              <p class="text-white/80 text-sm md:text-base">Manage and process alumni document requests</p>
-            </div>
-            <div class="flex gap-2">
+        <div class="page-header-dark">
+          <PageHeader
+            title="Document Request Management"
+            description="Manage and process alumni document requests efficiently and track their status."
+            :title-icon="IconFileText"
+            badge="Processing"
+            badge-type="accent"
+          >
+            <template #actions>
               <div class="stats shadow bg-white/10 border border-white/20">
                 <div class="stat">
                   <div class="stat-title text-white/70">Total Requests</div>
                   <div class="stat-value text-[#5FC9F3] text-2xl">{{ requests.length }}</div>
                 </div>
               </div>
-            </div>
-          </div>
+              <button 
+                class="btn btn-outline btn-accent shadow-lg hover:shadow-xl transition-all duration-200"
+                @click="fetchRequests"
+                :disabled="loading"
+              >
+                <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
+                Refresh
+              </button>
+            </template>
+
+            <template #subtitle>
+              <div class="flex flex-wrap gap-4 items-center text-sm text-white/80">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">Filtered Results:</span>
+                  <span class="badge badge-accent">{{ filteredRequests.length }}</span>
+                </div>
+                <div v-if="hasActiveFilters" class="flex items-center gap-2">
+                  <span class="text-accent font-medium">Filters Active</span>
+                  <button 
+                    class="btn btn-xs btn-outline btn-accent"
+                    @click="clearFilters"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+            </template>
+          </PageHeader>
         </div>
 
         <!-- Filters -->
@@ -271,6 +297,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
 import DataTable from '@/components/tables/DataTable.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import { useRouter } from 'vue-router'
 import documentRequestService from '@/services/documentRequest.js'
 import { messageService } from '@/services/messageService.js'
@@ -279,7 +306,8 @@ import {
   Users as IconUsers,
   Filter as IconFilter,
   Eye as IconEye,
-  Edit as IconEdit
+  Edit as IconEdit,
+  RefreshCw as IconRefreshCw
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -582,5 +610,30 @@ onMounted(() => {
 
 .fas.fa-check-circle {
   color: #10b981;
+}
+
+/* Dark theme PageHeader styling */
+.page-header-dark .page-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.page-header-dark .page-header-title {
+  background: linear-gradient(135deg, #5FC9F3, #2E79BA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+.page-header-dark .page-header-description {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.page-header-dark .page-header-icon {
+  color: #5FC9F3;
 }
 </style>

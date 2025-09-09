@@ -3,14 +3,53 @@
   <Layout @logout="handleLogout">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 class="text-3xl font-bold text-base-content">Alumni Management</h1>
-            <p class="text-base-content/70 mt-1">
-              Manage and track alumni information across all programs and graduation years
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Alumni Directory"
+          description="Manage and view all alumni records, including their personal information, academic background, and contact details."
+          :title-icon="IconUsers"
+          badge="Directory"
+          badge-type="primary"
+        >
+          <template #actions>
+            <button 
+              class="btn btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200"
+              @click="openAddModal"
+            >
+              <IconPlus class="w-4 h-4" />
+              Add Alumni
+            </button>
+            <button 
+              class="btn btn-neutral shadow-lg hover:shadow-xl transition-all duration-200"
+              @click="fetchAlumni"
+              :disabled="loading"
+            >
+              <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
+              Refresh
+            </button>
+          </template>
+
+          <template #subtitle>
+            <div class="flex flex-wrap gap-4 items-center text-sm text-gray-600">
+              <div class="flex items-center gap-2">
+                <span class="font-medium">Total Alumni:</span>
+                <span class="badge badge-ghost">{{ alumniList.length }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="font-medium">Filtered Results:</span>
+                <span class="badge badge-accent">{{ filteredAlumni.length }}</span>
+              </div>
+              <div v-if="hasActiveFilters" class="flex items-center gap-2">
+                <span class="text-orange-600 font-medium">Filters Active</span>
+                <button 
+                  class="btn btn-xs btn-outline"
+                  @click="clearFilters"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </template>
+        </PageHeader>
 
         <!-- Filters Section -->
         <div class="card app-surface shadow-lg">
@@ -80,150 +119,82 @@
           </div>
         </div>
 
-        <!-- Alumni Table/Cards -->
-        <div class="card app-surface shadow-lg">
-          <div class="p-6 app-surface-alt">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-              <div>
-                <h2 class="text-xl md:text-2xl font-bold mb-2" style="color: var(--color-primary);">Alumni Directory</h2>
-                <p style="color: var(--color-text-secondary);">Complete list of registered alumni</p>
-              </div>
-              <div class="text-right">
-                <div class="text-sm" style="color: var(--color-text-secondary);">Total Alumni</div>
-                <div class="text-3xl font-bold" style="color: var(--color-primary);">
-                  {{ loading ? '...' : (hasActiveFilters ? `${filteredAlumni.length} / ${alumniList.length}` : alumniList.length) }}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Mobile Card View (hidden on desktop) -->
-          <div class="block lg:hidden p-4 space-y-4 max-h-96 overflow-y-auto">
-            <div v-if="loading" class="text-center py-8">
-              <div class="loading loading-spinner loading-lg" style="color: var(--color-primary);"></div>
-              <p class="mt-4" style="color: var(--color-text-secondary);">Loading alumni data...</p>
-            </div>
-            <div v-else-if="filteredAlumni.length === 0" class="text-center py-8" style="color: var(--color-text-secondary);">
-              <svg class="w-16 h-16 mb-4 mx-auto" style="color: var(--color-text-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-              <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
-            </div>
-            <div v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id" 
-                 class="card app-surface-alt shadow-md border app-border">
-              <div class="card-body p-4">
-                <div class="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 class="font-bold text-lg" style="color: var(--color-text-primary);">{{ alumni.first_name }} {{ alumni.last_name }}</h3>
-                  </div>
-                  <div class="badge" style="background: var(--color-accent); color: white; border: none;">{{ alumni.year_graduated }}</div>
-                </div>
-                <div class="space-y-2 text-sm">
-                  <div class="flex justify-between">
-                    <span style="color: var(--color-text-secondary);">Student ID:</span>
-                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.student_id }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span style="color: var(--color-text-secondary);">Program:</span>
-                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.program_name || getProgramName(alumni.program_id) }}</span>
-                  </div>
-                  <div v-if="alumni.phone_number" class="flex justify-between">
-                    <span style="color: var(--color-text-secondary);">Phone:</span>
-                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.phone_number }}</span>
-                  </div>
-                  <div v-if="alumni.city" class="flex justify-between">
-                    <span style="color: var(--color-text-secondary);">City:</span>
-                    <span class="font-medium" style="color: var(--color-primary);">{{ alumni.city }}</span>
-                  </div>
-                </div>
-                <div class="flex gap-2 mt-4">
-                  <button class="btn btn-sm btn-primary-custom flex-1" 
-                          @click="openEditModal(alumni)"
-                          :disabled="loading">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>Edit
-                  </button>
-                  <button class="btn btn-sm btn-accent-custom flex-1" 
-                          @click="viewProfile(alumni)"
-                          :disabled="loading">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>View Profile
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- Alumni DataTable -->
+        <DataTable
+          title="Alumni Directory"
+          :title-icon="IconUsers"
+          :count-icon="IconUserCheck"
+          :data="filteredAlumni"
+          :columns="tableColumns"
+          :loading="loading"
+          item-label="alumni"
+          empty-title="No alumni found"
+          :empty-description="alumniList.length === 0 ? 'No alumni records have been added yet' : 'Try adjusting your filters to see more results'"
+          :empty-icon="IconUsers"
+          key-field="alumni_id"
+          loading-text="Loading alumni data..."
+        >
+          <!-- Custom cell for student ID -->
+          <template #cell-student_id="{ value }">
+            <span class="font-mono text-sm" style="color: var(--color-primary);">{{ value }}</span>
+          </template>
 
-          <!-- Desktop Table View (hidden on mobile) -->
-          <div class="hidden lg:block overflow-x-auto">
-            <table class="table w-full">
-              <thead>
-                <tr>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Student ID</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Name</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Program</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Year Graduated</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Phone</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">City</th>
-                  <th class="font-bold" style="background: var(--color-neutral); color: var(--color-text-primary);">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="loading">
-                  <td colspan="7" class="text-center py-8">
-                    <div class="flex flex-col items-center">
-                      <div class="loading loading-spinner loading-lg" style="color: var(--color-primary);"></div>
-                      <p class="mt-4" style="color: var(--color-text-secondary);">Loading alumni data...</p>
-                    </div>
-                  </td>
-                </tr>
-                <tr v-else-if="filteredAlumni.length === 0">
-                  <td colspan="7" class="text-center py-8" style="color: var(--color-text-secondary);">
-                    <div class="flex flex-col items-center">
-                      <svg class="w-16 h-16 mb-4" style="color: var(--color-text-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                      </svg>
-                      <p>{{ alumniList.length === 0 ? 'No alumni records found.' : 'No alumni match your filters.' }}</p>
-                    </div>
-                  </td>
-                </tr>
-                <tr v-else v-for="alumni in filteredAlumni" :key="alumni.alumni_id">
-                  <td style="color: var(--color-primary);">{{ alumni.student_id }}</td>
-                  <td class="font-semibold" style="color: var(--color-text-primary);">
-                    {{ alumni.first_name }} {{ alumni.last_name }}
-                    <span v-if="alumni.middle_name" class="font-normal" style="color: var(--color-text-secondary);">{{ alumni.middle_name }}</span>
-                  </td>
-                  <td style="color: var(--color-primary);">{{ alumni.program_name || getProgramName(alumni.program_id) }}</td>
-                  <td>
-                    <div class="badge" style="background: var(--color-accent); color: white; border: none;">{{ alumni.year_graduated }}</div>
-                  </td>
-                  <td style="color: var(--color-text-primary);">{{ alumni.phone_number || '-' }}</td>
-                  <td style="color: var(--color-text-primary);">{{ alumni.city || '-' }}</td>
-                  <td>
-                    <div class="flex gap-2">
-                      <button class="btn btn-sm btn-primary-custom" 
-                              @click="openEditModal(alumni)"
-                              :disabled="loading">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                      </button>
-                      <button class="btn btn-sm btn-accent-custom" 
-                              @click="viewProfile(alumni)"
-                              :disabled="loading">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <!-- Custom cell for full name -->
+          <template #cell-full_name="{ item }">
+            <div class="font-semibold" style="color: var(--color-text-primary);">
+              {{ item.first_name }} {{ item.last_name }}
+              <div v-if="item.middle_name" class="text-xs font-normal opacity-70">
+                {{ item.middle_name }}
+              </div>
+            </div>
+          </template>
+
+          <!-- Custom cell for program -->
+          <template #cell-program_name="{ item }">
+            <span style="color: var(--color-primary);">
+              {{ item.program_name || getProgramName(item.program_id) }}
+            </span>
+          </template>
+
+          <!-- Custom cell for year graduated -->
+          <template #cell-year_graduated="{ value }">
+            <div class="badge" style="background: var(--color-accent); color: white; border: none;">
+              {{ value }}
+            </div>
+          </template>
+
+          <!-- Custom cell for phone -->
+          <template #cell-phone_number="{ value }">
+            <span style="color: var(--color-text-primary);">{{ value || '-' }}</span>
+          </template>
+
+          <!-- Custom cell for city -->
+          <template #cell-city="{ value }">
+            <span style="color: var(--color-text-primary);">{{ value || '-' }}</span>
+          </template>
+
+          <!-- Custom cell for actions -->
+          <template #cell-actions="{ item }">
+            <div class="flex gap-2">
+              <button 
+                class="btn btn-sm btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200" 
+                @click="openEditModal(item)"
+                :disabled="loading"
+                title="Edit Alumni"
+              >
+                <IconEdit class="w-4 h-4" />
+              </button>
+              <button 
+                class="btn btn-sm btn-accent-custom shadow-lg hover:shadow-xl transition-all duration-200" 
+                @click="viewProfile(item)"
+                :disabled="loading"
+                title="View Profile"
+              >
+                <IconEye class="w-4 h-4" />
+              </button>
+            </div>
+          </template>
+        </DataTable>
 
         <!-- Add/Edit Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -429,11 +400,21 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
+import DataTable from '@/components/tables/DataTable.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import AdminAlumniProfileModal from '@/components/modals/AdminAlumniProfileModal.vue'
 import { useRouter } from 'vue-router'
 import alumniService from '@/services/alumni.js'
 import programsService from '@/services/programs.js'
 import { messageService } from '@/services/messageService.js'
+import { 
+  Users as IconUsers, 
+  UserCheck as IconUserCheck, 
+  Eye as IconEye, 
+  Edit as IconEdit,
+  Plus as IconPlus,
+  RefreshCw as IconRefreshCw
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -504,6 +485,41 @@ const filteredAlumni = computed(() => {
 const hasActiveFilters = computed(() => {
   return searchQuery.value.trim() !== '' || selectedProgram.value !== '' || selectedYear.value !== ''
 })
+
+// Table columns configuration for DataTable
+const tableColumns = computed(() => [
+  {
+    key: 'student_id',
+    title: 'Student ID',
+    cellClass: 'font-mono text-sm'
+  },
+  {
+    key: 'full_name',
+    title: 'Name',
+    cellClass: 'font-semibold'
+  },
+  {
+    key: 'program_name',
+    title: 'Program'
+  },
+  {
+    key: 'year_graduated',
+    title: 'Year Graduated'
+  },
+  {
+    key: 'phone_number',
+    title: 'Phone'
+  },
+  {
+    key: 'city',
+    title: 'City'
+  },
+  {
+    key: 'actions',
+    title: 'Actions',
+    cellClass: 'w-32'
+  }
+])
 
 const clearFilters = () => {
   searchQuery.value = ''

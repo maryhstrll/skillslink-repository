@@ -11,22 +11,30 @@
     <!-- Main Content -->
     <div v-else class="space-y-6">
       <!-- Page Header -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 class="text-3xl font-bold text-base-content">User Management</h1>
-          <p class="text-base-content/70 mt-1">Manage user accounts and permissions</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn btn-outline" @click="exportUsers">
-            <i class="fas fa-download"></i>
+      <PageHeader
+        title="User Management"
+        description="Manage user accounts, permissions, and access control across the system."
+        :title-icon="IconUsers"
+        badge="Admin"
+        badge-type="error"
+      >
+        <template #actions>
+          <button 
+            class="btn btn-outline shadow-lg hover:shadow-xl transition-all duration-200" 
+            @click="exportUsers"
+          >
+            <IconDownload class="w-4 h-4" />
             Export
           </button>
-          <button class="btn btn-primary" @click="showAddUserModal = true">
-            <i class="fas fa-plus"></i>
+          <button 
+            class="btn btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200" 
+            @click="showAddUserModal = true"
+          >
+            <IconPlus class="w-4 h-4" />
             Add User
           </button>
-        </div>
-      </div>
+        </template>
+      </PageHeader>
 
       <!-- User Statistics -->
       <UserStatistics :user-stats="userStats" />
@@ -70,100 +78,94 @@
         </div>
       </div>
 
-      <!-- Users Table -->
-      <div class="card bg-base-100 shadow-xl">
+      <!-- Users DataTable -->
+      <DataTable
+        title="User Management"
+        :title-icon="IconUsers"
+        :count-icon="IconUserCheck"
+        :data="users"
+        :columns="tableColumns"
+        :loading="loading"
+        item-label="users"
+        empty-title="No users found"
+        empty-description="Try adjusting your search criteria or add new users to get started"
+        :empty-icon="IconUsers"
+        key-field="id"
+        loading-text="Loading users..."
+      >
+        <!-- Custom cell for user info -->
+        <template #cell-user="{ item }">
+          <div class="flex items-center gap-3">
+            <div class="avatar placeholder">
+              <div class="bg-neutral text-neutral-content rounded-full w-10">
+                <span class="text-sm">{{ getUserInitials(item.name || `${item.first_name} ${item.last_name}`) }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="font-bold">{{ item.name || `${item.first_name} ${item.last_name}` }}</div>
+              <div class="text-sm opacity-50">{{ item.username || item.student_id }}</div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Custom cell for email -->
+        <template #cell-email="{ value }">
+          <span class="text-sm">{{ value }}</span>
+        </template>
+
+        <!-- Custom cell for role -->
+        <template #cell-role="{ value }">
+          <div class="badge" :class="getRoleBadgeClass(value)">
+            {{ value?.charAt(0).toUpperCase() + value?.slice(1) }}
+          </div>
+        </template>
+
+        <!-- Custom cell for status -->
+        <template #cell-status="{ item }">
+          <!-- Show approval status with priority: rejected > pending > regular status -->
+          <div v-if="item.approval_status === 'rejected'" class="badge badge-error badge-sm">
+            Rejected
+          </div>
+          <div v-else-if="item.approval_status === 'pending'" class="badge badge-warning badge-sm">
+            Pending
+          </div>
+          <div v-else class="badge badge-sm" :class="getStatusBadgeClass(item.status)">
+            {{ item.status?.charAt(0).toUpperCase() + item.status?.slice(1) }}
+          </div>
+        </template>
+
+        <!-- Custom cell for program -->
+        <template #cell-program="{ value }">
+          <span class="text-sm">{{ value || 'N/A' }}</span>
+        </template>
+
+        <!-- Custom cell for last login -->
+        <template #cell-lastLogin="{ value }">
+          <span class="text-sm opacity-75">{{ formatDate(value) }}</span>
+        </template>
+
+        <!-- Custom cell for actions -->
+        <template #cell-actions="{ item }">
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
+              <i class="fas fa-ellipsis-v"></i>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li><a @click="editUser(item)"><i class="fas fa-edit"></i> Edit</a></li>
+              <li><a @click="resetPassword(item)"><i class="fas fa-key"></i> Reset Password</a></li>
+              <li><a @click="toggleUserStatus(item)" :class="{ 'text-error': item.status === 'active' }">
+                <i :class="item.status === 'active' ? 'fas fa-ban' : 'fas fa-check'"></i>
+                {{ item.status === 'active' ? 'Deactivate' : 'Activate' }}
+              </a></li>
+            </ul>
+          </div>
+        </template>
+      </DataTable>
+
+      <!-- Pagination (if needed outside DataTable) -->
+      <div v-if="users.length > 0 && totalPages > 1" class="card bg-base-100 shadow-xl mt-4">
         <div class="card-body">
-          <!-- Loading State -->
-          <div v-if="loading" class="flex justify-center items-center py-8">
-            <span class="loading loading-spinner loading-lg"></span>
-            <span class="ml-2">Loading users...</span>
-          </div>
-          
-          <!-- Error State -->
-          <div v-else-if="error" class="alert alert-error">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>{{ error }}</span>
-            <button @click="fetchUsers()" class="btn btn-sm btn-outline">Retry</button>
-          </div>
-          
-          <!-- Empty State -->
-          <div v-else-if="users.length === 0" class="text-center py-8">
-            <i class="fas fa-users text-6xl text-base-300 mb-4"></i>
-            <p class="text-xl font-semibold text-base-content/70">No users found</p>
-            <p class="text-base-content/50">Try adjusting your search criteria</p>
-          </div>
-          
-          <!-- Users Table -->
-          <div v-else class="overflow-x-auto">
-            <table class="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Program</th>
-                  <th>Last Login</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="user in users" :key="user.id">
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar placeholder">
-                        <div class="bg-neutral text-neutral-content rounded-full w-10">
-                          <span class="text-sm">{{ getUserInitials(user.name) }}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div class="font-bold">{{ user.name }}</div>
-                        <div class="text-sm opacity-50">{{ user.username }}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{{ user.email }}</td>
-                  <td>
-                    <div class="badge" :class="getRoleBadgeClass(user.role)">
-                      {{ user.role }}
-                    </div>
-                  </td>
-                  <td>
-                    <!-- Show approval status with priority: rejected > pending > regular status -->
-                    <div v-if="user.approval_status === 'rejected'" class="badge badge-error badge-sm">
-                      Rejected
-                    </div>
-                    <div v-else-if="user.approval_status === 'pending'" class="badge badge-warning badge-sm">
-                      Pending
-                    </div>
-                    <div v-else class="badge badge-sm" :class="getStatusBadgeClass(user.status)">
-                      {{ user.status }}
-                    </div>
-                  </td>
-                  <td>{{ user.program || 'N/A' }}</td>
-                  <td>{{ formatDate(user.lastLogin) }}</td>
-                  <td>
-                    <div class="dropdown dropdown-end">
-                      <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
-                        <i class="fas fa-ellipsis-v"></i>
-                      </div>
-                      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a @click="editUser(user)"><i class="fas fa-edit"></i> Edit</a></li>
-                        <li><a @click="resetPassword(user)"><i class="fas fa-key"></i> Reset Password</a></li>
-                        <li><a @click="toggleUserStatus(user)" :class="{ 'text-error': user.status === 'active' }">
-                          <i :class="user.status === 'active' ? 'fas fa-ban' : 'fas fa-check'"></i>
-                          {{ user.status === 'active' ? 'Deactivate' : 'Activate' }}
-                        </a></li>
-                      </ul>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Pagination -->
-          <div v-if="users.length > 0" class="flex justify-between items-center mt-4">
+          <div class="flex justify-between items-center">
             <div class="text-sm text-base-content/70">
               Showing {{ users.length }} of {{ totalRecords }} users
             </div>
@@ -188,6 +190,13 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Error State (if needed outside DataTable) -->
+      <div v-if="error" class="alert alert-error mt-4">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ error }}</span>
+        <button @click="fetchUsers()" class="btn btn-sm btn-outline">Retry</button>
       </div>
     </div>
 
@@ -279,12 +288,23 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
+import DataTable from '@/components/tables/DataTable.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import UserApprovalManager from '@/components/forms/UserApprovalManager.vue'
 import UserStatistics from '@/components/dashboard/UserStatistics.vue'
 import RecentActivity from '@/components/dashboard/RecentActivity.vue'
 import { useRouter } from 'vue-router'
 import usersService from '@/services/users-test.js'
 import authService from '@/services/auth.js'
+import { 
+  Users as IconUsers, 
+  UserCheck as IconUserCheck, 
+  Edit as IconEdit, 
+  Key as IconKey, 
+  Power as IconPower,
+  Plus as IconPlus,
+  Download as IconDownload
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -336,6 +356,45 @@ const filteredUsers = computed(() => {
     return matchesSearch && matchesRole && matchesStatus
   })
 })
+
+// Table columns configuration for DataTable
+const tableColumns = computed(() => [
+  {
+    key: 'user',
+    title: 'User',
+    headerClass: 'min-w-[200px]'
+  },
+  {
+    key: 'email',
+    title: 'Email',
+    headerClass: 'min-w-[180px]'
+  },
+  {
+    key: 'role',
+    title: 'Role',
+    headerClass: 'w-24'
+  },
+  {
+    key: 'status',
+    title: 'Status',
+    headerClass: 'w-28'
+  },
+  {
+    key: 'program',
+    title: 'Program',
+    headerClass: 'w-32'
+  },
+  {
+    key: 'lastLogin',
+    title: 'Last Login',
+    headerClass: 'w-32'
+  },
+  {
+    key: 'actions',
+    title: 'Actions',
+    headerClass: 'w-20'
+  }
+])
 
 // Pagination
 const currentPage = ref(1)

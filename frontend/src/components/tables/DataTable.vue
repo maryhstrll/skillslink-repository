@@ -1,5 +1,5 @@
 <template>
-  <div class="card app-surface shadow-lg p-4">
+  <div class="card app-surface-secondary shadow-lg p-4">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
       <h3 class="font-semibold text-xl flex items-center gap-2" style="color: var(--color-text-primary);">
         <component :is="titleIcon" v-if="titleIcon" class="w-6 h-6" />
@@ -71,6 +71,8 @@
         <div class="text-sm mb-6 max-w-md mx-auto" style="color: var(--color-text-secondary);">
           {{ emptyDescription }}
         </div>
+        <!-- Custom empty actions slot -->
+        <slot name="empty-actions"></slot>
       </div>
     </div>
   </div>
