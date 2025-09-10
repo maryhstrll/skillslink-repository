@@ -178,12 +178,7 @@ const allMenuItems = [
     roles: ["admin"] // Admin only
   },
 
-  {
-    path: "/settings",
-    label: "Settings",
-    icon: "IconSettings",
-    roles: ["alumni", "staff"] // Available to alumni and staff only (not admin)
-  },
+
 ];
 
 // Filter menu items based on user role

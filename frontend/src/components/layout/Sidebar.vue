@@ -67,8 +67,8 @@
           </div>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full mb-2">
             <li>
-              <router-link to="/alumni_profile">
-                <IconUser class="w-4 h-4 mr-2" /> Profile
+              <router-link to="/settings" class="flex items-center">
+                <IconSettings class="w-4 h-4 mr-2" /> Settings
               </router-link>
             </li>
             <li>
@@ -86,6 +86,21 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { 
+  ChevronDown as IconChevronDown,
+  ChevronUp as IconChevronUp,
+  User as IconUser,
+  LogOut as IconLogOut,
+  Home as IconHome,
+  Users as IconUsers,
+  Radar as IconRadar,
+  FileInput as IconFileInput,
+  BarChart3 as IconBarChart3,
+  Library as IconSquareLibrary,
+  FileText as IconFileText,
+  UserCog as IconUserCog,
+  Settings as IconSettings
+} from 'lucide-vue-next'
 
 const props = defineProps({
   menuItems: {

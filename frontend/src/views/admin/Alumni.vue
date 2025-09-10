@@ -3,121 +3,35 @@
   <Layout @logout="handleLogout">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <PageHeader
-          title="Alumni Directory"
-          description="Manage and view all alumni records, including their personal information, academic background, and contact details."
-          :title-icon="IconUsers"
-          badge="Directory"
-          badge-type="primary"
-        >
-          <template #actions>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-3xl font-bold text-base-content">Alumni Management</h1>
+            <p class="text-base-content/70 mt-1">
+              Manage and track alumni information across all programs and graduation years
+            </p>
+          </div>
+          <div class="flex gap-2">
             <button 
               class="btn btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200"
-              @click="openAddModal"
-            >
-              <IconPlus class="w-4 h-4" />
-              Add Alumni
-            </button>
-            <button 
-              class="btn btn-neutral shadow-lg hover:shadow-xl transition-all duration-200"
               @click="fetchAlumni"
               :disabled="loading"
             >
               <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
               Refresh
             </button>
-          </template>
-
-          <template #subtitle>
-            <div class="flex flex-wrap gap-4 items-center text-sm text-gray-600">
-              <div class="flex items-center gap-2">
-                <span class="font-medium">Total Alumni:</span>
-                <span class="badge badge-ghost">{{ alumniList.length }}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="font-medium">Filtered Results:</span>
-                <span class="badge badge-accent">{{ filteredAlumni.length }}</span>
-              </div>
-              <div v-if="hasActiveFilters" class="flex items-center gap-2">
-                <span class="text-orange-600 font-medium">Filters Active</span>
-                <button 
-                  class="btn btn-xs btn-outline"
-                  @click="clearFilters"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          </template>
-        </PageHeader>
-
-        <!-- Filters Section -->
-        <div class="card app-surface shadow-lg">
-          <div class="p-4 app-surface-alt">
-            <h3 class="text-lg font-semibold mb-4" style="color: var(--color-text-primary);">Filter Alumni</h3>
-            <div class="flex flex-col sm:flex-row gap-4">
-              <!-- Search Filter -->
-              <div class="form-control flex-1">
-                <div class="input-group">
-                  <input 
-                    v-model="searchQuery" 
-                    type="text" 
-                    placeholder="Search by name, student ID..." 
-                    class="input input-bordered flex-1 app-surface app-border"
-                  />
-                  <button class="btn btn-primary-custom">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Program Filter -->
-              <select 
-                v-model="selectedProgram" 
-                class="select select-bordered app-surface app-border min-w-[200px]"
-              >
-                <option value="">All Programs</option>
-                <option v-for="program in programs" 
-                        :key="program.id || program.program_id" 
-                        :value="program.id || program.program_id">
-                  {{ program.name || program.program_name }}
-                </option>
-              </select>
-              
-              <!-- Year Graduated Filter -->
-              <select 
-                v-model="selectedYear" 
-                class="select select-bordered app-surface app-border min-w-[160px]"
-              >
-                <option value="">All Years</option>
-                <option v-for="year in availableYears" 
-                        :key="year" 
-                        :value="year">
-                  {{ year }}
-                </option>
-              </select>
-              
-              <!-- Clear Filters Button -->
-              <button 
-                class="btn btn-ghost-custom"
-                @click="clearFilters"
-                :disabled="!hasActiveFilters"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Clear
-              </button>
-            </div>
-            
-            <!-- Filter Results Summary -->
-            <div class="mt-3 text-sm" style="color: var(--color-text-secondary);">
-              Showing {{ filteredAlumni.length }} of {{ alumniList.length }} alumni
-            </div>
           </div>
         </div>
+
+        <!-- Filters Section -->
+        <FilterSection
+          title="Filter Alumni"
+          v-model="filters"
+          :filters="filterConfig"
+          :total-count="alumniList.length"
+          :filtered-count="filteredAlumni.length"
+          item-label="alumni"
+          @clear="onFiltersClear"
+        />
 
         <!-- Alumni DataTable -->
         <DataTable
@@ -196,16 +110,16 @@
           </template>
         </DataTable>
 
-        <!-- Add/Edit Modal -->
+        <!-- Edit Modal (Add functionality removed) -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div class="card app-surface shadow-2xl w-full max-w-lg relative">
             <!-- Modal Header -->
             <div class="p-6 app-surface-alt">
               <h3 class="text-xl md:text-2xl font-bold" style="color: var(--color-primary);">
-                {{ isEditMode ? 'Edit Alumni' : 'Add Alumni' }}
+                Edit Alumni
               </h3>
               <p class="mt-1" style="color: var(--color-text-secondary);">
-                {{ isEditMode ? 'Update alumni information' : 'Add new alumni to the directory' }}
+                Update alumni information
               </p>
             </div>
 
@@ -219,7 +133,7 @@
                 <span>{{ error }}</span>
               </div>
 
-              <form @submit.prevent="isEditMode ? updateAlumni() : addAlumni()" class="space-y-4">
+              <form @submit.prevent="updateAlumni()" class="space-y-4">
                 <!-- Personal Information -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div class="form-control">
@@ -370,7 +284,7 @@
                     <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                     </svg>
-                    {{ loading ? 'Saving...' : (isEditMode ? 'Update Alumni' : 'Add Alumni') }}
+                    {{ loading ? 'Updating...' : 'Update Alumni' }}
                   </button>
                 </div>
               </form>
@@ -401,7 +315,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
 import DataTable from '@/components/tables/DataTable.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
+import FilterSection from '@/components/ui/FilterSection.vue'
 import AdminAlumniProfileModal from '@/components/modals/AdminAlumniProfileModal.vue'
 import { useRouter } from 'vue-router'
 import alumniService from '@/services/alumni.js'
@@ -412,7 +326,6 @@ import {
   UserCheck as IconUserCheck, 
   Eye as IconEye, 
   Edit as IconEdit,
-  Plus as IconPlus,
   RefreshCw as IconRefreshCw
 } from 'lucide-vue-next'
 
@@ -429,9 +342,11 @@ const loading = ref(false)
 const loadingPrograms = ref(false)
 
 // Filter states
-const searchQuery = ref('')
-const selectedProgram = ref('')
-const selectedYear = ref('')
+const filters = ref({
+  search: '',
+  program: '',
+  year: ''
+})
 
 const form = reactive({
   alumni_id: null,
@@ -449,6 +364,35 @@ const form = reactive({
   facebook_profile: ''
 })
 
+// Filter configuration
+const filterConfig = computed(() => [
+  {
+    type: 'search',
+    key: 'search',
+    label: 'Search Alumni',
+    placeholder: 'Search by name, student ID...',
+    containerClass: 'flex-1'
+  },
+  {
+    type: 'select',
+    key: 'program',
+    label: 'Filter by Program',
+    defaultOption: 'All Programs',
+    options: programs.value,
+    valueKey: 'id',
+    labelKey: 'name',
+    containerClass: 'min-w-[200px]'
+  },
+  {
+    type: 'select',
+    key: 'year',
+    label: 'Filter by Year',
+    defaultOption: 'All Years',
+    options: availableYears.value,
+    containerClass: 'min-w-[150px]'
+  }
+])
+
 // Computed properties for filtering
 const availableYears = computed(() => {
   const years = [...new Set(alumniList.value.map(alumni => alumni.year_graduated))].filter(Boolean)
@@ -459,8 +403,8 @@ const filteredAlumni = computed(() => {
   let filtered = alumniList.value
 
   // Search filter
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase().trim()
+  if (filters.value.search?.trim()) {
+    const query = filters.value.search.toLowerCase().trim()
     filtered = filtered.filter(alumni => {
       const fullName = `${alumni.first_name} ${alumni.middle_name || ''} ${alumni.last_name}`.toLowerCase()
       return fullName.includes(query) || 
@@ -470,20 +414,16 @@ const filteredAlumni = computed(() => {
   }
 
   // Program filter
-  if (selectedProgram.value) {
-    filtered = filtered.filter(alumni => alumni.program_id == selectedProgram.value)
+  if (filters.value.program) {
+    filtered = filtered.filter(alumni => alumni.program_id == filters.value.program)
   }
 
   // Year graduated filter
-  if (selectedYear.value) {
-    filtered = filtered.filter(alumni => alumni.year_graduated == selectedYear.value)
+  if (filters.value.year) {
+    filtered = filtered.filter(alumni => alumni.year_graduated == filters.value.year)
   }
 
   return filtered
-})
-
-const hasActiveFilters = computed(() => {
-  return searchQuery.value.trim() !== '' || selectedProgram.value !== '' || selectedYear.value !== ''
 })
 
 // Table columns configuration for DataTable
@@ -521,10 +461,12 @@ const tableColumns = computed(() => [
   }
 ])
 
-const clearFilters = () => {
-  searchQuery.value = ''
-  selectedProgram.value = ''
-  selectedYear.value = ''
+const onFiltersClear = () => {
+  filters.value = {
+    search: '',
+    program: '',
+    year: ''
+  }
 }
 
 // Fetch alumni records from the database
@@ -564,27 +506,7 @@ onMounted(() => {
   fetchPrograms()
 })
 
-// Modal controls
-const openAddModal = () => {
-  isEditMode.value = false
-  Object.assign(form, { 
-    alumni_id: null, 
-    first_name: '', 
-    last_name: '', 
-    middle_name: '',
-    student_id: '', 
-    program_id: '', 
-    year_graduated: '',
-    phone_number: '',
-    barangay: '',
-    city: '',
-    province: '',
-    linkedin_profile: '',
-    facebook_profile: ''
-  })
-  showModal.value = true
-}
-
+// Modal controls (Edit only - Add functionality removed)
 const openEditModal = (alumni) => {
   isEditMode.value = true
   Object.assign(form, {
@@ -609,28 +531,7 @@ const closeModal = () => {
   showModal.value = false
 }
 
-// CRUD operations using the real API
-const addAlumni = async () => {
-  try {
-    loading.value = true
-    
-    const response = await alumniService.create(form)
-    
-    if (response.success) {
-      await fetchAlumni() // Refresh the list
-      closeModal()
-      messageService.toast('Alumni added successfully!', 'success')
-    } else {
-      messageService.alert(response.message || 'Failed to add alumni', 'error')
-    }
-  } catch (err) {
-    console.error('Error adding alumni:', err)
-    messageService.alert('Failed to add alumni. Please try again.', 'error')
-  } finally {
-    loading.value = false
-  }
-}
-
+// Update alumni function (Add functionality removed)
 const updateAlumni = async () => {
   try {
     loading.value = true
@@ -651,8 +552,6 @@ const updateAlumni = async () => {
     loading.value = false
   }
 }
-
-
 
 const viewProfile = (alumni) => {
   selectedAlumni.value = alumni

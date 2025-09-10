@@ -7,6 +7,7 @@ import Reports from "@/views/shared/Reports.vue";
 import AlumniProfile from "@/views/alumni/AlumniProfile.vue";
 import AdminSettings from "@/views/admin/AdminSettings.vue";
 import AlumniSettings from "@/views/alumni/AlumniSettings.vue";
+import StaffSettings from "@/views/staff/StaffSettings.vue";
 import Users from "@/views/admin/Users.vue";
 import ManagePrograms from "@/views/admin/ManagePrograms.vue";
 import ApiTest from "@/views/shared/ApiTest.vue";
@@ -100,6 +101,27 @@ const routes = [
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
+    path: "/profile",
+    redirect: (to) => {
+      // Redirect /profile to appropriate profile page based on user role
+      const userRole = getUserRole();
+      if (userRole === 'admin') {
+        return '/admin_settings?tab=profile';
+      } else if (userRole === 'alumni') {
+        return '/alumni_profile';
+      }
+      return '/alumni_profile'; // default fallback
+    }
+  },
+  {
+    path: "/recent_activity",
+    redirect: (to) => {
+      // Redirect to admin settings with activity tab
+      return '/admin_settings?tab=activity';
+    },
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
     path: "/alumni/notifications",
     name: "AlumniNotifications",
     component: () => import("@/views/alumni/AlumniNotifications.vue"),
@@ -116,6 +138,11 @@ const routes = [
     meta: { requiresAuth: true, roles: ["alumni"] },
   },
   {
+    path: "/staff_settings", 
+    component: StaffSettings,
+    meta: { requiresAuth: true, roles: ["staff"] },
+  },
+  {
     path: "/settings",
     redirect: (to) => {
       // Redirect /settings to appropriate settings page based on user role
@@ -124,6 +151,8 @@ const routes = [
         return '/admin_settings';
       } else if (userRole === 'alumni') {
         return '/alumni_settings';
+      } else if (userRole === 'staff') {
+        return '/staff_settings';
       }
       return '/admin_settings'; // default fallback
     }

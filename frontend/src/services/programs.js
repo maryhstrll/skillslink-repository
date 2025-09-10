@@ -16,6 +16,36 @@ const programsService = {
       console.error('Programs fetch failed', e)
       throw e
     }
+  },
+
+  async create(programData) {
+    try {
+      const res = await axios.post('/api/programs.php', programData)
+      return res.data
+    } catch (e) {
+      console.error('Program creation failed', e)
+      throw e
+    }
+  },
+
+  async update(programId, programData) {
+    try {
+      const res = await axios.put('/api/programs.php', { ...programData, program_id: programId })
+      return res.data
+    } catch (e) {
+      console.error('Program update failed', e)
+      throw e
+    }
+  },
+
+  async delete(programId) {
+    try {
+      const res = await axios.delete('/api/programs.php', { data: { program_id: programId } })
+      return res.data
+    } catch (e) {
+      console.error('Program deletion failed', e)
+      throw e
+    }
   }
 }
 

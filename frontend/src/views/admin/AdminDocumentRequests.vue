@@ -1,101 +1,38 @@
 <template>
   <Layout @logout="handleLogout">
-    <div class="min-h-screen bg-gradient-to-br from-[#081F37] to-[#1E549F] p-4 md:p-6 lg:p-8">
       <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="page-header-dark">
-          <PageHeader
-            title="Document Request Management"
-            description="Manage and process alumni document requests efficiently and track their status."
-            :title-icon="IconFileText"
-            badge="Processing"
-            badge-type="accent"
-          >
-            <template #actions>
-              <div class="stats shadow bg-white/10 border border-white/20">
-                <div class="stat">
-                  <div class="stat-title text-white/70">Total Requests</div>
-                  <div class="stat-value text-[#5FC9F3] text-2xl">{{ requests.length }}</div>
-                </div>
-              </div>
-              <button 
-                class="btn btn-outline btn-accent shadow-lg hover:shadow-xl transition-all duration-200"
-                @click="fetchRequests"
-                :disabled="loading"
-              >
-                <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
-                Refresh
-              </button>
-            </template>
-
-            <template #subtitle>
-              <div class="flex flex-wrap gap-4 items-center text-sm text-white/80">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">Filtered Results:</span>
-                  <span class="badge badge-accent">{{ filteredRequests.length }}</span>
-                </div>
-                <div v-if="hasActiveFilters" class="flex items-center gap-2">
-                  <span class="text-accent font-medium">Filters Active</span>
-                  <button 
-                    class="btn btn-xs btn-outline btn-accent"
-                    @click="clearFilters"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              </div>
-            </template>
-          </PageHeader>
-        </div>
-
-        <!-- Filters -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-xl border border-white/20">
-          <div class="flex flex-wrap gap-4 items-center">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text text-white">Filter by Status</span>
-              </label>
-              <select v-model="statusFilter" class="select select-bordered select-sm bg-white text-gray-800">
-                <option value="">All Statuses</option>
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Ready for Pickup">Ready for Pickup</option>
-                <option value="Completed">Completed</option>
-              </select>
-            </div>
-            
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text text-white">Filter by Document Type</span>
-              </label>
-              <select v-model="documentTypeFilter" class="select select-bordered select-sm bg-white text-gray-800">
-                <option value="">All Types</option>
-                <option value="Transcript of Records">Transcript of Records</option>
-                <option value="Transcript of Competency">Transcript of Competency</option>
-                <option value="Diploma">Diploma</option>
-                <option value="Certificate of Training">Certificate of Training</option>
-              </select>
-            </div>
-
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text text-white">Search Alumni</span>
-              </label>
-              <input 
-                type="text" 
-                placeholder="Search by name or student ID..." 
-                class="input input-bordered input-sm bg-white text-gray-800"
-                v-model="searchQuery"
-              />
-            </div>
-
-            <button class="btn btn-outline btn-sm text-white border-white hover:bg-white hover:text-gray-800 mt-6" @click="clearFilters">
-              Clear Filters
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-3xl font-bold text-base-content">Document Request Management</h1>
+            <p class="text-base-content/70 mt-1">
+              Manage and process alumni document requests
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button 
+              class="btn btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200"
+              @click="fetchRequests"
+              :disabled="loading"
+            >
+              <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
+              Refresh
             </button>
           </div>
         </div>
 
-        <!-- Requests Table -->
+        <!-- Filters Section -->
+        <FilterSection
+          title="Filter Document Requests"
+          v-model="filters"
+          :filters="filterConfig"
+          :total-count="requests.length"
+          :filtered-count="filteredRequests.length"
+          item-label="requests"
+          @clear="onFiltersClear"
+        />
+
+        <!-- Document Requests DataTable -->
         <DataTable
           title="Document Requests"
           :title-icon="IconFileText"
@@ -104,9 +41,10 @@
           :loading="loading"
           item-label="requests"
           empty-title="No document requests found"
-          :empty-description="requests.length === 0 ? 'No requests have been submitted yet' : 'Try adjusting your filters'"
+          :empty-description="requests.length === 0 ? 'No requests have been submitted yet' : 'Try adjusting your filters to see more results'"
           :empty-icon="IconFileText"
           key-field="request_id"
+          loading-text="Loading document requests..."
         >
           <!-- Custom cell for document type with icon -->
           <template #cell-document_type="{ value }">
@@ -155,7 +93,6 @@
           </template>
         </DataTable>
       </div>
-    </div>
 
     <!-- Update Status Modal -->
     <div v-if="showStatusModal" class="modal modal-open">
@@ -297,7 +234,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
 import DataTable from '@/components/tables/DataTable.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
+import FilterSection from '@/components/ui/FilterSection.vue'
 import { useRouter } from 'vue-router'
 import documentRequestService from '@/services/documentRequest.js'
 import { messageService } from '@/services/messageService.js'
@@ -320,32 +257,61 @@ const showStatusModal = ref(false)
 const selectedRequest = ref(null)
 const newStatus = ref('')
 
-// Filters
-const statusFilter = ref('')
-const documentTypeFilter = ref('')
-const searchQuery = ref('')
+// Filter states
+const filters = ref({
+  search: '',
+  status: '',
+  documentType: ''
+})
+
+// Filter configuration
+const filterConfig = computed(() => [
+  {
+    type: 'search',
+    key: 'search',
+    label: 'Search Alumni',
+    placeholder: 'Search by name or student ID...',
+    containerClass: 'flex-1'
+  },
+  {
+    type: 'select',
+    key: 'status',
+    label: 'Filter by Status',
+    defaultOption: 'All Statuses',
+    options: ['Pending', 'Processing', 'Ready for Pickup', 'Completed'],
+    containerClass: 'min-w-[180px]'
+  },
+  {
+    type: 'select',
+    key: 'documentType',
+    label: 'Filter by Document Type',
+    defaultOption: 'All Types',
+    options: ['Transcript of Records', 'Transcript of Competency', 'Diploma', 'Certificate of Training'],
+    containerClass: 'min-w-[200px]'
+  }
+])
 
 // Computed
 const filteredRequests = computed(() => {
   let filtered = requests.value
 
-  // Filter by status
-  if (statusFilter.value) {
-    filtered = filtered.filter(request => request.status === statusFilter.value)
-  }
-
-  // Filter by document type
-  if (documentTypeFilter.value) {
-    filtered = filtered.filter(request => request.document_type === documentTypeFilter.value)
-  }
-
-  // Filter by search query (name or student ID)
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
+  // Search filter
+  if (filters.value.search?.trim()) {
+    const query = filters.value.search.toLowerCase().trim()
     filtered = filtered.filter(request => 
       request.full_name.toLowerCase().includes(query) ||
       request.student_id.toLowerCase().includes(query)
     )
+  }
+
+  // Status filter
+  if (filters.value.status) {
+    filtered = filtered.filter(request => request.status === filters.value.status)
+  }
+
+  // Document type filter
+  if (filters.value.documentType) {
+    filtered = filtered.filter(request => request.document_type === filters.value.documentType)
   }
 
   return filtered
@@ -387,9 +353,13 @@ const tableColumns = computed(() => [
   }
 ])
 
-const hasActiveFilters = computed(() => {
-  return statusFilter.value || documentTypeFilter.value || searchQuery.value
-})
+const onFiltersClear = () => {
+  filters.value = {
+    search: '',
+    status: '',
+    documentType: ''
+  }
+}
 
 // Methods
 const fetchRequests = async () => {
@@ -438,12 +408,6 @@ const updateStatus = async () => {
   } finally {
     updating.value = false
   }
-}
-
-const clearFilters = () => {
-  statusFilter.value = ''
-  documentTypeFilter.value = ''
-  searchQuery.value = ''
 }
 
 const viewRequestDetails = (request) => {
@@ -498,38 +462,47 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Custom scrollbar */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
+/* Custom table styling to match design system */
+h1, p {
+  color: var(--color-text-primary);
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+.table th {
+  background: var(--color-neutral);
+  border-bottom: 2px solid var(--color-border);
+  padding: 1rem 0.75rem;
+  font-weight: 600;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #5FC9F3;
-  border-radius: 3px;
+.table td {
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 1rem 0.75rem;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #2E79BA;
+.table tr:hover {
+  background: rgba(var(--color-primary-rgb), 0.05);
 }
 
-/* Animation */
-.btn, .card, .modal-box {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.table tr:last-child td {
+  border-bottom: none;
 }
 
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Form inputs consistent with app design */
+.input, .select, .textarea {
+  background: var(--color-text-invert);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
-/* Modal enhancements */
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Modal styling */
 .modal-box {
+  background: var(--color-surface-main);
+  color: var(--color-text-primary);
   backdrop-filter: blur(10px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
@@ -538,61 +511,31 @@ onMounted(() => {
   backdrop-filter: blur(4px);
 }
 
-/* Form styling */
-.select:focus {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Badge styling */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
 }
 
-/* Button hover effects */
-.btn:not(:disabled):hover {
-  transform: translateY(-1px);
-}
-
-/* Badge styling improvements */
 .badge-lg {
   padding: 0.5rem 1rem;
   font-weight: 600;
   font-size: 0.875rem;
 }
 
-/* Gradient text animation */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* Button hover effects */
+.btn:hover {
+  transform: translateY(-1px);
 }
 
-.bg-gradient-to-r {
-  background-size: 200% 200%;
-  animation: gradient 3s ease infinite;
+/* Loading states */
+.loading {
+  color: var(--color-primary);
 }
 
-/* Card hover effects */
-.bg-gradient-to-r.from-blue-50:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
-  transition: all 0.3s ease;
-}
-
-/* Loading animation improvements */
-.loading-spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Alert styling */
+.alert {
+  border-radius: 0.75rem;
 }
 
 /* Status icon colors */
@@ -612,28 +555,34 @@ onMounted(() => {
   color: #10b981;
 }
 
-/* Dark theme PageHeader styling */
-.page-header-dark .page-header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+/* Card hover effects */
+.bg-gradient-to-r.from-blue-50:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
 }
 
-.page-header-dark .page-header-title {
-  background: linear-gradient(135deg, #5FC9F3, #2E79BA);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 2.5rem;
-  font-weight: 800;
+/* Animation */
+.btn, .card, .modal-box {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.page-header-dark .page-header-description {
-  color: rgba(255, 255, 255, 0.8);
+/* Custom scrollbar */
+.max-h-96::-webkit-scrollbar {
+  width: 6px;
 }
 
-.page-header-dark .page-header-icon {
-  color: #5FC9F3;
+.max-h-96::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+  border-radius: 3px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-primary-rgb) / 0.6);
+  border-radius: 3px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primary-rgb) / 0.8);
 }
 </style>

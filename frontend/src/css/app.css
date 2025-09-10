@@ -59,7 +59,7 @@
   --color-bg: var(--color-surface);           /* Page background */
   --color-surface-main: var(--color-surface); /* Main surface */
   --color-surface-alt: var(--color-neutral);  /* Alternative surface */
-  --color-border: #d1d5db;                    /* Border color */
+  --color-border: #5a8bc9;                    /* Border color */
   --color-border-light: #e5e7eb;              /* Light border */
   --color-focus: var(--color-primary-light);  /* Focus rings */
   
@@ -90,11 +90,16 @@
   color: var(--color-text-primary);
 }
 .app-border {
-  border-color: var(--color-border);
+  border-color: var(--color-border) !important;
 }
 .app-focus-outline:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+.special-bg{
+  background: var(--color-primary-darker) !important;
+  color: var(--color-surface) !important;
 }
 
 /* Custom navbar styling */
@@ -122,6 +127,73 @@
   background: var(--btn-primary-hover);
   border-color: var(--btn-primary-hover);
   transform: translateY(-1px);
+}
+
+/* Settings page specific styling */
+.settings-card {
+  background: #ffffff !important;
+  color: #2a2a2a !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.settings-card .card-title {
+  color: #2a2a2a !important;
+}
+
+.settings-card .label-text {
+  color: #374151 !important;
+  font-weight: 500;
+}
+
+.settings-card .input,
+.settings-card .select {
+  background: #ffffff !important;
+  color: #2a2a2a !important;
+  border-color: #d1d5db !important;
+}
+
+.settings-card .input:focus,
+.settings-card .select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1) !important;
+}
+
+.settings-card .input:disabled {
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+}
+
+.settings-card .badge {
+  color: white !important;
+}
+
+.settings-tabs .tab {
+  color: #6b7280 !important;
+}
+
+.settings-tabs .tab-active {
+  background: var(--color-primary) !important;
+  color: white !important;
+}
+
+/* Stats section in settings */
+.settings-stats .stat {
+  background: #ffffff !important;
+  color: #2a2a2a !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.settings-stats .stat-title {
+  color: #6b7280 !important;
+}
+
+.settings-stats .stat-value {
+  color: var(--color-primary) !important;
+  font-weight: bold;
+}
+
+.settings-stats .stat-desc {
+  color: #9ca3af !important;
 }
 
 .btn-secondary-custom {
@@ -299,183 +371,47 @@ body {
 }
 
 /* =============================================================================
-   PAGE HEADER COMPONENT STYLES
+   FILTER SECTION COMPONENT STYLES
    ============================================================================= */
 
-.page-header {
-  background: #FFFDF6;
-  border: 1px solid var(--color-border-light);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+/* Filter section styling */
+.filter-section .form-control {
+  width: 100%;
 }
 
-.page-header:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+.filter-section .label-text {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
 }
 
-.page-header-content {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
+.filter-section .input,
+.filter-section .select {
+  transition: all 0.2s ease;
 }
 
-.page-header-main {
-  flex: 1;
-  min-width: 0; /* Prevents flex item from overflowing */
+.filter-section .input:focus,
+.filter-section .select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  transform: translateY(-1px);
 }
 
-.page-header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+.filter-section .btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 2.5rem;
 }
 
-.page-header-icon {
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.page-header-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  line-height: 1.2;
-  word-break: break-word;
-}
-
-.page-header-description {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin: 0 0 0.75rem 0;
-  line-height: 1.5;
-  max-width: 60ch;
-}
-
-.page-header-breadcrumbs {
-  margin-top: 0.5rem;
-}
-
-.page-header-actions {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.page-header-subtitle {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border-light);
-}
-
-/* Badge styles */
-.page-header-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  white-space: nowrap;
-}
-
-.page-header-badge--primary {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  color: var(--color-primary);
-}
-
-.page-header-badge--secondary {
-  background: rgba(var(--color-secondary-rgb), 0.1);
-  color: var(--color-secondary);
-}
-
-.page-header-badge--accent {
-  background: rgba(var(--color-accent-rgb), 0.1);
-  color: var(--color-accent);
-}
-
-.page-header-badge--ghost {
-  background: rgba(var(--color-ghost-rgb), 0.1);
-  color: var(--color-ghost);
-}
-
-.page-header-badge--neutral {
-  background: rgba(156, 163, 175, 0.1);
-  color: #6b7280;
-}
-
-.page-header-badge--success {
-  background: rgba(var(--color-accent-rgb), 0.1);
-  color: var(--color-accent);
-}
-
-.page-header-badge--warning {
-  background: rgba(var(--color-ghost-rgb), 0.1);
-  color: var(--color-ghost);
-}
-
-.page-header-badge--error {
-  background: rgba(var(--color-danger-rgb), 0.1);
-  color: var(--color-danger);
-}
-
-/* Responsive design */
+/* Responsive filter layout */
 @media (max-width: 640px) {
-  .page-header {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .page-header-content {
-    flex-direction: column;
-    align-items: stretch;
+  .filter-section .flex-col {
     gap: 1rem;
   }
   
-  .page-header-title {
-    font-size: 1.5rem;
-  }
-  
-  .page-header-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-  
-  .page-header-actions {
-    justify-content: flex-start;
-    align-items: stretch;
-  }
-  
-  .page-header-actions > * {
-    flex: 1;
-    min-width: 0;
+  .filter-section .form-control {
+    min-width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .page-header-title-row {
-    gap: 0.5rem;
-  }
-  
-  .page-header-title {
-    font-size: 1.25rem;
-  }
-  
-  .page-header-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
+
 

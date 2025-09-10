@@ -5,8 +5,8 @@
         <!-- Page Header -->
         <div class="flex justify-between items-center">
           <div>
-            <h1 class="text-3xl font-bold text-base-content">Alumni Settings</h1>
-            <p class="text-base-content/70 mt-1">Manage your profile and account preferences</p>
+            <h1 class="text-3xl font-bold text-base-content">Staff Settings</h1>
+            <p class="text-base-content/70 mt-1">Manage your profile and staff preferences</p>
           </div>
         </div>
 
@@ -26,7 +26,7 @@
                 <IconUser class="w-5 h-5" />
                 Profile Management
               </h2>
-              <p class="text-base-content/70 mb-4">Manage your alumni profile information</p>
+              <p class="text-base-content/70 mb-4">Manage your staff profile information</p>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
@@ -34,34 +34,34 @@
                     <label class="label">
                       <span class="label-text">Full Name</span>
                     </label>
-                    <input type="text" placeholder="John Doe" class="input input-bordered" />
+                    <input type="text" placeholder="Jane Smith" class="input input-bordered" />
                   </div>
                   <div class="form-control">
                     <label class="label">
                       <span class="label-text">Email</span>
                     </label>
-                    <input type="email" placeholder="john@example.com" class="input input-bordered" />
+                    <input type="email" placeholder="jane.smith@example.com" class="input input-bordered" />
                   </div>
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">Student ID</span>
+                      <span class="label-text">Employee ID</span>
                     </label>
-                    <input type="text" value="2021-12345" class="input input-bordered" disabled />
+                    <input type="text" value="STF-2024-001" class="input input-bordered" disabled />
                   </div>
                 </div>
                 
                 <div class="space-y-4">
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">Program</span>
+                      <span class="label-text">Department</span>
                     </label>
-                    <input type="text" value="Bachelor of Science in Information Technology" class="input input-bordered" disabled />
+                    <input type="text" placeholder="Alumni Relations" class="input input-bordered" />
                   </div>
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">Graduation Year</span>
+                      <span class="label-text">Position</span>
                     </label>
-                    <input type="text" value="2024" class="input input-bordered" disabled />
+                    <input type="text" placeholder="Alumni Coordinator" class="input input-bordered" />
                   </div>
                   <div class="form-control">
                     <label class="label">
@@ -80,73 +80,73 @@
         </div>
 
         <div v-else-if="activeTab === 'archives'">
-          <!-- Personal Archives Section -->
+          <!-- Staff Archives Section -->
           <div class="card bg-base-100 shadow-xl settings-card">
             <div class="card-body">
               <h2 class="card-title">
                 <IconArchive class="w-5 h-5" />
-                Personal Archives
+                Staff Archives
               </h2>
-              <p class="text-base-content/70">View and manage your personal archived data</p>
+              <p class="text-base-content/70">View and manage your staff-related archived data</p>
               
               <div class="space-y-4 mt-4">
                 <div class="stats shadow settings-stats">
                   <div class="stat">
-                    <div class="stat-title">Archived Forms</div>
-                    <div class="stat-value">12</div>
-                    <div class="stat-desc">Completed submissions</div>
+                    <div class="stat-title">Processed Reports</div>
+                    <div class="stat-value">45</div>
+                    <div class="stat-desc">Generated reports</div>
                   </div>
                   
                   <div class="stat">
-                    <div class="stat-title">Documents</div>
-                    <div class="stat-value">8</div>
-                    <div class="stat-desc">Archived documents</div>
+                    <div class="stat-title">Alumni Assisted</div>
+                    <div class="stat-value">128</div>
+                    <div class="stat-desc">Total interactions</div>
                   </div>
                   
                   <div class="stat">
-                    <div class="stat-title">Data Size</div>
-                    <div class="stat-value">24MB</div>
-                    <div class="stat-desc">Total archived data</div>
+                    <div class="stat-title">Data Processed</div>
+                    <div class="stat-value">156MB</div>
+                    <div class="stat-desc">Total data handled</div>
                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="card bg-base-200">
                     <div class="card-body">
-                      <h3 class="card-title text-sm">Tracer Form Submissions</h3>
-                      <p class="text-xs text-base-content/70">View your historical form submissions</p>
+                      <h3 class="card-title text-sm">Report History</h3>
+                      <p class="text-xs text-base-content/70">Your generated reports and analytics</p>
                       <div class="card-actions justify-end">
-                        <button class="btn btn-sm btn-outline">View (5)</button>
+                        <button class="btn btn-sm btn-outline">View (45)</button>
                       </div>
                     </div>
                   </div>
                   
                   <div class="card bg-base-200">
                     <div class="card-body">
-                      <h3 class="card-title text-sm">Document Requests</h3>
-                      <p class="text-xs text-base-content/70">Your processed document requests</p>
+                      <h3 class="card-title text-sm">Alumni Management</h3>
+                      <p class="text-xs text-base-content/70">Alumni records you've managed</p>
                       <div class="card-actions justify-end">
-                        <button class="btn btn-sm btn-outline">View (3)</button>
+                        <button class="btn btn-sm btn-outline">View (128)</button>
                       </div>
                     </div>
                   </div>
                   
                   <div class="card bg-base-200">
                     <div class="card-body">
-                      <h3 class="card-title text-sm">Profile Updates</h3>
-                      <p class="text-xs text-base-content/70">History of profile changes</p>
+                      <h3 class="card-title text-sm">Document Processing</h3>
+                      <p class="text-xs text-base-content/70">Document requests processed</p>
                       <div class="card-actions justify-end">
-                        <button class="btn btn-sm btn-outline">View (7)</button>
+                        <button class="btn btn-sm btn-outline">View (89)</button>
                       </div>
                     </div>
                   </div>
                   
                   <div class="card bg-base-200">
                     <div class="card-body">
-                      <h3 class="card-title text-sm">Communication Logs</h3>
-                      <p class="text-xs text-base-content/70">Archived messages and notifications</p>
+                      <h3 class="card-title text-sm">Activity Logs</h3>
+                      <p class="text-xs text-base-content/70">System activity history</p>
                       <div class="card-actions justify-end">
-                        <button class="btn btn-sm btn-outline">View (15)</button>
+                        <button class="btn btn-sm btn-outline">View (234)</button>
                       </div>
                     </div>
                   </div>
@@ -154,7 +154,7 @@
               </div>
               
               <div class="card-actions justify-end mt-6">
-                <button class="btn btn-outline">Download All Archives</button>
+                <button class="btn btn-outline">Download Staff Archives</button>
               </div>
             </div>
           </div>
@@ -168,7 +168,7 @@
                 <IconSettings class="w-5 h-5" />
                 General Settings
               </h2>
-              <p class="text-base-content/70">Configure your account preferences</p>
+              <p class="text-base-content/70">Configure your staff account preferences</p>
               
               <div class="space-y-4 mt-4">
                 <div class="form-control">
@@ -180,15 +180,22 @@
                 
                 <div class="form-control">
                   <label class="label cursor-pointer">
-                    <span class="label-text">Profile Visibility</span>
+                    <span class="label-text">Report Notifications</span>
                     <input type="checkbox" class="toggle toggle-primary" checked />
                   </label>
                 </div>
                 
                 <div class="form-control">
                   <label class="label cursor-pointer">
-                    <span class="label-text">Job Opportunity Notifications</span>
+                    <span class="label-text">Alumni Update Alerts</span>
                     <input type="checkbox" class="toggle toggle-primary" />
+                  </label>
+                </div>
+                
+                <div class="form-control">
+                  <label class="label cursor-pointer">
+                    <span class="label-text">System Maintenance Alerts</span>
+                    <input type="checkbox" class="toggle toggle-primary" checked />
                   </label>
                 </div>
               </div>

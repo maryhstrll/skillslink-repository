@@ -11,14 +11,12 @@
     <!-- Main Content -->
     <div v-else class="space-y-6">
       <!-- Page Header -->
-      <PageHeader
-        title="User Management"
-        description="Manage user accounts, permissions, and access control across the system."
-        :title-icon="IconUsers"
-        badge="Admin"
-        badge-type="error"
-      >
-        <template #actions>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-base-content">User Management</h1>
+          <p class="text-base-content/70 mt-1">Manage user accounts and permissions</p>
+        </div>
+        <div class="flex gap-2">
           <button 
             class="btn btn-outline shadow-lg hover:shadow-xl transition-all duration-200" 
             @click="exportUsers"
@@ -33,50 +31,25 @@
             <IconPlus class="w-4 h-4" />
             Add User
           </button>
-        </template>
-      </PageHeader>
+        </div>
+      </div>
 
       <!-- User Statistics -->
       <UserStatistics :user-stats="userStats" />
 
-      <RecentActivity/>
-
       <!-- User Approval Management (Admin Only) -->
       <UserApprovalManager />
 
-      <!-- Search and Filter -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <div class="flex flex-col sm:flex-row gap-4">
-            <div class="form-control flex-1">
-              <div class="input-group">
-                <input 
-                  v-model="searchQuery" 
-                  type="text" 
-                  placeholder="Search users by name, email, or student ID..." 
-                  class="input input-bordered flex-1"
-                />
-                <button class="btn btn-square" @click="fetchUsers(1)">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
-            </div>
-            <select v-model="selectedRole" class="select select-bordered" @change="fetchUsers(1)">
-              <option value="">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="staff">Staff</option>
-              <option value="alumni">Alumni</option>
-            </select>
-            <select v-model="selectedStatus" class="select select-bordered" @change="fetchUsers(1)">
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending Approval</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <!-- Filters Section -->
+      <FilterSection
+        title="Filter Users"
+        v-model="filters"
+        :filters="filterConfig"
+        :total-count="users.length"
+        :filtered-count="filteredUsers.length"
+        item-label="users"
+        @clear="onFiltersClear"
+      />
 
       <!-- Users DataTable -->
       <DataTable
@@ -289,10 +262,9 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
 import DataTable from '@/components/tables/DataTable.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
+import FilterSection from '@/components/ui/FilterSection.vue'
 import UserApprovalManager from '@/components/forms/UserApprovalManager.vue'
 import UserStatistics from '@/components/dashboard/UserStatistics.vue'
-import RecentActivity from '@/components/dashboard/RecentActivity.vue'
 import { useRouter } from 'vue-router'
 import usersService from '@/services/users-test.js'
 import authService from '@/services/auth.js'
@@ -325,29 +297,64 @@ const userStats = computed(() => ({
   inactive: allUsers.value.filter(u => u.status === 'inactive').length
 }))
 
-// Search and filter
-const searchQuery = ref('')
-const selectedRole = ref('')
-const selectedStatus = ref('')
+// Filter states
+const filters = ref({
+  search: '',
+  role: '',
+  status: ''
+})
+
+// Filter configuration
+const filterConfig = computed(() => [
+  {
+    type: 'search',
+    key: 'search',
+    label: 'Search Users',
+    placeholder: 'Search by name, email, or student ID...',
+    containerClass: 'flex-1'
+  },
+  {
+    type: 'select',
+    key: 'role',
+    label: 'Filter by Role',
+    defaultOption: 'All Roles',
+    options: ['admin', 'staff', 'alumni'],
+    containerClass: 'min-w-[150px]'
+  },
+  {
+    type: 'select',
+    key: 'status',
+    label: 'Filter by Status',
+    defaultOption: 'All Status',
+    options: ['active', 'inactive', 'pending', 'rejected'],
+    containerClass: 'min-w-[180px]'
+  }
+])
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         user.username.toLowerCase().includes(searchQuery.value.toLowerCase())
+    // Search filter
+    let matchesSearch = true
+    if (filters.value.search?.trim()) {
+      const query = filters.value.search.toLowerCase().trim()
+      matchesSearch = user.name.toLowerCase().includes(query) ||
+                     user.email.toLowerCase().includes(query) ||
+                     user.username.toLowerCase().includes(query)
+    }
     
-    const matchesRole = !selectedRole.value || user.role === selectedRole.value
+    // Role filter
+    const matchesRole = !filters.value.role || user.role === filters.value.role
     
-    // Handle status filtering for both regular status and approval status
+    // Status filter - handle both regular status and approval status
     let matchesStatus = true
-    if (selectedStatus.value) {
-      if (selectedStatus.value === 'pending') {
+    if (filters.value.status) {
+      if (filters.value.status === 'pending') {
         matchesStatus = user.approval_status === 'pending'
-      } else if (selectedStatus.value === 'rejected') {
+      } else if (filters.value.status === 'rejected') {
         matchesStatus = user.approval_status === 'rejected'
       } else {
         // For active/inactive, check regular status AND ensure not pending/rejected
-        matchesStatus = user.status === selectedStatus.value && 
+        matchesStatus = user.status === filters.value.status && 
                        user.approval_status !== 'pending' && 
                        user.approval_status !== 'rejected'
       }
@@ -422,6 +429,14 @@ watch(programs, (newPrograms) => {
   }
 }, { immediate: true })
 
+const onFiltersClear = () => {
+  filters.value = {
+    search: '',
+    role: '',
+    status: ''
+  }
+}
+
 // Methods
 const checkAuthentication = async () => {
   // For testing, skip authentication check
@@ -481,9 +496,9 @@ const fetchUsers = async (page = 1) => {
       limit: itemsPerPage.toString()
     }
     
-    if (selectedRole.value) params.role = selectedRole.value
-    if (selectedStatus.value) params.status = selectedStatus.value
-    if (searchQuery.value) params.search = searchQuery.value
+    if (filters.value.role) params.role = filters.value.role
+    if (filters.value.status) params.status = filters.value.status
+    if (filters.value.search) params.search = filters.value.search
     
     const result = await usersService.getUsers(params)
     
@@ -660,8 +675,8 @@ const debouncedSearch = () => {
   }, 500)
 }
 
-watch(searchQuery, debouncedSearch)
-watch([selectedRole, selectedStatus], () => {
+watch(() => filters.value.search, debouncedSearch)
+watch([() => filters.value.role, () => filters.value.status], () => {
   fetchUsers(1)
 })
 
@@ -676,3 +691,9 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped> 
+h1, p {
+  color: var(--color-text-primary);
+}
+</style>

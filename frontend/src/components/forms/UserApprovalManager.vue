@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-6">
     <!-- Pending Users Section -->
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card special-bg shadow-xl">
       <div class="card-body">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="card-title">Pending Alumni Approvals</h2>
+          <h1 class="card-title text-[1.5rem]">Pending Alumni Approvals</h1>
           <button 
             class="btn btn-primary btn-sm" 
             @click="refreshPendingUsers"
@@ -24,7 +24,8 @@
         </div>
 
         <DataTable
-          title="Pending Alumni Approvals"
+          title="Review and process registration requests from new alumni users"
+          title-class="text-sm text-gray-600"
           :title-icon="IconUsers"
           :count-icon="IconUserCheck"
           :data="pendingUsers"
@@ -50,12 +51,12 @@
             <div v-if="item.role === 'alumni'" class="text-sm">
               <div class="font-mono font-bold" style="color: var(--color-primary);">{{ item.student_id }}</div>
             </div>
-            <div v-else class="text-gray-500">N/A</div>
+            <div v-else style="color: var(--color-text-secondary);">N/A</div>
           </template>
 
           <!-- Custom cell for birthdate -->
           <template #cell-birthdate="{ item }">
-            <span class="text-sm">{{ item.birthdate ? formatBirthdate(item.birthdate) : 'N/A' }}</span>
+            <span class="text-sm" style="color: var(--color-text-primary);">{{ item.birthdate ? formatBirthdate(item.birthdate) : 'N/A' }}</span>
           </template>
 
           <!-- Custom cell for gender -->
@@ -63,17 +64,17 @@
             <div v-if="item.gender" class="badge badge-ghost badge-sm">
               {{ item.gender.charAt(0).toUpperCase() + item.gender.slice(1) }}
             </div>
-            <span v-else class="text-gray-500">N/A</span>
+            <span v-else style="color: var(--color-text-secondary);">N/A</span>
           </template>
 
           <!-- Custom cell for email -->
           <template #cell-email="{ value }">
-            <span class="text-sm">{{ value }}</span>
+            <span class="text-sm" style="color: var(--color-text-primary);">{{ value }}</span>
           </template>
 
           <!-- Custom cell for registration date -->
           <template #cell-created_at="{ value }">
-            <span class="text-sm opacity-75">{{ formatDate(value) }}</span>
+            <span class="text-sm" style="color: var(--color-text-secondary);">{{ formatDate(value) }}</span>
           </template>
 
           <!-- Custom cell for actions -->

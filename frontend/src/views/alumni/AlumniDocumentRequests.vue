@@ -1,81 +1,85 @@
 <template>
   <Layout @logout="handleLogout">
-    <div class="min-h-screen bg-gradient-to-br from-[#081F37] to-[#1E549F] p-4 md:p-6 lg:p-8">
-      <div class="max-w-6xl mx-auto space-y-6">
+      <div class="max-w-7xl mx-auto space-y-6">
         <!-- Page Header -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-xl border border-white/20">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="text-white">
-              <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] bg-clip-text text-transparent">
-                Document Requests
-              </h1>
-              <p class="text-white/80 text-sm md:text-base">Request official documents from your alma mater</p>
-            </div>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-3xl font-bold text-base-content">My Document Requests</h1>
+            <p class="text-base-content/70 mt-1">
+              Request and track official documents from your alma mater
+            </p>
+          </div>
+          <div class="flex gap-2">
             <button 
-              class="btn bg-[#5FC9F3] text-white border-none hover:bg-[#2E79BA] hover:scale-105 transition-all duration-300"
+              class="btn btn-primary-custom shadow-lg hover:shadow-xl transition-all duration-200"
+              @click="fetchRequests"
+              :disabled="loading"
+            >
+              <IconRefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
+              Refresh
+            </button>
+            <button 
+              class="btn btn-accent-custom shadow-lg hover:shadow-xl transition-all duration-200"
               @click="openRequestModal"
               :disabled="loading">
-              <i class="fas fa-plus w-4 h-4"></i>
+              <IconPlus class="w-4 h-4" />
               New Request
             </button>
           </div>
         </div>
 
-        <!-- Document Requests List -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 overflow-hidden">
-          <div v-if="loading" class="flex justify-center items-center py-12">
-            <span class="loading loading-spinner loading-lg text-white"></span>
-          </div>
-          
-          <div v-else-if="requests.length === 0" class="text-center py-12 text-white">
-            <i class="fas fa-file-alt text-6xl mb-4 text-white/30"></i>
-            <p class="text-xl mb-2">No document requests yet</p>
-            <p class="text-white/70">Click "New Request" to submit your first document request</p>
-          </div>
+        <!-- Document Requests DataTable -->
+        <DataTable
+          title="My Document Requests"
+          :title-icon="IconFileText"
+          :data="requests"
+          :columns="tableColumns"
+          :loading="loading"
+          item-label="requests"
+          empty-title="No document requests yet"
+          empty-description="Click 'New Request' to submit your first document request"
+          :empty-icon="IconFileText"
+          key-field="request_id"
+          loading-text="Loading your document requests..."
+        >
+          <!-- Custom cell for document type with icon -->
+          <template #cell-document_type="{ value }">
+            <div class="flex items-center gap-2">
+              <IconFileText class="w-4 h-4" style="color: var(--color-primary);" />
+              <span>{{ value }}</span>
+            </div>
+          </template>
 
-          <div v-else class="overflow-x-auto">
-            <table class="table w-full">
-              <thead class="bg-[#2E79BA]/20 text-white">
-                <tr>
-                  <th class="text-white">Document Type</th>
-                  <th class="text-white">Purpose</th>
-                  <th class="text-white">Status</th>
-                  <th class="text-white">Request Date</th>
-                  <th class="text-white">Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="request in requests" :key="request.request_id" class="hover:bg-white/5 text-white">
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <i :class="getDocumentTypeIcon(request.document_type)" class="text-[#5FC9F3]"></i>
-                      <span class="font-medium">{{ request.document_type }}</span>
-                    </div>
-                  </td>
-                  <td class="text-white/80">
-                    {{ request.purpose || 'Not specified' }}
-                  </td>
-                  <td>
-                    <div class="flex items-center gap-2">
-                      <i :class="getStatusIcon(request.status)" class="text-sm"></i>
-                      <span class="badge" :class="getStatusClass(request.status)">
-                        {{ request.status }}
-                      </span>
-                    </div>
-                  </td>
-                  <td class="text-white/80">
-                    {{ formatDate(request.request_date) }}
-                  </td>
-                  <td class="text-white/80">
-                    {{ formatDate(request.updated_at) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <!-- Custom cell for purpose -->
+          <template #cell-purpose="{ value }">
+            <span style="color: var(--color-text-primary);">{{ value || 'Not specified' }}</span>
+          </template>
+
+          <!-- Custom cell for status with badge -->
+          <template #cell-status="{ value }">
+            <div class="flex items-center gap-2">
+              <i :class="getStatusIcon(value)" class="text-sm"></i>
+              <span class="badge" :class="getStatusClass(value)">
+                {{ value }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Custom cell for request date -->
+          <template #cell-request_date="{ value }">
+            <span class="text-sm" style="color: var(--color-text-secondary);">
+              {{ formatDate(value) }}
+            </span>
+          </template>
+
+          <!-- Custom cell for last updated -->
+          <template #cell-updated_at="{ value }">
+            <span class="text-sm" style="color: var(--color-text-secondary);">
+              {{ formatDate(value) }}
+            </span>
+          </template>
+        </DataTable>
       </div>
-    </div>
 
     <!-- New Request Modal -->
     <div v-if="showModal" class="modal modal-open">
@@ -91,8 +95,8 @@
         <!-- Header -->
         <div class="border-b border-gray-200 pb-4 mb-6">
           <h3 class="font-bold text-2xl text-gray-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] rounded-lg flex items-center justify-center">
-              <i class="fas fa-file-plus text-white text-sm"></i>
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <IconPlus class="w-5 h-5 text-white" />
             </div>
             Request Document
           </h3>
@@ -104,7 +108,7 @@
           <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <i class="fas fa-file-alt text-white text-sm"></i>
+                <IconFileText class="w-4 h-4 text-white" />
               </div>
               <h4 class="font-semibold text-gray-800 text-lg">Document Selection</h4>
             </div>
@@ -143,7 +147,7 @@
           <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <i class="fas fa-comment-alt text-white text-sm"></i>
+                <IconFileText class="w-4 h-4 text-white" />
               </div>
               <h4 class="font-semibold text-gray-800 text-lg">Request Details</h4>
             </div>
@@ -169,7 +173,7 @@
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
             <div class="flex items-start gap-3">
               <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <i class="fas fa-info text-white text-xs"></i>
+                <IconInfo class="w-3 h-3 text-white" />
               </div>
               <div>
                 <h5 class="font-medium text-amber-800 mb-1">Processing Information</h5>
@@ -187,17 +191,15 @@
               class="btn btn-outline px-6 py-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-colors" 
               @click="closeModal"
             >
-              <i class="fas fa-times mr-2"></i>
               Cancel
             </button>
             <button 
               type="submit" 
-              class="btn bg-gradient-to-r from-[#5FC9F3] to-[#2E79BA] text-white border-none hover:from-[#2E79BA] hover:to-[#1a5490] px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200" 
+              class="btn btn-primary-custom px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200" 
               :disabled="submitting || !form.document_type"
               :class="{ 'opacity-50 cursor-not-allowed': submitting || !form.document_type }"
             >
               <span v-if="submitting" class="loading loading-spinner loading-sm mr-2"></span>
-              <i v-else class="fas fa-paper-plane mr-2"></i>
               {{ submitting ? 'Submitting...' : 'Submit Request' }}
             </button>
           </div>
@@ -208,11 +210,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
+import DataTable from '@/components/tables/DataTable.vue'
 import { useRouter } from 'vue-router'
 import documentRequestService from '@/services/documentRequest.js'
 import { messageService } from '@/services/messageService.js'
+import { 
+  FileText as IconFileText,
+  Plus as IconPlus,
+  RefreshCw as IconRefreshCw,
+  Info as IconInfo
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -227,6 +236,32 @@ const form = reactive({
   document_type: '',
   purpose: ''
 })
+
+// Table columns configuration
+const tableColumns = computed(() => [
+  {
+    key: 'document_type',
+    title: 'Document Type',
+    cellClass: 'font-medium'
+  },
+  {
+    key: 'purpose',
+    title: 'Purpose',
+    cellClass: 'max-w-xs'
+  },
+  {
+    key: 'status',
+    title: 'Status'
+  },
+  {
+    key: 'request_date',
+    title: 'Request Date'
+  },
+  {
+    key: 'updated_at',
+    title: 'Last Updated'
+  }
+])
 
 // Methods
 const fetchRequests = async () => {
@@ -309,47 +344,47 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Custom scrollbar */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
+/* Custom table styling to match design system */
+h1, p {
+  color: var(--color-text-primary);
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #5FC9F3;
-  border-radius: 3px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #2E79BA;
-}
-
-/* Animation */
-.btn, .card, .modal-box {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Table styling */
 .table th {
-  background-color: rgba(46, 121, 186, 0.2) !important;
-  color: white !important;
+  background: var(--color-neutral);
+  border-bottom: 2px solid var(--color-border);
+  padding: 1rem 0.75rem;
   font-weight: 600;
 }
 
 .table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 1rem 0.75rem;
 }
 
-.table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+.table tr:hover {
+  background: rgba(var(--color-primary-rgb), 0.05);
 }
 
-/* Modal enhancements */
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Form inputs consistent with app design */
+.input, .select, .textarea {
+  background: var(--color-text-invert);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Modal styling */
 .modal-box {
+  background: var(--color-surface-main);
+  color: var(--color-text-primary);
   backdrop-filter: blur(10px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
@@ -358,34 +393,20 @@ onMounted(() => {
   backdrop-filter: blur(4px);
 }
 
-/* Form styling */
-.select:focus,
-.textarea:focus {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Badge styling */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
 }
 
 /* Button hover effects */
-.btn:not(:disabled):hover {
+.btn:hover {
   transform: translateY(-1px);
 }
 
-/* Gradient text animation */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.bg-gradient-to-r {
-  background-size: 200% 200%;
-  animation: gradient 3s ease infinite;
+/* Loading states */
+.loading {
+  color: var(--color-primary);
 }
 
 /* Card hover effects */
@@ -395,18 +416,9 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-/* Loading animation improvements */
-.loading-spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Animation */
+.btn, .card, .modal-box {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Status icon colors */
@@ -426,65 +438,22 @@ onMounted(() => {
   color: #10b981;
 }
 
-/* Form validation styling */
-.select:invalid {
-  border-color: #ef4444;
+/* Custom scrollbar */
+.max-h-96::-webkit-scrollbar {
+  width: 6px;
 }
 
-.select:valid {
-  border-color: #10b981;
+.max-h-96::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+  border-radius: 3px;
 }
 
-/* Textarea enhancements */
-.textarea {
-  resize: vertical;
-  min-height: 100px;
+.max-h-96::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-primary-rgb) / 0.6);
+  border-radius: 3px;
 }
 
-.textarea:focus {
-  border-color: #10b981;
-}
-
-/* Notice box animations */
-.bg-amber-50 {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Label styling improvements */
-.label-text-alt {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Icon styling */
-.fas {
-  transition: transform 0.2s ease;
-}
-
-.btn:hover .fas {
-  transform: scale(1.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .modal-box {
-    margin: 1rem;
-    max-width: calc(100vw - 2rem);
-  }
-  
-  .grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
+.max-h-96::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primary-rgb) / 0.8);
 }
 </style>
