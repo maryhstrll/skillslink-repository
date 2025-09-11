@@ -236,3 +236,9 @@ onMounted(() => {
   // Any initialization logic
 })
 </script>
+
+<style scoped>
+h1, p {
+  color: var(--color-text-primary);
+}
+</style>

@@ -15,17 +15,18 @@
                    @click="toggleSubmenu(index)">
                 <component :is="item.icon" class="text-lg" />
                 <span class="flex-1">{{ item.label }}</span>
-                <IconChevronDown v-if="!openSubmenuIndex || openSubmenuIndex !== index" class="text-xs" />
+                <IconChevronDown v-if="!isSubmenuOpen(index)" class="text-xs" />
                 <IconChevronUp v-else class="text-xs" />
               </div>
               
               <!-- Submenu items -->
-              <ul v-if="openSubmenuIndex === index" class="pl-7 mt-1 space-y-1">
+              <ul v-if="isSubmenuOpen(index)" class="pl-7 mt-1 space-y-1">
                 <li v-for="submenuItem in item.submenu" :key="submenuItem.path">
                   <router-link 
                     :to="submenuItem.path" 
                     class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                     :class="{ 'bg-primary text-primary-content': isActive(submenuItem.path) }"
+                    @click.stop
                   >
                     <span>{{ submenuItem.label }}</span>
                   </router-link>
@@ -125,6 +126,18 @@ const toggleSubmenu = (index) => {
   } else {
     openSubmenuIndex.value = index
   }
+}
+
+const isSubmenuOpen = (index) => {
+  // Keep submenu open if it's manually opened OR if any of its items are active
+  if (openSubmenuIndex.value === index) return true
+  
+  const item = props.menuItems[index]
+  if (item && item.submenu) {
+    return item.submenu.some(submenuItem => isActive(submenuItem.path))
+  }
+  
+  return false
 }
 
 const userInitials = computed(() => {
