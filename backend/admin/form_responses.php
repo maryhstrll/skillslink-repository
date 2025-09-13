@@ -68,10 +68,12 @@ try {
                        CONCAT(a.first_name, ' ', a.last_name) AS alumni_name,
                        u.email AS alumni_email,
                        a.student_id AS alumni_student_id,
+                       p.program_name AS program_name,
                        'form_response' as response_type
                 FROM form_responses fr
                 LEFT JOIN alumni a ON fr.alumni_id = a.alumni_id
                 LEFT JOIN users u ON a.user_id = u.user_id
+                LEFT JOIN programs p ON a.program_id = p.program_id
                 WHERE fr.form_id = :form_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':form_id' => $form_id]);
@@ -82,6 +84,7 @@ try {
                                   CONCAT(a.first_name, ' ', a.last_name) AS alumni_name,
                                   u.email AS alumni_email,
                                   a.student_id AS alumni_student_id,
+                                  p.program_name AS program_name,
                                   'employment_record' as response_type,
                                   er.record_id as response_id,
                                   er.created_at as submitted_at,
@@ -90,6 +93,7 @@ try {
                            FROM employment_records er
                            LEFT JOIN alumni a ON er.alumni_id = a.alumni_id
                            LEFT JOIN users u ON a.user_id = u.user_id
+                           LEFT JOIN programs p ON a.program_id = p.program_id
                            WHERE er.tracer_form_id = :form_id";
         $stmt = $pdo->prepare($employment_sql);
         $stmt->execute([':form_id' => $form_id]);
@@ -139,6 +143,7 @@ try {
                 'alumni_name' => $form_resp['alumni_name'],
                 'alumni_email' => $form_resp['alumni_email'],
                 'alumni_student_id' => $form_resp['alumni_student_id'],
+                'program_name' => $form_resp['program_name'],
                 'responses' => $responses_data ?: [],
                 'is_complete' => $form_resp['is_complete'],
                 'completion_percentage' => $form_resp['completion_percentage'] ?: 0,
@@ -161,6 +166,11 @@ try {
                 );
                 $merged_responses[$alumni_key]['has_employment_data'] = true;
                 
+                // Use employment program name if form response doesn't have one
+                if (empty($merged_responses[$alumni_key]['program_name']) && !empty($emp_resp['program_name'])) {
+                    $merged_responses[$alumni_key]['program_name'] = $emp_resp['program_name'];
+                }
+                
                 // Update completion percentage if employment data is more recent or complete
                 if ($emp_resp['completion_percentage'] > $merged_responses[$alumni_key]['completion_percentage']) {
                     $merged_responses[$alumni_key]['completion_percentage'] = $emp_resp['completion_percentage'];
@@ -179,6 +189,7 @@ try {
                     'alumni_name' => $emp_resp['alumni_name'],
                     'alumni_email' => $emp_resp['alumni_email'],
                     'alumni_student_id' => $emp_resp['alumni_student_id'],
+                    'program_name' => $emp_resp['program_name'],
                     'responses' => $emp_resp['responses'],
                     'is_complete' => $emp_resp['is_complete'],
                     'completion_percentage' => $emp_resp['completion_percentage'] ?: 100,
@@ -207,6 +218,11 @@ try {
                 $r['completion_percentage'] = 0;
             }
             
+            // Ensure program name has a fallback
+            if (empty($r['program_name'])) {
+                $r['program_name'] = 'Unknown Program';
+            }
+            
             // Format submitted date
             if ($r['submitted_at']) {
                 $r['submitted_at'] = date('Y-m-d H:i:s', strtotime($r['submitted_at']));
@@ -229,12 +245,12 @@ try {
         
         // Count unique alumni who have submitted responses (either form or employment data)
         $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
-                    SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                    SELECT alumni_id FROM form_responses WHERE form_id = ?
                     UNION
-                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = ?
                 ) AS combined_responses";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':form_id' => $form_id]);
+        $stmt->execute([$form_id, $form_id]);
         $unique_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         
         echo json_encode(['count' => (int)$unique_count]);
@@ -271,12 +287,12 @@ try {
             if (isset($counts[$form_id])) {
                 // Get the union count of unique alumni
                 $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
-                            SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                            SELECT alumni_id FROM form_responses WHERE form_id = ?
                             UNION
-                            SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                            SELECT alumni_id FROM employment_records WHERE tracer_form_id = ?
                         ) AS combined_responses";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([':form_id' => $form_id]);
+                $stmt->execute([$form_id, $form_id]);
                 $counts[$form_id] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
             } else {
                 $counts[$form_id] = (int)$count;
@@ -300,12 +316,12 @@ try {
         
         // Get total responses for this form (unique alumni)
         $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
-                    SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                    SELECT alumni_id FROM form_responses WHERE form_id = ?
                     UNION
-                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                    SELECT alumni_id FROM employment_records WHERE tracer_form_id = ?
                 ) AS combined_responses";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':form_id' => $form_id]);
+        $stmt->execute([$form_id, $form_id]);
         $total_responses = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         
         // Get complete responses (both form and employment data)
@@ -343,12 +359,12 @@ try {
         try {
             // Get unique alumni respondents count
             $sql = "SELECT COUNT(DISTINCT alumni_id) as count FROM (
-                        SELECT alumni_id FROM form_responses WHERE form_id = :form_id
+                        SELECT alumni_id FROM form_responses WHERE form_id = ?
                         UNION
-                        SELECT alumni_id FROM employment_records WHERE tracer_form_id = :form_id
+                        SELECT alumni_id FROM employment_records WHERE tracer_form_id = ?
                     ) AS combined_responses";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([':form_id' => $form_id]);
+            $stmt->execute([$form_id, $form_id]);
             $count = (int) $stmt->fetchColumn();
             
             echo json_encode(['success' => true, 'count' => $count]);

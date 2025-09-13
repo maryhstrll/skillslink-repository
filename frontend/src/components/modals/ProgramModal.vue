@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal"></div>
+    <div class="fixed inset-0 bg-black/50 bg-opacity-50" @click="closeModal"></div>
     
     <!-- Modal Content -->
     <div class="relative bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -221,3 +221,13 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+<style scoped>
+label {
+  color: var(--color-text-primary);
+}
+input.input, textarea, select {
+  background: var(--color-surface);
+  border-color: var(--color-primary-darker);
+}
+</style>

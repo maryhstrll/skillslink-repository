@@ -21,20 +21,21 @@
         </div>
       </div>
 
-      <!-- Programs DataTable -->
-      <DataTable
-        title="List of Programs"
-        :data="programs"
-        :columns="columns"
-        :loading="loading"
-        :title-icon="IconSquareLibrary"
-        :count-icon="IconBarChart3"
-        item-label="programs"
-        loading-text="Loading programs..."
-        empty-title="No Programs Found"
-        empty-description="No programs have been added yet. Click 'Add New Program' to get started."
-        :empty-icon="IconSquareLibrary"
-      >
+      <!-- Programs DataTable with height restriction -->
+      <div class="programs-table-container">
+        <DataTable
+          title="List of Programs"
+          :data="programs"
+          :columns="columns"
+          :loading="loading"
+          :title-icon="IconSquareLibrary"
+          :count-icon="IconBarChart3"
+          item-label="programs"
+          loading-text="Loading programs..."
+          empty-title="No Programs Found"
+          empty-description="No programs have been added yet. Click 'Add New Program' to get started."
+          :empty-icon="IconSquareLibrary"
+        >
         <!-- Program Type Badge -->
         <template #cell-program_type="{ value }">
           <span 
@@ -100,6 +101,7 @@
           </button>
         </template>
       </DataTable>
+      </div>
     </div>
 
     <!-- Program Modal -->
@@ -319,5 +321,30 @@ const handleLogout = () => {
 <style scoped>
 h1, p {
   color: var(--color-text-primary);
+}
+
+/* Custom table height restriction */
+.programs-table-container :deep(.card) {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.programs-table-container :deep(.card-body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.programs-table-container :deep(.overflow-x-auto) {
+  flex: 1;
+  max-height: calc(75vh - 120px); /* Subtract header space */
+  overflow: auto !important;
+}
+
+.programs-table-container :deep(.table-container) {
+  height: 100%;
+  overflow: auto;
 }
 </style>

@@ -159,7 +159,7 @@
                   :disabled="!responseCounts[selectedForm.form_id]"
                 >
                   <IconEye class="mr-2 h-4 w-4" />
-                  View Detailed Responses
+                  View All Responses
                 </button>
               </div>
             </div>
@@ -240,6 +240,9 @@
 
     <!-- Form Responses Component (Modal) -->
     <FormResponses ref="formResponsesComponent" />
+    
+    <!-- Add the new modal component -->
+    <SingleResponseModal ref="singleResponseModal" />
   </Layout>
 </template>
 
@@ -265,6 +268,7 @@ import {
   FileText as IconFileText,
   Inbox as IconInbox
 } from 'lucide-vue-next'
+import SingleResponseModal from '@/components/forms/SingleResponseModal.vue'
 
 const router = useRouter()
 
@@ -280,6 +284,7 @@ const totalAlumni = ref(0)
 const selectedForm = ref(null)
 const selectedFormId = ref(0) // 0 means no selection
 const formResponsesComponent = ref(null)
+const singleResponseModal = ref(null)
 
 // Responses data
 const formResponses = ref([])
@@ -583,10 +588,9 @@ const viewAllResponses = () => {
   }
 }
 
-const viewResponseDetails = (response) => {
-  // For now, just open the responses modal
-  if (formResponsesComponent.value) {
-    formResponsesComponent.value.viewResponses(selectedForm.value)
+const viewResponseDetails = async (response) => {
+  if (singleResponseModal.value && selectedForm.value) {
+    singleResponseModal.value.viewResponse(response, selectedForm.value)
   }
 }
 
