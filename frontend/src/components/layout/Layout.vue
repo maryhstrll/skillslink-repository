@@ -177,6 +177,12 @@ const allMenuItems = [
     icon: "IconUserCog",
     roles: ["admin"] // Admin only
   },
+    {
+    path: "/alumni_profile",
+    label: "Profile",
+    icon: "IconUserRound",
+    roles: ["alumni"] // Admin only
+  },
 
 
 ];

@@ -106,8 +106,14 @@ try {
     
     // Calculate profile completion percentage
     $completionFields = [
-        'phone_number', 'date_of_birth', 'gender', 'barangay', 'city', 
-        'province', 'country', 'linkedin_profile', 'facebook_profile'
+        // Personal Information (weight: 40%)
+        'phone_number', 'alternative_phone', 'date_of_birth', 'gender',
+        // Address Information (weight: 30%) 
+        'barangay', 'city', 'province', 'country', 'postal_code',
+        // Academic Information (weight: 20%)
+        'graduation_date', 'gpa',
+        // Social Links (weight: 10%)
+        'linkedin_profile', 'facebook_profile'
     ];
     
     $completedFields = 0;
@@ -117,7 +123,17 @@ try {
         }
     }
     
-    $completionPercentage = round(($completedFields / count($completionFields)) * 100);
+    // Add bonus points for having employment information
+    $hasEmploymentInfo = !empty($profile['employment_status']) || 
+                        !empty($profile['current_company']) || 
+                        !empty($profile['current_position']);
+    
+    if ($hasEmploymentInfo) {
+        $completedFields += 1; // Bonus point for employment data
+    }
+    
+    $totalFields = count($completionFields) + 1; // +1 for employment bonus
+    $completionPercentage = round(($completedFields / $totalFields) * 100);
     
     // Format the response
     $response = [

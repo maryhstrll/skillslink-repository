@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-100 shadow-md rounded-xl">
+  <div class="card bg-base-100 shadow-md settings-card">
     <div class="card-body">
       <h3 class="card-title text-lg mb-4">Edit Social Links</h3>
       <form @submit.prevent="handleSubmit">
@@ -29,7 +29,7 @@
         </div>
         
         <!-- Current Links Display -->
-        <div class="mb-4 p-4 bg-base-200 rounded-lg">
+        <div class="mb-4 p-4 bg-base-200 special-bg">
           <h4 class="font-semibold mb-2">Current Links:</h4>
           <div class="space-y-2 text-sm">
             <p>

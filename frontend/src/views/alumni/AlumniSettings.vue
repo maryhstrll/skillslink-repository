@@ -1,6 +1,5 @@
 <template>
   <Layout @logout="handleLogout">
-    <div class="container mx-auto p-6 max-w-4xl">
       <div class="space-y-6">
         <!-- Page Header -->
         <div class="flex justify-between items-center">
@@ -19,63 +18,37 @@
 
         <!-- Tab Content -->
         <div v-if="activeTab === 'profile'">
-          <!-- Profile Management Section -->
-          <div class="card bg-base-100 shadow-xl settings-card">
-            <div class="card-body">
-              <h2 class="card-title">
-                <IconUser class="w-5 h-5" />
-                Profile Management
-              </h2>
-              <p class="text-base-content/70 mb-4">Manage your alumni profile information</p>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Full Name</span>
-                    </label>
-                    <input type="text" placeholder="John Doe" class="input input-bordered" />
-                  </div>
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Email</span>
-                    </label>
-                    <input type="email" placeholder="john@example.com" class="input input-bordered" />
-                  </div>
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Student ID</span>
-                    </label>
-                    <input type="text" value="2021-12345" class="input input-bordered" disabled />
-                  </div>
+          <!-- Loading State -->
+          <div v-if="loading" class="flex justify-center items-center h-64">
+            <div class="loading loading-spinner loading-lg"></div>
+            <span class="ml-2">Loading profile...</span>
+          </div>
+
+          <!-- Error State -->
+          <div v-else-if="error" class="alert alert-error shadow-lg mb-6">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 class="font-bold">Unable to Load Profile</h3>
+                <div class="text-xs">{{ error }}</div>
+                <div class="mt-2">
+                  <button @click="$router.push('/home')" class="btn btn-sm btn-primary">
+                    Go to Login
+                  </button>
                 </div>
-                
-                <div class="space-y-4">
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Program</span>
-                    </label>
-                    <input type="text" value="Bachelor of Science in Information Technology" class="input input-bordered" disabled />
-                  </div>
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Graduation Year</span>
-                    </label>
-                    <input type="text" value="2024" class="input input-bordered" disabled />
-                  </div>
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">Phone Number</span>
-                    </label>
-                    <input type="tel" placeholder="+63 123 456 7890" class="input input-bordered" />
-                  </div>
-                </div>
-              </div>
-              
-              <div class="card-actions justify-end mt-6">
-                <button class="btn btn-primary-custom">Update Profile</button>
               </div>
             </div>
+          </div>
+
+          <!-- Profile Management Content -->
+          <div v-else-if="profile" class="space-y-6">
+            <!-- Profile Edit Section -->
+            <AlumniProfileEdit :profile="profile" @updated="fetchProfile" />
+            
+            <!-- Social Links Section -->
+            <SocialLinksEdit :profile="profile" @updated="fetchProfile" />
           </div>
         </div>
 
@@ -200,28 +173,66 @@
           </div>
         </div>
       </div>
-    </div>
   </Layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import Layout from '@/components/layout/Layout.vue'
+import AlumniProfileEdit from '@/components/forms/AlumniProfileEdit.vue'
+import SocialLinksEdit from '@/components/forms/SocialLinksEdit.vue'
 import { useRouter } from 'vue-router'
 import { 
   User as IconUser,
   Settings as IconSettings,
   Archive as IconArchive
 } from 'lucide-vue-next'
+import alumniService from '@/services/alumni.js'
 
 const router = useRouter()
 
 // State
 const activeTab = ref('profile')
+const profile = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
 const handleLogout = () => {
   router.push('/home')
 }
+
+const fetchProfile = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    
+    const profileData = await alumniService.getProfile()
+    
+    if (profileData && !profileData.error) {
+      profile.value = profileData
+    } else if (profileData && profileData.error) {
+      // Handle specific API errors
+      if (profileData.error.includes('Unauthorized')) {
+        error.value = 'You must be logged in as an alumni user to access settings.'
+      } else if (profileData.error.includes('Access denied')) {
+        error.value = 'Access denied. This page is only available to alumni users.'
+      } else {
+        error.value = profileData.error
+      }
+    } else {
+      error.value = 'Failed to load profile data. Please make sure you are logged in as an alumni user.'
+    }
+  } catch (err) {
+    console.error('Error fetching profile:', err)
+    error.value = 'An error occurred while loading your profile'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(async () => {
+  await fetchProfile()
+})
 </script>
 
 <style scoped>

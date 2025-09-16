@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-100 shadow-md rounded-xl">
+  <div class="card bg-base-100 shadow-md settings-card">
     <div class="card-body">
       <h3 class="card-title text-lg mb-4">Edit Profile</h3>
       <form @submit.prevent="handleSubmit">
@@ -25,31 +25,31 @@
         <!-- Editable fields -->
         <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="label">Phone</label>
+            <label class="label text-special">Phone</label>
             <input v-model="form.phone_number" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">Alternative Phone</label>
+            <label class="label text-special">Alternative Phone</label>
             <input v-model="form.alternative_phone" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">Barangay</label>
+            <label class="label text-special">Barangay</label>
             <input v-model="form.barangay" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">City</label>
+            <label class="label text-special">City</label>
             <input v-model="form.city" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">Province</label>
+            <label class="label text-special">Province</label>
             <input v-model="form.province" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">Country</label>
+            <label class="label text-special">Country</label>
             <input v-model="form.country" type="text" class="input input-bordered w-full" />
           </div>
           <div>
-            <label class="label">Postal Code</label>
+            <label class="label text-special">Postal Code</label>
             <input v-model="form.postal_code" type="text" class="input input-bordered w-full" />
           </div>
         </div>
